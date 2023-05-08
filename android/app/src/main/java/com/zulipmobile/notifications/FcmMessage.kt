@@ -5,7 +5,7 @@ import java.net.URL
 import java.util.*
 
 /**
- * An identity belonging to this user in some Zulip org/realm.
+ * An identity belonging to this user in some NextPay Talk org/realm.
  */
 data class Identity(
     /// The server's `EXTERNAL_HOST` setting.  This is a hostname,
@@ -28,7 +28,7 @@ data class Identity(
 )
 
 /**
- * Data about the Zulip user that sent a message.
+ * Data about the NextPay Talk user that sent a message.
  */
 data class Sender(
     val id: Int,
@@ -38,7 +38,7 @@ data class Sender(
 )
 
 /**
- * Data identifying where a Zulip message was sent.
+ * Data identifying where a NextPay Talk message was sent.
  */
 sealed class Recipient {
     /** A 1:1 private message.  Must have been sent to this user, so nothing more to say. */
@@ -67,10 +67,10 @@ sealed class Recipient {
  *    aka a "data notification".  One of these might correspond to zero, one,
  *    or more actual notifications we show in the UI.
  *
- *  * Around Zulip we of course say "message" all the time to mean the
+ *  * Around NextPay Talk we of course say "message" all the time to mean the
  *    central item in the app model.
  *
- * In our notification code we often say "FCM message" or "Zulip message"
+ * In our notification code we often say "FCM message" or "NextPay Talk message"
  * to disambiguate between these two.
  */
 sealed class FcmMessage {
@@ -95,7 +95,7 @@ inline fun <reified T> buildArray(block: (ArrayList<T>) -> Unit): Array<T> {
 /**
  * Parsed version of an FCM message of type `message`.
  *
- * This corresponds to a Zulip message for which the user wants to
+ * This corresponds to a NextPay Talk message for which the user wants to
  * see a notification.
  *
  * The word "message" can be confusing in this context.

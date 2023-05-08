@@ -12,7 +12,7 @@ import { EventTypes } from '../api/eventTypes';
 import { ensureUnreachable } from '../types';
 
 const initialGlobalSettingsState: $Exact<GlobalSettingsState> = {
-  language: 'en',
+  language: 'vi',
   theme: 'default',
   browser: 'default',
   experimentalFeaturesEnabled: false,

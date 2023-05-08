@@ -27,14 +27,14 @@ import java.net.URL
 
 // This file maintains the notifications in the UI, using data from FCM messages.
 //
-// We map Zulip conversations to the Android notifications model like so:
-//  * Each Zulip account/identity that has notifications gets a separate
+// We map NextPay Talk conversations to the Android notifications model like so:
+//  * Each NextPay Talk account/identity that has notifications gets a separate
 //    notification group:
 //      https://developer.android.com/training/notify-user/group
-//  * Each Zulip conversation (a PM thread, or a stream + topic) goes to
+//  * Each NextPay Talk conversation (a PM thread, or a stream + topic) goes to
 //    one notification, a "messaging-style" notification:
 //      https://developer.android.com/training/notify-user/expanded#message-style
-//  * Each Zulip message that causes a notification (so by default, each PM
+//  * Each NextPay Talk message that causes a notification (so by default, each PM
 //    or @-mention; but the user's preferences live on the server, so as far
 //    as we're concerned here, it's whatever the server sends us) becomes a
 //    message in its conversation's notification.
@@ -106,7 +106,7 @@ internal fun onReceived(context: Context, mapData: Map<String, String>) {
 
 /** Handle a RemoveFcmMessage, removing notifications from the UI as appropriate. */
 private fun removeNotification(context: Context, fcmMessage: RemoveFcmMessage) {
-    // We have an FCM message telling us that some Zulip messages were read
+    // We have an FCM message telling us that some NextPay Talk messages were read
     // and should no longer appear as notifications.  We'll remove their
     // conversations' notifications, if appropriate, and then the whole
     // notification group if it's now empty.
@@ -133,7 +133,7 @@ private fun removeNotification(context: Context, fcmMessage: RemoveFcmMessage) {
         //    So don't try to match those.
         val notification = statusBarNotification.notification
 
-        // Don't act on notifications that are for other Zulip accounts/identities.
+        // Don't act on notifications that are for other NextPay Talk accounts/identities.
         if (notification.group != groupKey) continue;
 
         // Don't act on the summary notification for the group.
@@ -141,7 +141,7 @@ private fun removeNotification(context: Context, fcmMessage: RemoveFcmMessage) {
 
         val lastMessageId = notification.extras.getInt("lastZulipMessageId")
         if (fcmMessage.messageIds.contains(lastMessageId)) {
-            // The latest Zulip message in this conversation was read.
+            // The latest NextPay Talk message in this conversation was read.
             // That's our cue to cancel the notification for the conversation.
             NotificationManagerCompat.from(context)
                 .cancel(statusBarNotification.tag, statusBarNotification.id)
@@ -176,7 +176,7 @@ private fun getActiveNotificationByTag(context: Context, notificationTag: String
     return null
 }
 
-/** The unique tag we use for the group of notifications addressed to this Zulip account. */
+/** The unique tag we use for the group of notifications addressed to this NextPay Talk account. */
 private fun extractGroupKey(identity: Identity): String {
     // The realm URL can't contain a `|`, because `|` is not a URL code point:
     //   https://url.spec.whatwg.org/#url-code-points
@@ -184,10 +184,10 @@ private fun extractGroupKey(identity: Identity): String {
 }
 
 /**
- * The unique tag we use for the notification for this Zulip message's conversation.
+ * The unique tag we use for the notification for this NextPay Talk message's conversation.
  *
  * This will match between different messages in the same conversation, but will
- * otherwise be distinct, even across other Zulip accounts.  It also won't collide
+ * otherwise be distinct, even across other NextPay Talk accounts.  It also won't collide
  * with any `extractGroupKey` result.
  */
 private fun extractConversationKey(fcmMessage: MessageFcmMessage): String {
@@ -196,7 +196,7 @@ private fun extractConversationKey(fcmMessage: MessageFcmMessage): String {
         // TODO(server-5.0): Rely on the stream ID (#3918).
         is Recipient.Stream -> when (fcmMessage.recipient.streamId) {
             // When using the stream name, we use `\u0000` as the delimiter because
-            // it's the one character not allowed in Zulip stream names.
+            // it's the one character not allowed in NextPay Talk stream names.
             // (See `check_stream_name` in zulip.git:zerver/lib/streams.py.)
             null -> "stream:${fcmMessage.recipient.streamName}\u0000${fcmMessage.recipient.topic}"
 
@@ -212,7 +212,7 @@ private fun extractConversationKey(fcmMessage: MessageFcmMessage): String {
     return "$groupKey|$conversation"
 }
 
-/** A unique tag for this Zulip message. */
+/** A unique tag for this NextPay Talk message. */
 private fun extractMessageKey(fcmMessage: MessageFcmMessage): String {
     val messageKey = "${extractGroupKey(fcmMessage.identity)}|${fcmMessage.zulipMessageId}"
     return messageKey
@@ -235,9 +235,9 @@ fun fetchBitmap(url: URL): Bitmap? {
 private fun updateNotification(
     context: Context, fcmMessage: MessageFcmMessage,
 ) {
-    // We have an FCM message telling us about a Zulip message.  We'll add
+    // We have an FCM message telling us about a NextPay Talk message.  We'll add
     // a message (in the Android NotificationCompat.MessagingStyle.Message sense)
-    // to the notification for that Zulip message's conversation.  We create
+    // to the notification for that NextPay Talk message's conversation.  We create
     // the notification, and its notification group, if they don't already exist.
 
     val groupKey = extractGroupKey(fcmMessage.identity)

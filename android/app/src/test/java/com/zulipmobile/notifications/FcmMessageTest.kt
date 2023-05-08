@@ -250,13 +250,13 @@ class RemoveFcmMessageTest : FcmMessageTestBase() {
             "event" to "remove"
         ))
 
-        /// The Zulip server before v2.0 sends this form (plus some irrelevant fields).
+        /// The NextPay Talk server before v2.0 sends this form (plus some irrelevant fields).
         // TODO(server-2.0): Drop this, and the logic it tests.
         val singular = base.plus(sequenceOf(
             "zulip_message_id" to "123"
         ))
 
-        /// Zulip servers starting at v2.0 (released 2019-02-28; commit 9869153ae)
+        /// NextPay Talk servers starting at v2.0 (released 2019-02-28; commit 9869153ae)
         /// send a hybrid form.  (In practice the singular field has one of the
         /// same IDs found in the batch.)
         ///
@@ -267,7 +267,7 @@ class RemoveFcmMessageTest : FcmMessageTestBase() {
             "zulip_message_id" to "123"
         ))
 
-        /// Some future Zulip server (at least v2.1; after clients older than
+        /// Some future NextPay Talk server (at least v2.1; after clients older than
         /// v23.2.111 are rare) may drop the singular field.
         val batched = base.plus(sequenceOf(
             "zulip_message_ids" to "123,234,345"

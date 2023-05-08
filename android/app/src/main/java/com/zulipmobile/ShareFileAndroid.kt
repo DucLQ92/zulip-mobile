@@ -10,7 +10,7 @@ import com.facebook.react.bridge.ReactMethod
 import java.io.File
 
 /**
- * Allows Sending Files from Zulip to other apps.
+ * Allows Sending Files from NextPay Talk to other apps.
  */
 class ShareFileAndroid(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     override fun getName(): String {

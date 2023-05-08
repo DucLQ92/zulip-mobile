@@ -4,7 +4,7 @@
            https://developer.android.com/training/articles/security-config#FileFormat -->
     <base-config>
         <!-- If the user has configured additional CAs on the device, trust those
-             too.  This can be useful for an internal Zulip server in a corporate
+             too.  This can be useful for an internal NextPay Talk server in a corporate
              or institutional environment, and was a recurring user request:
                https://github.com/zulip/zulip-mobile/issues/3312 -->
         <trust-anchors>
@@ -16,8 +16,8 @@
         <!-- But revert to the default, stricter behavior — trusting only the
              system CA list — where we know we can, which means for domains where
              we know a legitimate cert will always come from a widely-trusted CA.
-             Specifically, we know this is the case for Zulip Cloud and other
-             domains operated by the core Zulip developers at Kandra Labs. -->
+             Specifically, we know this is the case for NextPay Talk Cloud and other
+             domains operated by the core NextPay Talk developers at Kandra Labs. -->
         <domain includeSubdomains="true">zulipchat.com</domain>
         <domain includeSubdomains="true">zulip.com</domain>
         <domain includeSubdomains="true">zulip.org</domain>

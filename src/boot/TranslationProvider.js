@@ -77,6 +77,7 @@ type Props = $ReadOnly<{|
 export default function TranslationProvider(props: Props): React.Node {
   const { children } = props;
   const language = useGlobalSelector(state => getGlobalSettings(state).language);
+  console.log('/////////////////', language);
 
   return (
     <IntlProvider locale={language} textComponent={Text} messages={messages[language]}>

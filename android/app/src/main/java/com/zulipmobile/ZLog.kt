@@ -5,7 +5,7 @@ import io.sentry.Sentry
 import io.sentry.SentryLevel
 
 /**
- * Zulip-specific logging helpers.
+ * NextPay Talk-specific logging helpers.
  *
  * These mirror part of the interface of `android.util.Log`, but they log
  * to Sentry as well as to the device console.

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Zulip</string>
+	<string>NextPay Talk</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -51,13 +51,13 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>By allowing camera access, you can take photos and send them in Zulip messages.</string>
+	<string>By allowing camera access, you can take photos and send them in NextPay Talk messages.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Save photos you choose from Zulip to your photo library.</string>
+	<string>Save photos you choose from NextPay Talk to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Choose photos from your library and send them in Zulip messages.</string>
+	<string>Choose photos from your library and send them in NextPay Talk messages.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>zulip-icons.ttf</string>

@@ -175,7 +175,7 @@ android {
         abi {
             reset()
             enable true // Build a separate APK for each ABI.
-            universalApk false  // If true, also generate a universal APK
+            universalApk true  // If true, also generate a universal APK
             include (*reactNativeArchitectures())
         }
     }

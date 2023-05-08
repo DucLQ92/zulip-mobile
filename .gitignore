@@ -28,6 +28,7 @@ DerivedData
 #
 *.iml
 android/.idea/*
+.idea/*
 !android/.idea/vcs.xml
 !android/.idea/codeStyles/
 .gradle
