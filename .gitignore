@@ -98,3 +98,5 @@ android/build/
 /fastlane/Preview.html
 /fastlane/screenshots
 /fastlane/test_output
+
+ios/archives
