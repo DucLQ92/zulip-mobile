@@ -11,7 +11,7 @@
 		13B07FBF1A68108700A75B9A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Assets.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		42689E9C23466FF7007540AA /* webview in Resources */ = {isa = PBXBuildFile; fileRef = 42689E9B23466FF7007540AA /* webview */; };
-		66DC7811B9F9AD03B7501D4F /* libPods-ZulipMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9DD7EBB7979772E8FA0CF9C /* libPods-ZulipMobile.a */; };
+		649CA3CD4B3C8756DD3A9222 /* libPods-ZulipMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 744A7D03DCC17071634AB125 /* libPods-ZulipMobile.a */; };
 		8B40B9F327F7AEEC00D33897 /* zulip-icons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3787526927F5503200B81DB8 /* zulip-icons.ttf */; };
 		8B44AB3E295B7601003D41A8 /* ZLPConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B44AB3A295B7263003D41A8 /* ZLPConstants.swift */; };
 		8B44AB40295B7D4D003D41A8 /* ZLPConstantsBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B44AB3F295B7D45003D41A8 /* ZLPConstantsBridge.m */; };
@@ -25,7 +25,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		050B58FE8E784EB7F831003A /* Pods-ZulipMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZulipMobile.debug.xcconfig"; path = "Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* ZulipMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZulipMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ZulipMobile/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ZulipMobile/AppDelegate.mm; sourceTree = "<group>"; };
@@ -35,8 +34,9 @@
 		3787526927F5503200B81DB8 /* zulip-icons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "zulip-icons.ttf"; path = "../static/assets/fonts/zulip-icons.ttf"; sourceTree = "<group>"; };
 		3C4249EC1EF6E16500D245F1 /* ZulipMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ZulipMobile.entitlements; path = ZulipMobile/ZulipMobile.entitlements; sourceTree = "<group>"; };
 		42689E9B23466FF7007540AA /* webview */ = {isa = PBXFileReference; lastKnownFileType = folder; path = webview; sourceTree = "<group>"; };
-		4C676BCC774234E45D64B997 /* Pods-ZulipMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZulipMobile.release.xcconfig"; path = "Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile.release.xcconfig"; sourceTree = "<group>"; };
 		66E34CC6219226D10091B852 /* ZulipMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ZulipMobile-Bridging-Header.h"; sourceTree = "<group>"; };
+		744A7D03DCC17071634AB125 /* libPods-ZulipMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZulipMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8674B470B14EF990B9D95FF4 /* Pods-ZulipMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZulipMobile.release.xcconfig"; path = "Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile.release.xcconfig"; sourceTree = "<group>"; };
 		8B44AB3A295B7263003D41A8 /* ZLPConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ZLPConstants.swift; path = ZulipMobile/ZLPConstants.swift; sourceTree = "<group>"; };
 		8B44AB3F295B7D45003D41A8 /* ZLPConstantsBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ZLPConstantsBridge.m; path = ZulipMobile/ZLPConstantsBridge.m; sourceTree = "<group>"; };
 		8BD55E99295CB61E0091C181 /* ZLPNotificationsBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ZLPNotificationsBridge.m; path = ZulipMobile/ZLPNotificationsBridge.m; sourceTree = "<group>"; };
@@ -45,7 +45,7 @@
 		A148FEFB1E9D8CB900479280 /* zulip.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = zulip.mp3; sourceTree = "<group>"; };
 		CFA67D1F1EC23BCB0070048E /* UtilManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UtilManager.m; path = ZulipMobile/UtilManager.m; sourceTree = "<group>"; };
 		CFA67D211EC23BDD0070048E /* UtilManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = UtilManager.h; path = ZulipMobile/UtilManager.h; sourceTree = "<group>"; };
-		D9DD7EBB7979772E8FA0CF9C /* libPods-ZulipMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZulipMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E6617F8310FECE9AC7FF5F9A /* Pods-ZulipMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZulipMobile.debug.xcconfig"; path = "Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F2C68E38F2AA306A2C56A4B3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ZulipMobile/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -56,7 +56,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED297163215061F000B7C4FE /* JavaScriptCore.framework in Frameworks */,
-				66DC7811B9F9AD03B7501D4F /* libPods-ZulipMobile.a in Frameworks */,
+				649CA3CD4B3C8756DD3A9222 /* libPods-ZulipMobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,7 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				D9DD7EBB7979772E8FA0CF9C /* libPods-ZulipMobile.a */,
+				744A7D03DCC17071634AB125 /* libPods-ZulipMobile.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -153,8 +153,8 @@
 		F8C26711A6226C32E43092A9 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				050B58FE8E784EB7F831003A /* Pods-ZulipMobile.debug.xcconfig */,
-				4C676BCC774234E45D64B997 /* Pods-ZulipMobile.release.xcconfig */,
+				E6617F8310FECE9AC7FF5F9A /* Pods-ZulipMobile.debug.xcconfig */,
+				8674B470B14EF990B9D95FF4 /* Pods-ZulipMobile.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -173,7 +173,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ZulipMobile" */;
 			buildPhases = (
-				009A5BCD975E501DA3ECE42C /* [CP] Check Pods Manifest.lock */,
+				F01EFE76A13EBC351B4AAD01 /* [CP] Check Pods Manifest.lock */,
 				8BC51697242D4EF80019892C /* Start Metro */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -181,8 +181,8 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				6FD412E618344A7FB938E4AC /* Upload Debug Symbols to Sentry */,
-				83DD4DCA1052FC1E1A32D82F /* [CP] Embed Pods Frameworks */,
-				41009EE88560EED438934B08 /* [CP] Copy Pods Resources */,
+				D1D04A4365DFBB1361E275C8 /* [CP] Embed Pods Frameworks */,
+				4E5E209CDCE0528EB02CF39B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -248,28 +248,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		009A5BCD975E501DA3ECE42C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ZulipMobile-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -284,7 +262,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ $USE_SENTRY != \"YES\" ]]; then\necho [Bundle React Native code and images] Skipping sentry\n../node_modules/react-native/scripts/react-native-xcode.sh\nelse\nexport SENTRY_PROPERTIES=sentry.properties\nexport NODE_BINARY=/opt/homebrew/bin/node\n../node_modules/@sentry/cli/bin/sentry-cli react-native xcode ../node_modules/react-native/scripts/react-native-xcode.sh\nfi\n";
 		};
-		41009EE88560EED438934B08 /* [CP] Copy Pods Resources */ = {
+		4E5E209CDCE0528EB02CF39B /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -314,23 +292,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [[ $USE_SENTRY != \"YES\" ]]; then\necho [Upload Debug Symbols to Sentry] Skipping sentry\nelse\nexport SENTRY_PROPERTIES=sentry.properties\n../node_modules/@sentry/cli/bin/sentry-cli upload-dsym\nfi\n";
-		};
-		83DD4DCA1052FC1E1A32D82F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		8BC51697242D4EF80019892C /* Start Metro */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -363,6 +324,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "exec $SRCROOT/../tools/build-webview ios --check-path-name --destination $SRCROOT/webview\n# See this script, or src/webview/static/README.md, for more information.\n";
+		};
+		D1D04A4365DFBB1361E275C8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F01EFE76A13EBC351B4AAD01 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ZulipMobile-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -398,7 +398,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 050B58FE8E784EB7F831003A /* Pods-ZulipMobile.debug.xcconfig */;
+			baseConfigurationReference = E6617F8310FECE9AC7FF5F9A /* Pods-ZulipMobile.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -420,10 +420,10 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = org.zulip.Zulip;
+				PRODUCT_BUNDLE_IDENTIFIER = vn.nextpay.nptalk;
 				PRODUCT_NAME = ZulipMobile;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = VIMO_XC_Wildcard;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "NextPay Talk";
 				SWIFT_OBJC_BRIDGING_HEADER = "ZulipMobile-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -434,7 +434,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4C676BCC774234E45D64B997 /* Pods-ZulipMobile.release.xcconfig */;
+			baseConfigurationReference = 8674B470B14EF990B9D95FF4 /* Pods-ZulipMobile.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -442,6 +442,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = ZEK5654YDY;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = ZulipMobile/Info.plist;
@@ -455,9 +456,10 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = org.zulip.Zulip;
+				PRODUCT_BUNDLE_IDENTIFIER = vn.nextpay.nptalk;
 				PRODUCT_NAME = ZulipMobile;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "NextPay Talk";
 				SWIFT_OBJC_BRIDGING_HEADER = "ZulipMobile-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";

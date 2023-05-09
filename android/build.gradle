@@ -20,6 +20,8 @@ buildscript {
         // What's the latest?  Consult this list:
         //   https://developer.android.com/studio/releases/platforms
         compileSdkVersion = 33
+
+        reactNativeVersion = "0.69.4" // https://github.com/expo/expo/issues/18129
     }
     repositories {
         google()
