@@ -158,9 +158,10 @@ export default function RealmInputScreen(props: Props): Node {
         // screen, sometimes the keyboard flicks open then closed, instead
         // of just opening. Shrug. See
         //   https://chat.zulip.org/#narrow/stream/243-mobile-team/topic/realm-input/near/1346690
-        textInputRef.current.focus();
+        // textInputRef.current.focus();
       }
-    }, []),
+      tryRealm();
+    }, [tryRealm]),
   );
 
   const tryRealm = React.useCallback(async () => {

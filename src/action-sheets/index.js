@@ -28,14 +28,14 @@ import {
   getNarrowForReply,
   isPmNarrow,
   isStreamOrTopicNarrow,
-  isTopicNarrow,
+  isTopicNarrow, streamNarrow,
 } from '../utils/narrow';
 import { pmUiRecipientsFromKeyRecipients } from '../utils/recipient';
 import type { PmKeyRecipients } from '../utils/recipient';
 import { getTopicVisibilityPolicy } from '../mute/muteModel';
 import * as api from '../api';
 import { showConfirmationDialog, showErrorAlert, showToast } from '../utils/info';
-import { doNarrow, deleteOutboxMessage, fetchSomeMessageIdForConversation } from '../actions';
+import { doNarrow, deleteOutboxMessage, fetchSomeMessageIdForConversation, navigateToChat } from '../actions';
 import { deleteMessagesForTopic } from '../topics/topicActions';
 import * as logging from '../utils/logging';
 import { getUnreadCountForTopic } from '../unread/unreadModel';
@@ -47,6 +47,8 @@ import { roleIsAtLeast } from '../permissionSelectors';
 import { kNotificationBotEmail } from '../api/constants';
 import type { AppNavigationMethods } from '../nav/AppNavigator';
 import { type ImperativeHandle as ComposeBoxImperativeHandle } from '../compose/ComposeBox';
+import { useCallback } from 'react';
+import { StackActions } from '@react-navigation/native';
 
 // TODO really this belongs in a libdef.
 export type ShowActionSheetWithOptions = (
@@ -406,6 +408,14 @@ const deleteTopic = {
   },
 };
 
+const viewAsMessages = {
+  title: 'View as messages',
+  errorMessage: 'Failed to view as messages',
+  action: ({ streamId, navigation }) => {
+    navigation.push('chat', { narrow: streamNarrow(streamId), editMessage: null });
+  },
+};
+
 const unmuteStream = {
   title: 'Unmute stream',
   errorMessage: 'Failed to unmute stream',
@@ -608,6 +618,7 @@ export const constructStreamActionButtons = (args: {|
   const buttons = [];
   const sub = subscriptions.get(streamId);
   if (sub) {
+    buttons.push(viewAsMessages);
     if (!sub.in_home_view) {
       buttons.push(unmuteStream);
     } else {

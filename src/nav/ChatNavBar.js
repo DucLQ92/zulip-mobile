@@ -115,13 +115,13 @@ const ActionItems: ComponentType<{| +color: string, +narrow: Narrow |}> = props 
     {
       stream: () => (
         <>
-          <ExtraNavButtonStream {...props} />
+          {/* <ExtraNavButtonStream {...props} /> */}
           <InfoNavButtonStream {...props} />
         </>
       ),
       topic: () => (
         <>
-          <ExtraNavButtonTopic {...props} />
+          {/* <ExtraNavButtonTopic {...props} /> */}
           <InfoNavButtonStream {...props} />
         </>
       ),

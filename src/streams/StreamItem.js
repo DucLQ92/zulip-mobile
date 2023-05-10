@@ -1,7 +1,7 @@
 /* @flow strict-local */
 import React, { useContext, useMemo } from 'react';
 import type { Node } from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Text, TouchableOpacity } from 'react-native';
 // $FlowFixMe[untyped-import]
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
@@ -89,6 +89,7 @@ export default function StreamItem(props: Props): Node {
     unreadCount,
     onPress,
     onSubscribeButtonPressed,
+    onPressAllMessage,
   } = props;
 
   const realmUrl = useSelector(getRealmUrl);
@@ -236,6 +237,7 @@ export default function StreamItem(props: Props): Node {
         </View>
         <UnreadCount color={iconColor} count={unreadCount} />
         {subscribeButton}
+        <TouchableOpacity style={{ backgroundColor: 'aliceblue', paddingVertical: 4, paddingHorizontal: 6, borderRadius: 4 }} onPress={onPressAllMessage}><Text style={{ color: 'black', fontSize: 12 }}>All message</Text></TouchableOpacity>
       </View>
     </Touchable>
   );
