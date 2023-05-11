@@ -48,6 +48,7 @@ type Props = $ReadOnly<{|
   // To audit all uses, change `name` to write-only (`-name:`), and run Flow.
   onPress: ({ stream_id: number, name: string, ... }) => void,
   onSubscribeButtonPressed?: ({ stream_id: number, name: string, ... }, newValue: boolean) => void,
+  showButtonAllTopics: boolean,
 |}>;
 
 /**
@@ -89,6 +90,7 @@ export default function StreamItem(props: Props): Node {
     unreadCount,
     onPress,
     onSubscribeButtonPressed,
+    showButtonAllTopics = false,
     onPressAllMessage,
   } = props;
 
@@ -237,7 +239,7 @@ export default function StreamItem(props: Props): Node {
         </View>
         <UnreadCount color={iconColor} count={unreadCount} />
         {subscribeButton}
-        <TouchableOpacity style={{ backgroundColor: 'aliceblue', paddingVertical: 4, paddingHorizontal: 6, borderRadius: 4 }} onPress={onPressAllMessage}><Text style={{ color: 'black', fontSize: 12 }}>All message</Text></TouchableOpacity>
+        {showButtonAllTopics ? <TouchableOpacity style={{ backgroundColor: 'aliceblue', paddingVertical: 4, paddingHorizontal: 6, borderRadius: 4 }} onPress={onPressAllMessage}><Text style={{ color: 'black', fontSize: 12 }}>All topics</Text></TouchableOpacity> : <View />}
       </View>
     </Touchable>
   );

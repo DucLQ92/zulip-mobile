@@ -12,7 +12,7 @@ export const NAVBAR_SIZE = 58;
 //  * in our WebView's CSS;
 //  * under `android/` (search for "BRAND_COLOR");
 //  * in `ios/**/Brand.colorset/Contents.json`.
-export const BRAND_COLOR = 'hsl(222, 99%, 69%)';
+export const BRAND_COLOR = 'hsl(209, 100%, 31%)';
 export const BORDER_COLOR = BRAND_COLOR;
 export const HIGHLIGHT_COLOR: string = Color(BRAND_COLOR).fade(0.5).toString();
 

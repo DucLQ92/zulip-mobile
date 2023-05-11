@@ -2,7 +2,7 @@
 <resources>
   <!--
     These are used for receiving notifications through the
-    NextPay Talk notification bouncer service:
+    Zulip notification bouncer service:
       https://zulip.readthedocs.io/en/latest/production/mobile-push-notifications.html
 
     They represent public identifiers for that service as an application

@@ -93,9 +93,10 @@ function ListStreamSubscriptions({ item }: { item: Subscription, ... }) {
         offersSubscribeButton={false}
           // isSubscribed is ignored when offersSubscribeButton false
         onPress={handlePressStream}
+        showButtonAllTopics
         onPressAllMessage={() => handleNarrow(item)}
       />
-      <Collapsible collapsed={collapsed}>
+      <Collapsible collapsed={collapsed} renderChildrenCollapsed={false}>
         <FlatList
           initialNumToRender={20}
           data={topics}

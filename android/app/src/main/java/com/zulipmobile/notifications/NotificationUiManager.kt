@@ -296,7 +296,7 @@ private fun updateNotification(
         // TODO Perhaps set color and icon based on conversation?
         //   E.g., stream-subscription color, and hash icon or lock icon.
         color = context.getColor(R.color.brandColor)
-        setSmallIcon(if (BuildConfig.DEBUG) R.mipmap.ic_launcher else R.drawable.zulip_notification)
+        setSmallIcon(if (BuildConfig.DEBUG) R.mipmap.ic_launcher else R.drawable.nptalk_notification)
 
         setStyle(messagingStyle)
 
@@ -350,7 +350,7 @@ private fun updateNotification(
         setGroupSummary(true)
 
         color = context.getColor(R.color.brandColor)
-        setSmallIcon(if (BuildConfig.DEBUG) R.mipmap.ic_launcher else R.drawable.zulip_notification)
+        setSmallIcon(if (BuildConfig.DEBUG) R.mipmap.ic_launcher else R.drawable.nptalk_notification)
 
         // For the summary we use an "inbox-style" notification, as recommended here:
         //   https://developer.android.com/training/notify-user/group#set_a_group_summary
