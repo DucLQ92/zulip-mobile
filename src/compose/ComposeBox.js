@@ -178,6 +178,7 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
     initialTopic,
     autoFocusTopic,
     autoFocusMessage,
+    topicNameOfLastMessage,
   } = props;
 
   const _ = useContext(TranslationContext);
@@ -718,6 +719,7 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           narrow={narrow}
           text={topicInputState.value}
           onAutocomplete={handleTopicAutocomplete}
+          topicNameOfLastMessage={topicNameOfLastMessage}
         />
         <AutocompleteView
           isFocused={focusState.message}

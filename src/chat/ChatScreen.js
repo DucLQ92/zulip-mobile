@@ -235,6 +235,8 @@ export default function ChatScreen(props: Props): Node {
     [_, auth, fetching.newer, dispatch, editMessage, setEditMessage],
   );
 
+  const lastMessage = messages.length ? messages[messages.length - 1] : null;
+
   return (
     <KeyboardAvoider
       style={[componentStyles.screen, { backgroundColor }]}
@@ -283,6 +285,7 @@ export default function ChatScreen(props: Props): Node {
           onSend={sendCallback}
           autoFocusMessage={editMessage !== null}
           key={keyFromNarrow(narrow) + (editMessage?.id.toString() ?? 'noedit')}
+          topicNameOfLastMessage={lastMessage?.subject}
         />
       )}
     </KeyboardAvoider>

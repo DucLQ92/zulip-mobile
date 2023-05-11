@@ -1,6 +1,6 @@
 /* @flow strict-local */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import { FlatList } from 'react-native';
 
@@ -30,9 +30,10 @@ type Props = $ReadOnly<{|
 |}>;
 
 export default function TopicAutocomplete(props: Props): Node {
-  const { narrow, isFocused, text, onAutocomplete } = props;
+  const { narrow, isFocused, text, onAutocomplete, topicNameOfLastMessage } = props;
   const dispatch = useDispatch();
   const topics = useSelector(state => (narrow ? getTopicsForNarrow(state, narrow) : []));
+  const [isAutoInputTopic, setIsAutoInputTopic] = useState(false);
 
   useEffect(() => {
     // The following should be sufficient to ensure we're up-to-date
@@ -50,7 +51,13 @@ export default function TopicAutocomplete(props: Props): Node {
     if (narrow) {
       dispatch(fetchTopicsForStream(narrow));
     }
-  }, [dispatch, narrow]);
+
+    // auto pick topic 1st time
+    if (topics.length && topicNameOfLastMessage && !isAutoInputTopic) {
+      onAutocomplete(topicNameOfLastMessage);
+      setIsAutoInputTopic(true);
+    }
+  }, [dispatch, isAutoInputTopic, narrow, onAutocomplete, topicNameOfLastMessage, topics]);
 
   if (!isFocused || !narrow) {
     return null;
