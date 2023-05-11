@@ -74,7 +74,7 @@ export const apiCall = async (
     }
 
     const result = interpretApiResponse(response.status, json);
-    console.log('//// API Fetch ////', route, auth, params, result);
+    console.log('////------ API Fetch ------////\n', `--route: ${decodeURIComponent(route)}\n`, `--params.body: ${decodeURIComponent(params.body)}\n`, result);
     return result;
   } catch (errorIllTyped) {
     const error: mixed = errorIllTyped; // https://github.com/facebook/flow/issues/2470

@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import type { Node } from 'react';
-import { View, SectionList, Text, FlatList } from 'react-native';
+import { View, SectionList, Text, FlatList, TouchableOpacity } from 'react-native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Collapsible from 'react-native-collapsible';
@@ -10,7 +10,7 @@ import { useNavigation } from '../react-navigation';
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
 import type { Subscription } from '../types';
-import { createStyleSheet } from '../styles';
+import { BRAND_COLOR, createStyleSheet, HIGHLIGHT_COLOR } from '../styles';
 import { useDispatch, useSelector } from '../react-redux';
 import LoadingBanner from '../common/LoadingBanner';
 import SectionSeparatorBetween from '../common/SectionSeparatorBetween';
@@ -18,12 +18,13 @@ import SearchEmptyState from '../common/SearchEmptyState';
 import { streamNarrow, topicNarrow } from '../utils/narrow';
 import { getTopicsForStream, getUnreadByStream } from '../selectors';
 import { getSubscriptions } from '../directSelectors';
-import { doNarrow, fetchTopics } from '../actions';
+import { addToOutbox, doNarrow, fetchTopics } from '../actions';
 import { caseInsensitiveCompareFunc } from '../utils/misc';
 import StreamItem from './StreamItem';
 import ModalNavBar from '../nav/ModalNavBar';
 import NavRow from '../common/NavRow';
 import Touchable from '../common/Touchable';
+import ZulipTextIntl from '../common/ZulipTextIntl';
 
 const styles = createStyleSheet({
   container: {
@@ -62,8 +63,7 @@ function ListTopicByStream(topic, navigation, streamId): Node {
   );
 }
 
-function ListStreamSubscriptions({ item }: { item: Subscription, ... }) {
-  const [listIdStreamExpanded, setListIdStreamExpanded] = useState([]);
+function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded }: { item: Subscription, ... }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const unreadByStream = useSelector(getUnreadByStream);
@@ -102,6 +102,25 @@ function ListStreamSubscriptions({ item }: { item: Subscription, ... }) {
           data={topics}
           keyExtractor={topic => topic.max_id.toString()}
           renderItem={({ item }) => ListTopicByStream(item, navigation, streamId)}
+          ListFooterComponent={(
+            <TouchableOpacity
+              style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, borderColor: item.color, borderWidth: 1, borderRadius: 4 }}
+              onPress={() => {
+                // dispatch(addToOutbox({ type: 'topic', streamId, topic: 'test 05' }, '.'));
+                  navigation.push('create-topic', { 'streamId': streamId });
+            }}
+            >
+              <ZulipTextIntl
+                style={{
+                  color: item.color,
+                  fontSize: 14,
+                }}
+                text="New topic"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              />
+            </TouchableOpacity>
+          )}
         />
       </Collapsible>
     </View>
@@ -121,11 +140,30 @@ export default function SubscriptionsScreen(props: Props): Node {
     ], [sortedSubscriptions]);
 
   sortedSubscriptions.map(streamItem => dispatch(fetchTopics(streamItem.stream_id)));
+  const [listIdStreamExpanded, setListIdStreamExpanded] = useState([]);
 
   return (
     <View style={styles.container}>
       {/* Consumes the top inset. */}
-      <ModalNavBar canGoBack={false} title="Streams" />
+      <ModalNavBar
+        canGoBack={false}
+        title="Streams"
+        rightView={(listIdStreamExpanded ?? []).length
+          ? (
+            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 8 }} onPress={() => setListIdStreamExpanded([])}>
+              <ZulipTextIntl
+                style={{
+                  color: HIGHLIGHT_COLOR,
+                  fontSize: 14,
+                }}
+                text="Collapse all"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              />
+            </TouchableOpacity>
+            ) : <View />
+        }
+      />
       <LoadingBanner />
       {subscriptions.length === 0 ? (
         <SearchEmptyState text="No streams found" />
@@ -136,7 +174,7 @@ export default function SubscriptionsScreen(props: Props): Node {
           extraData={unreadByStream}
           initialNumToRender={20}
           keyExtractor={item => item.stream_id}
-          renderItem={({ item }) => ListStreamSubscriptions({ item })}
+          renderItem={({ item }) => ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded })}
           SectionSeparatorComponent={SectionSeparatorBetween}
           ListFooterComponent={AllStreamsButton}
         />

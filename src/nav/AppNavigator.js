@@ -50,6 +50,7 @@ import SelectableOptionsScreen from '../common/SelectableOptionsScreen';
 import StreamListScreen from '../subscriptions/StreamListScreen';
 import ReadReceiptsScreen from '../message/ReadReceiptsScreen';
 import { useHaveServerDataGate } from '../withHaveServerDataGate';
+import CreateTopicScreen from '../streams/CreateTopicScreen';
 
 export type AppNavigatorParamList = {|
   +'account-pick': RouteParamsOf<typeof AccountPickScreen>,
@@ -178,6 +179,7 @@ export default function AppNavigator(props: Props): Node {
       />
       <Stack.Screen name="edit-stream" component={useHaveServerDataGate(EditStreamScreen)} />
       <Stack.Screen name="create-stream" component={useHaveServerDataGate(CreateStreamScreen)} />
+      <Stack.Screen name="create-topic" component={useHaveServerDataGate(CreateTopicScreen)} />
       <Stack.Screen name="topic-list" component={useHaveServerDataGate(TopicListScreen)} />
       <Stack.Screen name="notifications" component={useHaveServerDataGate(NotificationsScreen)} />
       <Stack.Screen

@@ -3,6 +3,7 @@ import React, { useContext, useMemo } from 'react';
 import type { Node } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { View } from 'react-native';
 import type { LocalizableReactText } from '../types';
 import globalStyles, { ThemeContext, NAVBAR_SIZE } from '../styles';
 import ZulipTextIntl from '../common/ZulipTextIntl';
@@ -31,7 +32,7 @@ export default function ModalNavBar(props: Props): Node {
   // And the `NavBarBackButton` comes with 12px padding around icon and
   // wants another 4px padding at start.
 
-  const { canGoBack, title } = props;
+  const { canGoBack, title, rightView } = props;
   const { backgroundColor } = useContext(ThemeContext);
 
   const styles = useMemo(
@@ -62,6 +63,7 @@ export default function ModalNavBar(props: Props): Node {
       <SafeAreaView mode="padding" edges={['right', 'left']} style={styles.contentArea}>
         {canGoBack && <NavBarBackButton />}
         <ZulipTextIntl style={styles.text} text={title} numberOfLines={1} ellipsizeMode="tail" />
+        {rightView ?? <View />}
       </SafeAreaView>
     </SafeAreaView>
   );

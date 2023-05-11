@@ -239,7 +239,7 @@ export default function StreamItem(props: Props): Node {
         </View>
         <UnreadCount color={iconColor} count={unreadCount} />
         {subscribeButton}
-        {showButtonAllTopics ? <TouchableOpacity style={{ backgroundColor: 'aliceblue', paddingVertical: 4, paddingHorizontal: 6, borderRadius: 4 }} onPress={onPressAllMessage}><Text style={{ color: 'black', fontSize: 12 }}>All topics</Text></TouchableOpacity> : <View />}
+        {/* {showButtonAllTopics ? <TouchableOpacity style={{ backgroundColor: 'aliceblue', paddingVertical: 4, paddingHorizontal: 6, borderRadius: 4 }} onPress={onPressAllMessage}><Text style={{ color: 'black', fontSize: 12 }}>All topics</Text></TouchableOpacity> : <View />} */}
       </View>
     </Touchable>
   );
