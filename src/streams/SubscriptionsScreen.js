@@ -1,6 +1,6 @@
 /* @flow strict-local */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import type { Node } from 'react';
 import { View, SectionList, Text, FlatList, TouchableOpacity } from 'react-native';
 
@@ -161,14 +161,15 @@ export default function SubscriptionsScreen(props: Props): Node {
     //     .slice()
     //     .sort((a, b) => b.last_message_id - a.last_message_id);
     // shorting before grouping error when build release
-    const sections = useMemo(() => [
+
+    const sections = [
         { key: 'Pinned',
-        data: subscriptions.filter(x => x.pin_to_top).slice()
-                .sort((a, b) => b.last_message_id - a.last_message_id) },
+            data: subscriptions.filter(x => x.pin_to_top).slice()
+                .sort((a, b) => (b.last_message_id ?? -1) - (a.last_message_id ?? -1)) },
         { key: 'Unpinned',
-        data: subscriptions.filter(x => !x.pin_to_top).slice()
-                .sort((a, b) => b.last_message_id - a.last_message_id) },
-    ], [subscriptions]);
+            data: subscriptions.filter(x => !x.pin_to_top).slice()
+                .sort((a, b) => (b.last_message_id ?? -1) - (a.last_message_id ?? -1)) },
+    ];
 
     if (!Object.keys(allTopics).length) {
         subscriptions.map(streamItem => dispatch(fetchTopics(streamItem.stream_id)));
