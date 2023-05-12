@@ -166,7 +166,7 @@ export default function SubscriptionsScreen(props: Props): Node {
         { key: 'Pinned',
             data: subscriptions.filter(x => x.pin_to_top).slice()
                 .sort((a, b) => (b.last_message_id ?? -1) - (a.last_message_id ?? -1)) },
-        { key: 'Unpinned',
+        { key: 'Other',
             data: subscriptions.filter(x => !x.pin_to_top).slice()
                 .sort((a, b) => (b.last_message_id ?? -1) - (a.last_message_id ?? -1)) },
     ];
@@ -209,8 +209,13 @@ export default function SubscriptionsScreen(props: Props): Node {
           initialNumToRender={20}
           keyExtractor={item => item.stream_id}
           renderItem={({ item }) => ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded })}
-          SectionSeparatorComponent={SectionSeparatorBetween}
+          // SectionSeparatorComponent={SectionSeparatorBetween}
           ListFooterComponent={AllStreamsButton}
+          renderSectionHeader={({ section: { key } }) => (
+            <View style={{ paddingVertical: 6, paddingHorizontal: 8, backgroundColor: HIGHLIGHT_COLOR }}>
+              <ZulipTextIntl style={{ color: 'black', fontSize: 14 }} text={key} />
+            </View>
+          )}
         />
       )}
     </View>
