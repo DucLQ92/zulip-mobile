@@ -17,13 +17,11 @@ import SectionSeparatorBetween from '../common/SectionSeparatorBetween';
 import SearchEmptyState from '../common/SearchEmptyState';
 import { streamNarrow, topicNarrow } from '../utils/narrow';
 import {
-    getTopicsForStream,
+    getTopicsAll,
     getUnreadByStream,
-    getUnreadStreamsAndTopics
 } from '../selectors';
 import { getSubscriptions } from '../directSelectors';
 import { doNarrow, fetchTopics } from '../actions';
-import { caseInsensitiveCompareFunc } from '../utils/misc';
 import StreamItem from './StreamItem';
 import ModalNavBar from '../nav/ModalNavBar';
 import NavRow from '../common/NavRow';
@@ -83,10 +81,15 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
   const streamColor = item.color;
   const collapsed = listIdStreamExpanded.indexOf(streamId) < 0;
   const handlePressStream = useCallback(
-      stream => setListIdStreamExpanded(collapsed ? [...listIdStreamExpanded, stream.stream_id] : [...(listIdStreamExpanded.filter(e => e !== stream.stream_id))]),
-      [collapsed, listIdStreamExpanded, setListIdStreamExpanded],
+      stream => {
+          if (collapsed) {
+              dispatch(fetchTopics(stream.stream_id));
+          }
+          setListIdStreamExpanded(collapsed ? [...listIdStreamExpanded, stream.stream_id] : [...(listIdStreamExpanded.filter(e => e !== stream.stream_id))]);
+      },
+      [collapsed, dispatch, listIdStreamExpanded, setListIdStreamExpanded],
   );
-  const topics = useSelector(state => getTopicsForStream(state, streamId));
+  const topics = item.topics;
   return (
     <View>
       <StreamItem
@@ -113,7 +116,7 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
           renderItem={({ item }) => ListTopicByStream(item, navigation, streamId)}
           ListFooterComponent={(
             <TouchableOpacity
-              style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, borderColor: streamColor, borderWidth: 1, borderRadius: 4 }}
+              style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, marginBottom: 8, borderColor: streamColor, borderWidth: 1, borderRadius: 4 }}
               onPress={() => {
                 // dispatch(addToOutbox({ type: 'topic', streamId, topic: 'test 05' }, '.'));
                   navigation.push('create-topic', { 'streamId': streamId });
@@ -144,33 +147,32 @@ export default function SubscriptionsScreen(props: Props): Node {
   //     .slice()
   //     .sort((a, b) => caseInsensitiveCompareFunc(a.name, b.name));
 
-    const unreadByStreamsAndTopics = useSelector(getUnreadStreamsAndTopics);
-    (unreadByStreamsAndTopics ?? []).forEach(streamItem => {
-        let lastUnreadMsgIdByStream = -1;
-        if ((streamItem.data ?? []).length) {
-            lastUnreadMsgIdByStream = streamItem.data[0].lastUnreadMsgId ?? -1;
-            streamItem.data.forEach(dataItem => {
-                if ((dataItem.lastUnreadMsgId ?? 0) > lastUnreadMsgIdByStream) {
-                    lastUnreadMsgIdByStream = dataItem.lastUnreadMsgId;
-                }
-            });
+    const allTopics = useSelector(state => getTopicsAll(state));
+    for (let i = 0; i < subscriptions.length; i++) {
+        const topics = allTopics[subscriptions[i].stream_id] ?? [];
+        subscriptions[i].topics = topics;
+        const topicWithLastMessage = (topics ?? []).length ? topics.reduce((prev, current) => (prev.max_id > current.max_id) ? prev : current) : null;
+        if (topicWithLastMessage) {
+            subscriptions[i].last_message_id = topicWithLastMessage.max_id;
         }
-        const streamIndex = subscriptions.findIndex(e => e.stream_id === streamItem.streamId);
-        if (streamIndex > -1) {
-            subscriptions[streamIndex].lastUnreadMsgId = lastUnreadMsgIdByStream;
-        }
-    });
+    }
 
-    const sortedSubscriptions = subscriptions
-        .slice()
-        .sort((a, b) => b.lastUnreadMsgId - a.lastUnreadMsgId);
-
+    // const sortedSubscriptions = subscriptions
+    //     .slice()
+    //     .sort((a, b) => b.last_message_id - a.last_message_id);
+    // shorting before grouping error when build release
     const sections = useMemo(() => [
-        { key: 'Pinned', data: sortedSubscriptions.filter(x => x.pin_to_top) },
-        { key: 'Unpinned', data: sortedSubscriptions.filter(x => !x.pin_to_top) },
-    ], [sortedSubscriptions]);
+        { key: 'Pinned',
+        data: subscriptions.filter(x => x.pin_to_top).slice()
+                .sort((a, b) => b.last_message_id - a.last_message_id) },
+        { key: 'Unpinned',
+        data: subscriptions.filter(x => !x.pin_to_top).slice()
+                .sort((a, b) => b.last_message_id - a.last_message_id) },
+    ], [subscriptions]);
 
-    sortedSubscriptions.map(streamItem => dispatch(fetchTopics(streamItem.stream_id)));
+    if (!Object.keys(allTopics).length) {
+        subscriptions.map(streamItem => dispatch(fetchTopics(streamItem.stream_id)));
+    }
     const [listIdStreamExpanded, setListIdStreamExpanded] = useState([]);
 
   return (

@@ -607,6 +607,7 @@ export type Stream = {|
 
   +history_public_to_subscribers: boolean,
   +first_message_id: number | null,
+  +last_message_id: number | null,
 
   // TODO(server-3.0): Deprecated at FL 1; use stream_post_policy instead
   +is_announcement_only: boolean,
@@ -633,6 +634,7 @@ export type Subscription = {|
 export type Topic = $ReadOnly<{|
   name: string,
   max_id: number,
+  streamId: number,
 |}>;
 
 /**

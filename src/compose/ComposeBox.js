@@ -467,9 +467,11 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
   }, []);
 
   const handleTopicAutocomplete = useCallback(
-    (topic: string) => {
+    (topic: string, disableAutoFocus: boolean) => {
       setTopicInputValue(topic);
-      messageInputRef.current?.focus();
+      if (!disableAutoFocus) {
+        messageInputRef.current?.focus();
+      }
     },
     [setTopicInputValue, messageInputRef],
   );

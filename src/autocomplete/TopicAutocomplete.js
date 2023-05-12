@@ -54,7 +54,7 @@ export default function TopicAutocomplete(props: Props): Node {
 
     // auto pick topic 1st time
     if (topics.length && topicNameOfLastMessage && !isAutoInputTopic) {
-      onAutocomplete(topicNameOfLastMessage);
+      onAutocomplete(topicNameOfLastMessage, true);
       setIsAutoInputTopic(true);
     }
   }, [dispatch, isAutoInputTopic, narrow, onAutocomplete, topicNameOfLastMessage, topics]);

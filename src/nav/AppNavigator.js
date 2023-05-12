@@ -179,7 +179,7 @@ export default function AppNavigator(props: Props): Node {
       />
       <Stack.Screen name="edit-stream" component={useHaveServerDataGate(EditStreamScreen)} />
       <Stack.Screen name="create-stream" component={useHaveServerDataGate(CreateStreamScreen)} />
-      <Stack.Screen name="create-topic" component={useHaveServerDataGate(CreateTopicScreen)} options={{gestureEnabled: false}} />
+      <Stack.Screen name="create-topic" component={useHaveServerDataGate(CreateTopicScreen)} />
       <Stack.Screen name="topic-list" component={useHaveServerDataGate(TopicListScreen)} />
       <Stack.Screen name="notifications" component={useHaveServerDataGate(NotificationsScreen)} />
       <Stack.Screen

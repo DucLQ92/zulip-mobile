@@ -18,6 +18,9 @@ export const fetchTopics =
   async (dispatch, getState) => {
     const auth = getAuth(getState());
     const { topics } = await api.getTopics(auth, streamId);
+    for (let i = 0; i < (topics ?? []).length; i++) {
+        topics[i].streamId = streamId;
+    }
     dispatch(initTopics(topics, streamId));
   };
 

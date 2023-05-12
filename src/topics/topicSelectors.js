@@ -9,6 +9,23 @@ import { isStreamNarrow, streamIdOfNarrow } from '../utils/narrow';
 import { getMute, isTopicVisible } from '../mute/muteModel';
 import { getSubscriptionsById } from '../subscriptions/subscriptionSelectors';
 
+export const getTopicsAll: Selector<Map> = createSelector(
+    (state) => state.topics,
+    state => getUnread(state),
+    (topicState: TopicsState, unread) => {
+        const result = {};
+        Object.keys(topicState).forEach(topicStateKey => {
+            const listTopics = topicState[topicStateKey];
+            for (let i = 0; i < listTopics.length; i++) {
+                listTopics[i].unreadCount = getUnreadCountForTopic(unread, listTopics[i].streamId, listTopics[i].name);
+            }
+            result[topicStateKey] = topicState[topicStateKey];
+        });
+        // const unreadCount = getUnreadCountForTopic(unread, streamId, name);
+        return result;
+    },
+);
+
 export const getTopicsForNarrow: Selector<$ReadOnlyArray<string>, Narrow> = createSelector(
   (state, narrow) => narrow,
   state => getTopics(state),
