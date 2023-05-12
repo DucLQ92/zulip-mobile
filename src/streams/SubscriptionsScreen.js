@@ -16,15 +16,20 @@ import LoadingBanner from '../common/LoadingBanner';
 import SectionSeparatorBetween from '../common/SectionSeparatorBetween';
 import SearchEmptyState from '../common/SearchEmptyState';
 import { streamNarrow, topicNarrow } from '../utils/narrow';
-import { getTopicsForStream, getUnreadByStream } from '../selectors';
+import {
+    getTopicsForStream,
+    getUnreadByStream,
+    getUnreadStreamsAndTopics
+} from '../selectors';
 import { getSubscriptions } from '../directSelectors';
-import { addToOutbox, doNarrow, fetchTopics } from '../actions';
+import { doNarrow, fetchTopics } from '../actions';
 import { caseInsensitiveCompareFunc } from '../utils/misc';
 import StreamItem from './StreamItem';
 import ModalNavBar from '../nav/ModalNavBar';
 import NavRow from '../common/NavRow';
 import Touchable from '../common/Touchable';
 import ZulipTextIntl from '../common/ZulipTextIntl';
+import UnreadCount from '../common/UnreadCount';
 
 const styles = createStyleSheet({
   container: {
@@ -57,7 +62,10 @@ function ListTopicByStream(topic, navigation, streamId): Node {
   return (
     <View>
       <Touchable onPress={() => navigation.push('chat', { narrow: topicNarrow(streamId, topic.name), editMessage: null })} style={{ paddingLeft: 40, paddingVertical: 8 }}>
-        <Text style={{ color: 'grey', fontSize: 14 }}>{topic.name}</Text>
+        <View style={{ flexDirection: 'row', paddingRight: 16 }}>
+          <Text style={{ color: 'grey', fontSize: 14, flex: 1 }}>{topic.name}</Text>
+          <UnreadCount color={BRAND_COLOR} count={topic.unreadCount} />
+        </View>
       </Touchable>
     </View>
   );
@@ -71,24 +79,25 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
       stream => dispatch(doNarrow(streamNarrow(stream.stream_id))),
       [dispatch],
   );
-  const collapsed = listIdStreamExpanded.indexOf(item.stream_id) < 0;
+  const streamId = item.stream_id;
+  const streamColor = item.color;
+  const collapsed = listIdStreamExpanded.indexOf(streamId) < 0;
   const handlePressStream = useCallback(
       stream => setListIdStreamExpanded(collapsed ? [...listIdStreamExpanded, stream.stream_id] : [...(listIdStreamExpanded.filter(e => e !== stream.stream_id))]),
       [collapsed, listIdStreamExpanded, setListIdStreamExpanded],
   );
-  const topics = useSelector(state => getTopicsForStream(state, item.stream_id));
-  const streamId = item.stream_id;
+  const topics = useSelector(state => getTopicsForStream(state, streamId));
   return (
     <View>
       <StreamItem
-        streamId={item.stream_id}
+        streamId={streamId}
         name={item.name}
         iconSize={16}
         isPrivate={item.invite_only}
         isWebPublic={item.is_web_public}
         description=""
-        color={item.color}
-        unreadCount={unreadByStream[item.stream_id]}
+        color={streamColor}
+        unreadCount={unreadByStream[streamId]}
         isMuted={item.in_home_view === false} // if 'undefined' is not muted
         offersSubscribeButton={false}
           // isSubscribed is ignored when offersSubscribeButton false
@@ -104,7 +113,7 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
           renderItem={({ item }) => ListTopicByStream(item, navigation, streamId)}
           ListFooterComponent={(
             <TouchableOpacity
-              style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, borderColor: item.color, borderWidth: 1, borderRadius: 4 }}
+              style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, borderColor: streamColor, borderWidth: 1, borderRadius: 4 }}
               onPress={() => {
                 // dispatch(addToOutbox({ type: 'topic', streamId, topic: 'test 05' }, '.'));
                   navigation.push('create-topic', { 'streamId': streamId });
@@ -112,7 +121,7 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
             >
               <ZulipTextIntl
                 style={{
-                  color: item.color,
+                  color: streamColor,
                   fontSize: 14,
                 }}
                 text="New topic"
@@ -131,16 +140,38 @@ export default function SubscriptionsScreen(props: Props): Node {
   const dispatch = useDispatch();
   const subscriptions = useSelector(getSubscriptions);
   const unreadByStream = useSelector(getUnreadByStream);
-  const sortedSubscriptions = subscriptions
-      .slice()
-      .sort((a, b) => caseInsensitiveCompareFunc(a.name, b.name));
-  const sections = useMemo(() => [
-      { key: 'Pinned', data: sortedSubscriptions.filter(x => x.pin_to_top) },
-      { key: 'Unpinned', data: sortedSubscriptions.filter(x => !x.pin_to_top) },
+  // const sortedSubscriptions = subscriptions
+  //     .slice()
+  //     .sort((a, b) => caseInsensitiveCompareFunc(a.name, b.name));
+
+    const unreadByStreamsAndTopics = useSelector(getUnreadStreamsAndTopics);
+    (unreadByStreamsAndTopics ?? []).forEach(streamItem => {
+        let lastUnreadMsgIdByStream = -1;
+        if ((streamItem.data ?? []).length) {
+            lastUnreadMsgIdByStream = streamItem.data[0].lastUnreadMsgId ?? -1;
+            streamItem.data.forEach(dataItem => {
+                if ((dataItem.lastUnreadMsgId ?? 0) > lastUnreadMsgIdByStream) {
+                    lastUnreadMsgIdByStream = dataItem.lastUnreadMsgId;
+                }
+            });
+        }
+        const streamIndex = subscriptions.findIndex(e => e.stream_id === streamItem.streamId);
+        if (streamIndex > -1) {
+            subscriptions[streamIndex].lastUnreadMsgId = lastUnreadMsgIdByStream;
+        }
+    });
+
+    const sortedSubscriptions = subscriptions
+        .slice()
+        .sort((a, b) => b.lastUnreadMsgId - a.lastUnreadMsgId);
+
+    const sections = useMemo(() => [
+        { key: 'Pinned', data: sortedSubscriptions.filter(x => x.pin_to_top) },
+        { key: 'Unpinned', data: sortedSubscriptions.filter(x => !x.pin_to_top) },
     ], [sortedSubscriptions]);
 
-  sortedSubscriptions.map(streamItem => dispatch(fetchTopics(streamItem.stream_id)));
-  const [listIdStreamExpanded, setListIdStreamExpanded] = useState([]);
+    sortedSubscriptions.map(streamItem => dispatch(fetchTopics(streamItem.stream_id)));
+    const [listIdStreamExpanded, setListIdStreamExpanded] = useState([]);
 
   return (
     <View style={styles.container}>

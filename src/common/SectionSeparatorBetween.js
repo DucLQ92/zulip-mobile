@@ -16,7 +16,7 @@ type Props = $ReadOnly<{|
 export default function SectionSeparatorBetween(props: Props): Node {
   const { leadingItem, leadingSection } = props;
 
-  if (leadingItem || !leadingSection || leadingSection.data.length === 0) {
+  if (!leadingSection || leadingSection.data.length === 0) {
     return null;
   }
 
