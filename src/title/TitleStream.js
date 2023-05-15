@@ -49,7 +49,7 @@ const componentStyles = createStyleSheet({
 });
 
 export default function TitleStream(props: Props): Node {
-  const { narrow, color } = props;
+  const { narrow, color, firstMessageId } = props;
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const stream = useSelector(state => getStreamInNarrow(state, narrow));
@@ -64,6 +64,8 @@ export default function TitleStream(props: Props): Node {
     flags: getFlags(state),
     userSettingStreamNotification: getSettings(state).streamNotification,
     zulipFeatureLevel: getZulipFeatureLevel(state),
+    showRenameTopic: true,
+    firstMessageId,
   }));
 
   const showActionSheetWithOptions: ShowActionSheetWithOptions =
@@ -81,6 +83,7 @@ export default function TitleStream(props: Props): Node {
                 backgroundData,
                 streamId: stream.stream_id,
                 topic: topicOfNarrow(narrow),
+                firstMessageId,
               });
             }
           : () => {

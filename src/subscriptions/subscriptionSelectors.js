@@ -29,7 +29,7 @@ export const getStreamsByName: Selector<Map<string, Stream>> = createSelector(
 export const getSubscriptionsById: Selector<Map<number, Subscription>> = createSelector(
   getSubscriptions,
   subscriptions =>
-    new Map(subscriptions.map(subscription => [subscription.stream_id, subscription])),
+    new Map(subscriptions?.map(subscription => [subscription.stream_id, subscription])),
 );
 
 export const getIsActiveStreamSubscribed: Selector<boolean, Narrow> = createSelector(

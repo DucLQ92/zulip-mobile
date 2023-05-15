@@ -326,7 +326,7 @@
   "Please share the image from your browser": "Vui lòng chia sẻ hình ảnh từ trình duyệt của bạn",
   "Share failed": "Chia sẻ thất bại",
   "Download complete": "Tải xuống hoàn tất",
-  "Save": "Tiết kiệm",
+  "Save": "Lưu lại",
   "Pinned": "Đã ghim",
   "Mark messages as read on scroll": "Đánh dấu tin nhắn là đã đọc khi cuộn",
   "When scrolling through messages, should they automatically be marked as read?": "Khi cuộn qua các tin nhắn, chúng sẽ tự động được đánh dấu là đã đọc không?",
@@ -375,9 +375,9 @@
   "The server said:\n\n{errorMessage}": "Hệ thống phản hồi:\n\n{errorMessage}",
   "Attachment {num}": "Đính kèm {num}",
   "Failed to mark topic as read": "Không đánh dấu được chủ đề là đã đọc",
-  "Search topics": "Tìm kiếm Topic",
+  "Search topics": "Tìm kiếm chủ đề",
   "Copy link to topic": "Sao chép link của topic",
-  "Failed to copy topic link": "Không sao chép được liên kết topic",
+  "Failed to copy topic link": "Không sao chép được liên kết chủ đề",
   "Copy link to stream": "Sao chép liên kết vào nhóm",
   "Failed to copy stream link": "Không sao chép được liên kết nhóm",
   "A stream with this name already exists.": "Tên này đã được sử dụng trong một nhóm khác.",
@@ -389,8 +389,10 @@
   "Guest": "Khách",
   "View as messages": "Xem tất cả tin nhắn",
   "Collapse all": "Thu gọn",
-  "New topic": "Tạo topic mới",
-  "A topic with this name already exists.": "Tên này đã được sử dụng cho một topic khác.",
-  "Other": "Khác"
+  "New topic": "Thêm chủ đề",
+  "A topic with this name already exists.": "Tên này đã được sử dụng cho một chủ đề khác.",
+  "Other": "Khác",
+  "Rename topic": "Đổi tên chủ đề",
+  "Failed to rename topic": "Không thể đổi tên chủ đề"
 }
 

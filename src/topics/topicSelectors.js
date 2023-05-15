@@ -1,23 +1,26 @@
 /* @flow strict-local */
 import { createSelector } from 'reselect';
 
-import type { Narrow, Selector, TopicExtended, TopicsState } from '../types';
+import type { MuteState, Narrow, Selector, TopicExtended, TopicsState } from '../types';
 import { getTopics } from '../directSelectors';
 import { getUnread, getUnreadCountForTopic } from '../unread/unreadModel';
 import { NULL_ARRAY } from '../nullObjects';
 import { isStreamNarrow, streamIdOfNarrow } from '../utils/narrow';
 import { getMute, isTopicVisible } from '../mute/muteModel';
 import { getSubscriptionsById } from '../subscriptions/subscriptionSelectors';
+import { UserTopicVisibilityPolicy } from '../api/modelTypes';
 
 export const getTopicsAll: Selector<Map> = createSelector(
     (state) => state.topics,
+    state => getMute(state),
     state => getUnread(state),
-    (topicState: TopicsState, unread) => {
+    (topicState: TopicsState, mute: MuteState, unread) => {
         const result = {};
         Object.keys(topicState).forEach(topicStateKey => {
             const listTopics = topicState[topicStateKey];
             for (let i = 0; i < listTopics.length; i++) {
                 listTopics[i].unreadCount = getUnreadCountForTopic(unread, listTopics[i].streamId, listTopics[i].name);
+                listTopics[i].isMuted = mute.get(listTopics[i].streamId)?.get(listTopics[i].name) === UserTopicVisibilityPolicy.Muted;
             }
             result[topicStateKey] = topicState[topicStateKey];
         });

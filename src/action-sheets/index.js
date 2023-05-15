@@ -4,6 +4,8 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import invariant from 'invariant';
 import * as resolved_topic from '@zulip/shared/lib/resolved_topic';
 
+import { useCallback } from 'react';
+import { StackActions } from '@react-navigation/native';
 import type {
   Auth,
   Dispatch,
@@ -35,7 +37,13 @@ import type { PmKeyRecipients } from '../utils/recipient';
 import { getTopicVisibilityPolicy } from '../mute/muteModel';
 import * as api from '../api';
 import { showConfirmationDialog, showErrorAlert, showToast } from '../utils/info';
-import { doNarrow, deleteOutboxMessage, fetchSomeMessageIdForConversation, navigateToChat } from '../actions';
+import {
+  doNarrow,
+  deleteOutboxMessage,
+  fetchSomeMessageIdForConversation,
+  navigateToChat,
+  fetchTopics, updateTopicName
+} from '../actions';
 import { deleteMessagesForTopic } from '../topics/topicActions';
 import * as logging from '../utils/logging';
 import { getUnreadCountForTopic } from '../unread/unreadModel';
@@ -47,8 +55,6 @@ import { roleIsAtLeast } from '../permissionSelectors';
 import { kNotificationBotEmail } from '../api/constants';
 import type { AppNavigationMethods } from '../nav/AppNavigator';
 import { type ImperativeHandle as ComposeBoxImperativeHandle } from '../compose/ComposeBox';
-import { useCallback } from 'react';
-import { StackActions } from '@react-navigation/native';
 
 // TODO really this belongs in a libdef.
 export type ShowActionSheetWithOptions = (
@@ -373,6 +379,14 @@ const toggleResolveTopic = async ({ auth, streamId, topic, _, streams, zulipFeat
   });
 };
 
+const renameTopic = {
+  title: 'Rename topic',
+  errorMessage: 'Failed to rename topic',
+  action: async ({ navigation, streamId, topic, firstMessageId }) => {
+    navigation.push('create-topic', { 'isEdit': true, 'streamId': streamId, 'topic': topic, 'firstMessageId': firstMessageId });
+  },
+};
+
 const resolveTopic = {
   title: 'Resolve topic',
   errorMessage: 'Failed to resolve topic',
@@ -652,18 +666,22 @@ export const constructTopicActionButtons = (args: {|
     subscriptions: Map<number, Subscription>,
     unread: UnreadState,
     zulipFeatureLevel: number,
+    showRenameTopic: boolean,
     ...
   }>,
   streamId: number,
   topic: string,
 |}): Button<TopicArgs>[] => {
   const { backgroundData, streamId, topic } = args;
-  const { mute, ownUserRole, subscriptions, unread, zulipFeatureLevel } = backgroundData;
+  const { mute, ownUserRole, subscriptions, unread, zulipFeatureLevel, showRenameTopic } = backgroundData;
   const sub = subscriptions.get(streamId);
   const streamMuted = !!sub && !sub.in_home_view;
 
   const buttons = [];
   const unreadCount = getUnreadCountForTopic(unread, streamId, topic);
+  if (showRenameTopic) {
+    buttons.push(renameTopic);
+  }
   if (unreadCount > 0) {
     buttons.push(markTopicAsRead);
   }
@@ -914,19 +932,21 @@ export const showTopicActionSheet = (args: {|
     ownUser: User,
     ownUserRole: Role,
     zulipFeatureLevel: number,
+    showRenameTopic: boolean,
     ...
   }>,
   streamId: number,
   topic: string,
+  firstMessageId: number,
 |}): void => {
-  const { showActionSheetWithOptions, callbacks, backgroundData, topic, streamId } = args;
+  const { showActionSheetWithOptions, callbacks, backgroundData, topic, streamId, firstMessageId } = args;
   const stream = backgroundData.streams.get(streamId);
   invariant(stream !== undefined, 'Stream with provided streamId not found.');
   showActionSheet({
     showActionSheetWithOptions,
     title: `#${stream.name} > ${topic}`,
     options: constructTopicActionButtons({ backgroundData, streamId, topic }),
-    args: { ...backgroundData, ...callbacks, streamId, topic },
+    args: { ...backgroundData, ...callbacks, streamId, topic, firstMessageId },
   });
 };
 

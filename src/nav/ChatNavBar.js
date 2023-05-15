@@ -138,8 +138,9 @@ const ActionItems: ComponentType<{| +color: string, +narrow: Narrow |}> = props 
 export default function ChatNavBar(props: {|
   +narrow: Narrow,
   +editMessage: EditMessage | null,
+  +firstMessageId: number | null,
 |}): Node {
-  const { narrow, editMessage } = props;
+  const { narrow, editMessage, firstMessageId } = props;
   const streamColor = useSelector(state => getStreamColorForNarrow(state, narrow));
   const buttonColor =
     streamColor === undefined ? BRAND_COLOR : foregroundColorFromBackground(streamColor);
@@ -185,7 +186,7 @@ export default function ChatNavBar(props: {|
           <NavBarBackButton color={buttonColor} />
           {/* We put 20px here to get 32px total between the icon and the title text. */}
           <View style={{ width: 20 }} />
-          <Title color={textColor} narrow={narrow} editMessage={editMessage} />
+          <Title color={textColor} narrow={narrow} editMessage={editMessage} firstMessageId={firstMessageId} />
           <ActionItems color={buttonColor} narrow={narrow} />
         </SafeAreaView>
 

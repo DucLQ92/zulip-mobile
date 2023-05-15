@@ -246,7 +246,7 @@ export default function ChatScreen(props: Props): Node {
         showComposeBox
       }
     >
-      <ChatNavBar narrow={narrow} editMessage={editMessage} />
+      <ChatNavBar narrow={narrow} editMessage={editMessage} firstMessageId={firstMessageId} />
       <UnreadNotice narrow={narrow} />
       {(() => {
         if (!isNarrowValid) {

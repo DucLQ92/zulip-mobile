@@ -1,11 +1,12 @@
 /* @flow strict-local */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import type { Node } from 'react';
 import { View, SectionList, Text, FlatList, TouchableOpacity } from 'react-native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Collapsible from 'react-native-collapsible';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useNavigation } from '../react-navigation';
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
@@ -13,12 +14,12 @@ import type { Subscription } from '../types';
 import { BRAND_COLOR, createStyleSheet, HIGHLIGHT_COLOR } from '../styles';
 import { useDispatch, useSelector } from '../react-redux';
 import LoadingBanner from '../common/LoadingBanner';
-import SectionSeparatorBetween from '../common/SectionSeparatorBetween';
 import SearchEmptyState from '../common/SearchEmptyState';
 import { streamNarrow, topicNarrow } from '../utils/narrow';
 import {
+    getAuth, getFlags, getOwnUser, getStreamsById, getSubscriptionsById,
     getTopicsAll,
-    getUnreadByStream,
+    getUnreadByStream, getZulipFeatureLevel,
 } from '../selectors';
 import { getSubscriptions } from '../directSelectors';
 import { doNarrow, fetchTopics } from '../actions';
@@ -28,6 +29,12 @@ import NavRow from '../common/NavRow';
 import Touchable from '../common/Touchable';
 import ZulipTextIntl from '../common/ZulipTextIntl';
 import UnreadCount from '../common/UnreadCount';
+import { showTopicActionSheet } from '../action-sheets';
+import type { ShowActionSheetWithOptions } from '../action-sheets';
+import { TranslationContext } from '../boot/TranslationProvider';
+import { getMute } from '../mute/muteModel';
+import { getUnread } from '../unread/unreadModel';
+import { getOwnUserRole } from '../permissionSelectors';
 
 const styles = createStyleSheet({
   container: {
@@ -56,12 +63,24 @@ function AllStreamsButton(props: FooterProps): Node {
   return <NavRow title="All streams" titleBoldUppercase onPress={handlePressAllScreens} />;
 }
 
-function ListTopicByStream(topic, navigation, streamId): Node {
+function ListTopicByStream(topic, navigation, streamId, showActionSheetWithOptions, dispatch, context, backgroundData): Node {
   return (
     <View>
-      <Touchable onPress={() => navigation.push('chat', { narrow: topicNarrow(streamId, topic.name), editMessage: null })} style={{ paddingLeft: 40, paddingVertical: 8 }}>
+      <Touchable
+        onPress={() => navigation.push('chat', { narrow: topicNarrow(streamId, topic.name), editMessage: null })}
+        style={{ paddingLeft: 40, paddingVertical: 8 }}
+        onLongPress={() => {
+          showTopicActionSheet({
+              showActionSheetWithOptions,
+              callbacks: { dispatch, navigation, _: context },
+              backgroundData,
+              streamId,
+              topic: topic.name,
+          });
+      }}
+      >
         <View style={{ flexDirection: 'row', paddingRight: 16 }}>
-          <Text style={{ color: 'grey', fontSize: 14, flex: 1 }}>{topic.name}</Text>
+          <Text style={{ color: topic.isMuted ? 'gainsboro' : 'grey', fontSize: 14, flex: 1, marginLeft: topic.name.indexOf('✔') === 0 ? 0 : 16 }}>{topic.name}</Text>
           <UnreadCount color={BRAND_COLOR} count={topic.unreadCount} />
         </View>
       </Touchable>
@@ -89,6 +108,21 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
       },
       [collapsed, dispatch, listIdStreamExpanded, setListIdStreamExpanded],
   );
+    const showActionSheetWithOptions: ShowActionSheetWithOptions =
+        useActionSheet().showActionSheetWithOptions;
+    const context = useContext(TranslationContext);
+    const backgroundData = useSelector(state => ({
+        auth: getAuth(state),
+        mute: getMute(state),
+        streams: getStreamsById(state),
+        subscriptions: getSubscriptionsById(state),
+        unread: getUnread(state),
+        ownUser: getOwnUser(state),
+        ownUserRole: getOwnUserRole(state),
+        flags: getFlags(state),
+        zulipFeatureLevel: getZulipFeatureLevel(state),
+        showRenameTopic: false,
+    }));
   const topics = item.topics;
   return (
     <View>
@@ -113,20 +147,28 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
           initialNumToRender={20}
           data={topics}
           keyExtractor={topic => topic.max_id.toString()}
-          renderItem={({ item }) => ListTopicByStream(item, navigation, streamId)}
+          renderItem={({ item }) => ListTopicByStream(item, navigation, streamId, showActionSheetWithOptions, dispatch, context, backgroundData)}
           ListFooterComponent={(
             <TouchableOpacity
-              style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, marginBottom: 8, borderColor: streamColor, borderWidth: 1, borderRadius: 4 }}
+              style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, marginBottom: 8 }}
               onPress={() => {
                 // dispatch(addToOutbox({ type: 'topic', streamId, topic: 'test 05' }, '.'));
-                  navigation.push('create-topic', { 'streamId': streamId });
+                  navigation.push('create-topic', { 'isEdit': false, 'streamId': streamId, 'topic': null });
             }}
             >
+              <Text style={{
+                    color: streamColor,
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                }}
+              >
+                {'+ '}
+              </Text>
               <ZulipTextIntl
                 style={{
-                  color: streamColor,
-                  fontSize: 14,
-                }}
+                        color: streamColor,
+                        fontSize: 14,
+                    }}
                 text="New topic"
                 numberOfLines={1}
                 ellipsizeMode="tail"

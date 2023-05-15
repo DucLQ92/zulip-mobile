@@ -19,7 +19,7 @@ type Props = $ReadOnly<{|
 |}>;
 
 export default function Title(props: Props): Node {
-  const { narrow, color, editMessage } = props;
+  const { narrow, color, editMessage, firstMessageId } = props;
   if (editMessage != null) {
     return <TitlePlain text="Edit message" color={color} />;
   }
@@ -29,7 +29,7 @@ export default function Title(props: Props): Node {
     mentioned: () => <TitleSpecial code="mentioned" color={color} />,
     allPrivate: () => <TitleSpecial code="private" color={color} />,
     stream: () => <TitleStream narrow={narrow} color={color} />,
-    topic: () => <TitleStream narrow={narrow} color={color} />,
+    topic: () => <TitleStream narrow={narrow} color={color} firstMessageId={firstMessageId} />,
     pm: ids =>
       ids.length === 1 ? (
         <TitlePrivate userId={ids[0]} color={color} />
