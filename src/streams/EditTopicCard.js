@@ -39,7 +39,7 @@ type PropsCreateTopic = $ReadOnly<{|
 type Props = $ReadOnly<PropsEditTopic | PropsCreateTopic>;
 
 export default function EditTopicCard(props: Props): Node {
-  const { navigation, initialValues, isNewTopic } = props;
+  const { navigation, initialValues, isNewTopic, progress } = props;
   const _ = useContext(TranslationContext);
 
   const [name, setName] = useState<string>(props.initialValues.name);
@@ -103,6 +103,7 @@ export default function EditTopicCard(props: Props): Node {
       <ZulipButton
         style={styles.marginTop}
         text={isNewTopic ? 'Create' : 'Save'}
+        progress={progress}
         disabled={name.length === 0}
         onPress={handlePerformAction}
       />

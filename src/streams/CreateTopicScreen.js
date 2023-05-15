@@ -24,6 +24,7 @@ export default function CreateTopicScreen(props: Props): Node {
   const _ = useContext(TranslationContext);
   const { navigation } = props;
   const dispatch = useDispatch();
+    const [progress, setProgress] = React.useState(false);
 
     const initialValues = useRef({
         name: props.route.params.topic ?? '',
@@ -43,7 +44,9 @@ export default function CreateTopicScreen(props: Props): Node {
                 showErrorAlert(_('Error'));
             } else {
                 try {
+                    setProgress(true);
                     await api.updateTopicName(auth, props.route.params.firstMessageId, name);
+                    setProgress(false);
                     dispatch(fetchTopics(props.route.params.streamId));
                     return true;
                 } catch (error) {
@@ -75,7 +78,7 @@ export default function CreateTopicScreen(props: Props): Node {
             }
         }
     },
-    [props.route.params.isEdit, props.route.params.streamId, _, topics, dispatch],
+    [props.route.params.isEdit, props.route.params.firstMessageId, props.route.params.topic, props.route.params.streamId, topics, _, auth, dispatch],
   );
 
   return (
@@ -85,6 +88,7 @@ export default function CreateTopicScreen(props: Props): Node {
         isNewTopic={!props.route.params.isEdit}
         initialValues={initialValues}
         onComplete={handleComplete}
+        progress={progress}
       />
     </Screen>
   );
