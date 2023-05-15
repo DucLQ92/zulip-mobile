@@ -13,6 +13,7 @@ import { ApiError } from '../api/apiErrors';
 import * as api from '../api';
 import EditTopicCard from './EditTopicCard';
 import { addToOutbox } from '../outbox/outboxActions';
+import { fetchTopics } from '../topics/topicActions';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'create-topic'>,
@@ -43,6 +44,7 @@ export default function CreateTopicScreen(props: Props): Node {
             } else {
                 try {
                     await api.updateTopicName(auth, props.route.params.firstMessageId, name);
+                    dispatch(fetchTopics(props.route.params.streamId));
                     return true;
                 } catch (error) {
                     if (error instanceof ApiError) {
