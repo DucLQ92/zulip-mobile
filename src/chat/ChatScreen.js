@@ -189,6 +189,17 @@ export default function ChatScreen(props: Props): Node {
     }
   };
 
+  const onPressRetryCallback = useCallback(() => {
+    dispatch(
+        fetchMessages({
+          narrow,
+          anchor: lastMessageId,
+          numBefore: 0,
+          numAfter: config.messagesPerRequest,
+        }),
+    );
+  }, [dispatch, lastMessageId, narrow]);
+
   const sendCallback = useCallback(
     (message: string, destinationNarrow: Narrow) => {
       if (editMessage) {
@@ -252,7 +263,13 @@ export default function ChatScreen(props: Props): Node {
         if (!isNarrowValid) {
           return <InvalidNarrow narrow={narrow} />;
         } else if (fetchError !== null) {
-          return <FetchError narrow={narrow} error={fetchError} />;
+          return (
+            <FetchError
+              narrow={narrow}
+              error={fetchError}
+              onPressRetry={onPressRetryCallback}
+            />
+          );
         } else if (sayNoMessages) {
           return <NoMessages narrow={narrow} />;
         } else {

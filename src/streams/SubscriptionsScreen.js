@@ -88,7 +88,7 @@ function ListTopicByStream(topic, navigation, streamId, showActionSheetWithOptio
   );
 }
 
-function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded }: { item: Subscription, ... }) {
+function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded, listIdStreamShowedMore, setListIdStreamShowedMore }: { item: Subscription, ... }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const unreadByStream = useSelector(getUnreadByStream);
@@ -108,6 +108,7 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
       },
       [collapsed, dispatch, listIdStreamExpanded, setListIdStreamExpanded],
   );
+
     const showActionSheetWithOptions: ShowActionSheetWithOptions =
         useActionSheet().showActionSheetWithOptions;
     const context = useContext(TranslationContext);
@@ -124,6 +125,20 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
         showRenameTopic: false,
     }));
   const topics = item.topics;
+  const showedMoreFeatureShow = (item.topics ?? []).length > 5;
+  const showedMore = listIdStreamShowedMore.indexOf(streamId) > -1;
+    const handlePressShowedMore = useCallback(
+        streamIdShowedMore => {
+            setListIdStreamShowedMore(!showedMore ? [...listIdStreamShowedMore, streamIdShowedMore] : [...(listIdStreamShowedMore.filter(e => e !== streamIdShowedMore))]);
+        },
+        [listIdStreamShowedMore, setListIdStreamShowedMore, showedMore],
+    );
+    let topicsShow;
+    if (!showedMoreFeatureShow || showedMore) {
+        topicsShow = topics;
+    } else {
+        topicsShow = topics.slice(0, 5);
+    }
   return (
     <View>
       <StreamItem
@@ -145,35 +160,60 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
       <Collapsible collapsed={collapsed} renderChildrenCollapsed={false}>
         <FlatList
           initialNumToRender={20}
-          data={topics}
+          data={topicsShow}
           keyExtractor={topic => topic.max_id.toString()}
           renderItem={({ item }) => ListTopicByStream(item, navigation, streamId, showActionSheetWithOptions, dispatch, context, backgroundData)}
           ListFooterComponent={(
-            <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 40, paddingVertical: 4, marginBottom: 8 }}
-              onPress={() => {
-                // dispatch(addToOutbox({ type: 'topic', streamId, topic: 'test 05' }, '.'));
-                  navigation.push('create-topic', { 'isEdit': false, 'streamId': streamId, 'topic': null });
-            }}
-            >
-              <Text style={{
-                    color: streamColor,
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                }}
+            <View style={{ marginBottom: 8, marginHorizontal: 40 }}>
+              {showedMoreFeatureShow ? (
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}
+                  onPress={() => handlePressShowedMore(streamId)}
+                >
+                  <Text style={{
+                            color: streamColor,
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                        }}
+                  >
+                    {'-  '}
+                  </Text>
+                  <ZulipTextIntl
+                    style={{
+                                color: streamColor,
+                                fontSize: 14,
+                            }}
+                    text={!showedMore ? 'Show more' : 'Show less'}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  />
+                </TouchableOpacity>
+                ) : <View />}
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}
+                onPress={() => {
+                          navigation.push('create-topic', { 'isEdit': false, 'streamId': streamId, 'topic': null });
+                      }}
               >
-                {'+ '}
-              </Text>
-              <ZulipTextIntl
-                style={{
-                        color: streamColor,
-                        fontSize: 14,
-                    }}
-                text="New topic"
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              />
-            </TouchableOpacity>
+                <Text style={{
+                          color: streamColor,
+                          fontSize: 18,
+                          fontWeight: 'bold',
+                      }}
+                >
+                  {'+ '}
+                </Text>
+                <ZulipTextIntl
+                  style={{
+                              color: streamColor,
+                              fontSize: 14,
+                          }}
+                  text="New topic"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </TouchableOpacity>
+            </View>
           )}
         />
       </Collapsible>
@@ -217,6 +257,7 @@ export default function SubscriptionsScreen(props: Props): Node {
         subscriptions.map(streamItem => dispatch(fetchTopics(streamItem.stream_id)));
     }
     const [listIdStreamExpanded, setListIdStreamExpanded] = useState([]);
+    const [listIdStreamShowedMore, setListIdStreamShowedMore] = useState([]);
 
   return (
     <View style={styles.container}>
@@ -250,7 +291,7 @@ export default function SubscriptionsScreen(props: Props): Node {
           extraData={unreadByStream}
           initialNumToRender={20}
           keyExtractor={item => item.stream_id}
-          renderItem={({ item }) => ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded })}
+          renderItem={({ item }) => ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded, listIdStreamShowedMore, setListIdStreamShowedMore })}
           // SectionSeparatorComponent={SectionSeparatorBetween}
           ListFooterComponent={AllStreamsButton}
           renderSectionHeader={({ section: { key } }) => (
