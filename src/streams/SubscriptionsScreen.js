@@ -89,6 +89,7 @@ function ListTopicByStream(topic, navigation, streamId, showActionSheetWithOptio
 }
 
 function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamExpanded, listIdStreamShowedMore, setListIdStreamShowedMore }: { item: Subscription, ... }) {
+  const showLessCountItem = 3;
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const unreadByStream = useSelector(getUnreadByStream);
@@ -125,7 +126,7 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
         showRenameTopic: false,
     }));
   const topics = item.topics;
-  const showedMoreFeatureShow = (item.topics ?? []).length > 5;
+  const showedMoreFeatureShow = (item.topics ?? []).length > showLessCountItem;
   const showedMore = listIdStreamShowedMore.indexOf(streamId) > -1;
     const handlePressShowedMore = useCallback(
         streamIdShowedMore => {
@@ -137,7 +138,7 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
     if (!showedMoreFeatureShow || showedMore) {
         topicsShow = topics;
     } else {
-        topicsShow = topics.slice(0, 5);
+        topicsShow = topics.slice(0, showLessCountItem);
     }
   return (
     <View>

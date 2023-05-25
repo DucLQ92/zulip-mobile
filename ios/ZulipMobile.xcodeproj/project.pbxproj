@@ -400,6 +400,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E6617F8310FECE9AC7FF5F9A /* Pods-ZulipMobile.debug.xcconfig */;
 			buildSettings = {
+				APP_NAME = "NextPay Talk-DEV";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ZulipMobile/ZulipMobile.entitlements;
@@ -436,6 +437,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8674B470B14EF990B9D95FF4 /* Pods-ZulipMobile.release.xcconfig */;
 			buildSettings = {
+				APP_NAME = "NextPay Talk";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ZulipMobile/ZulipMobile.entitlements;

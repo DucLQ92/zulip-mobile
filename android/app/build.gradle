@@ -191,8 +191,10 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             if (project.hasProperty('signed')) {
                 signingConfig signingConfigs.release
+                resValue "string", "app_name", "NextPay Talk"
             } else {
                 signingConfig signingConfigs.debug
+                resValue "string", "app_name", "NextPay Talk-DEV"
             }
         }
     }
