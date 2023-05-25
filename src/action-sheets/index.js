@@ -337,7 +337,7 @@ const copyLinkToTopic = {
   },
 };
 
-const toggleResolveTopic = async ({ auth, streamId, topic, _, streams, zulipFeatureLevel }) => {
+const toggleResolveTopic = async ({ auth, streamId, topic, _, streams, zulipFeatureLevel, dispatch }) => {
   // TODO: It'd be nice to use a message ID we know is in the conversation,
   //   where possible, rather than do this extra fetch.  Just need to thread
   //   such a message ID through to here.  (Like web, we'll still need this
@@ -377,6 +377,9 @@ const toggleResolveTopic = async ({ auth, streamId, topic, _, streams, zulipFeat
       send_notification_to_new_thread: true,
     }),
   });
+
+  // refresh list topic
+  dispatch(fetchTopics(streamId));
 };
 
 const renameTopic = {
