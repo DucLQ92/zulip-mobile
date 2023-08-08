@@ -140,7 +140,8 @@ export default function RealmInputScreen(props: Props): Node {
   const themeContext = React.useContext(ThemeContext);
 
   const [progress, setProgress] = React.useState(false);
-  const [realmInputValue, setRealmInputValue] = React.useState('dev-talk.nextpay.vn');
+  // const [realmInputValue, setRealmInputValue] = React.useState('dev-talk.nextpay.vn');
+  const [realmInputValue, setRealmInputValue] = React.useState('talk.nextpay.vn');
   const maybeParsedInput = tryParseInput(realmInputValue);
 
   const textInputRef = React.useRef<React$ElementRef<typeof TextInput> | null>(null);

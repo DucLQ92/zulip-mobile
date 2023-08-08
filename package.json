@@ -11,7 +11,7 @@
     "android-release": "react-native run-android --variant=release",
     "build:android": "tools/android apk",
     "build:android-nokeys": "tools/gradle :app:assembleRelease",
-    "ios": "npx react-native run-ios --simulator='iPhone 8 Plus' --scheme 'ZulipMobile'",
+    "ios": "npx react-native run-ios --simulator='iPhone SE (3rd generation)' --scheme 'ZulipMobile'",
     "build:ios": "cd ios && xcodebuild archive -workspace ZulipMobile.xcworkspace -scheme ZulipMobile -sdk iphoneos -archivePath './archives/ZulipMobile.xcarchive'",
     "test": "tools/test",
     "prettier": "tools/fmt",

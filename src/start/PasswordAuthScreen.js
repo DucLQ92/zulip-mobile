@@ -141,12 +141,22 @@ class PasswordAuthScreenInner extends PureComponent<Props, State> {
           onPress={this.validateForm}
         />
         <ErrorMsg error={error} />
-        <View style={styles.linksTouchable}>
-          <ZulipText style={styles.forgotPasswordText}>
-            <WebLink url={new URL('/accounts/password/reset/', realm)}>
-              <ZulipTextIntl inheritColor text="Forgot password?" />
-            </WebLink>
-          </ZulipText>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={styles.linksTouchable}>
+            <ZulipText style={styles.forgotPasswordText}>
+              <WebLink url={new URL('/nextpay-talk-register/', 'https://mynextpaytech-dev.nextpay.vn')}>
+                <ZulipTextIntl inheritColor text="Register" />
+              </WebLink>
+            </ZulipText>
+          </View>
+          <View style={{ flex: 1 }} />
+          <View style={styles.linksTouchable}>
+            <ZulipText style={styles.forgotPasswordText}>
+              <WebLink url={new URL('/accounts/password/reset/', realm)}>
+                <ZulipTextIntl inheritColor text="Forgot password?" />
+              </WebLink>
+            </ZulipText>
+          </View>
         </View>
       </Screen>
     );

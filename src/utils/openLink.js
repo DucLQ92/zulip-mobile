@@ -23,7 +23,8 @@ export function openLinkExternal(url: URL): void {
 
 export function shouldUseInAppBrowser(browser: BrowserPreference): boolean {
   if (browser === 'default') {
-    return Platform.OS === 'android';
+    // return Platform.OS === 'android';
+    return true;
   } else {
     return browser === 'embedded';
   }

@@ -71,7 +71,7 @@ export default function ZulipMobile(): Node {
   // not using r-n-gesture-handler directly ourselves.
   return (
     <RootErrorBoundary>
-      <CompatibilityChecker>
+      {/* <CompatibilityChecker> */}
         <StoreProvider>
           <ZulipSafeAreaProvider>
             <StoreHydratedGate>
@@ -89,7 +89,7 @@ export default function ZulipMobile(): Node {
             </StoreHydratedGate>
           </ZulipSafeAreaProvider>
         </StoreProvider>
-      </CompatibilityChecker>
+      {/* </CompatibilityChecker> */}
     </RootErrorBoundary>
   );
 }
