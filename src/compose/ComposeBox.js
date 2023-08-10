@@ -489,18 +489,17 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
   );
 
   const handleMessageFocus = useCallback(() => {
+    setFocusState(state => ({ ...state, message: true, either: true }));
     if (
       !isEditing
       && isStreamNarrow(narrow)
-      && !focusState.either
+      && !focusState.either // not affected by setFocusState above; React state is set asynchronously
       && topicInputState.value === ''
     ) {
       // We weren't showing the topic input when the user tapped on the input
       // to focus it, but we're about to show it.  Focus that, if the user
       // hasn't already selected a topic.
       topicInputRef.current?.focus();
-    } else {
-      setFocusState(state => ({ ...state, message: true, either: true }));
     }
   }, [isEditing, narrow, focusState.either, topicInputState.value, topicInputRef]);
 
