@@ -84,10 +84,10 @@ project.ext.react = [
 
 apply from: "../../node_modules/react-native/react.gradle"
 
-if (hasProperty('sentry')) {
-    // Conditionally enable Sentry, because it requires an auth key.
-    apply from: "../../node_modules/@sentry/react-native/sentry.gradle"
-}
+// if (hasProperty('sentry')) {
+//     // Conditionally enable Sentry, because it requires an auth key.
+//     apply from: "../../node_modules/@sentry/react-native/sentry.gradle"
+// }
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
@@ -147,8 +147,8 @@ android {
         applicationId "vn.nextpay.nptalk"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 207
-        versionName "27.207"
+        versionCode 1
+        versionName "1.0.0"
     }
     signingConfigs {
         // The RN v0.60 template app suggests configuring a debug
@@ -195,6 +195,7 @@ android {
             } else {
                 signingConfig signingConfigs.debug
                 resValue "string", "app_name", "NextPay Talk-DEV"
+                applicationIdSuffix ".dev"
             }
         }
     }

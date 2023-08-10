@@ -144,7 +144,7 @@ class PasswordAuthScreenInner extends PureComponent<Props, State> {
         <View style={{ flexDirection: 'row' }}>
           <View style={styles.linksTouchable}>
             <ZulipText style={styles.forgotPasswordText}>
-              <WebLink url={new URL('/nextpay-talk-register/', 'https://mynextpaytech-dev.nextpay.vn')}>
+              <WebLink url={new URL('/nextpay-talk-register', 'https://mynextpaytech-dev.nextpay.vn')}>
                 <ZulipTextIntl inheritColor text="Register" />
               </WebLink>
             </ZulipText>
