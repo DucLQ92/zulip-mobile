@@ -1,16 +1,20 @@
 /* @flow strict-local */
 import * as Sentry from '@sentry/react-native';
-import type { Breadcrumb, BreadcrumbHint } from '@sentry/react-native';
 import { nativeApplicationVersion } from 'expo-application';
 // $FlowFixMe[untyped-import]
 import md5 from 'blueimp-md5';
 
+import { Platform } from 'react-native';
 import type { Identity } from './types';
 import isAppOwnDomain from './isAppOwnDomain';
 import store from './boot/store';
 import { getIdentities } from './account/accountsSelectors';
 import { sentryKey } from './sentryConfig';
 import { isUrlOnRealm } from './utils/url';
+
+// TODO import from @sentry/react-native libdef
+type Breadcrumb = $FlowFixMe;
+type BreadcrumbHint = $FlowFixMe;
 
 export const isSentryActive = (): boolean => {
   // Hub#getClient() is documented as possibly returning undefined, but the
@@ -122,8 +126,6 @@ function scrubUrl(unscrubbedUrl: void | string): void | string {
 function scrubBreadcrumb(breadcrumb: Breadcrumb, hint?: BreadcrumbHint): Breadcrumb {
   switch (breadcrumb.type) {
     case 'http': {
-      // $FlowIgnore[incompatible-indexer] | We assume it's an
-      // $FlowIgnore[incompatible-type]    | HttpBreadcrumb; see jsdoc.
       const httpBreadcrumb: HttpBreadcrumb = breadcrumb;
       return {
         ...httpBreadcrumb,
@@ -152,10 +154,22 @@ export const initializeSentry = () => {
 
     Sentry.init({
       dsn: key,
+
       ignoreErrors: [
         // RN's fetch implementation can raise these; we sometimes mimic it
         'Network request failed',
       ],
+
+      ...(Platform.OS === 'android'
+        ? {
+            // Disable Sentry's native code (libsentry.so), because it has
+            // memory-corruption bugs that cause the app to crash.
+            //   https://github.com/zulip/zulip-mobile/issues/5766
+            //   https://github.com/getsentry/sentry-java/issues/2955#issuecomment-1739030872
+            enableNdk: false,
+          }
+        : Object.freeze({})),
+
       beforeBreadcrumb(breadcrumb: Breadcrumb, hint?: BreadcrumbHint): Breadcrumb | null {
         try {
           return scrubBreadcrumb(breadcrumb, hint);

@@ -88,6 +88,18 @@ const kShouldOfferImageMultiselect =
   // Android 13
   || androidSdkVersion() >= 33;
 
+// As of r-n-image-picker v5.3.1, this is needed to ensure that any received
+// videos have a `fileName` that includes a filename extension. (Servers
+// will interpret the filename extension.) See library implementation.
+//
+// For older Android, it seems the alternative is a generic file-picker UI
+// not specialized to images/videos (in a library codepath that uses
+// Intent.ACTION_GET_CONTENT).
+const kShouldOfferImagePickerMixedMedia =
+  Platform.OS === 'ios'
+  // Android 13
+  || androidSdkVersion() >= 33;
+
 type MenuButtonProps = $ReadOnly<{|
   onPress: () => void | Promise<void>,
   IconComponent: SpecificIconType,
@@ -215,8 +227,7 @@ export default function ComposeMenu(props: Props): Node {
   const handleImagePicker = useCallback(() => {
     launchImageLibrary(
       {
-        // TODO(#3624): Try 'mixed', to allow both photos and videos
-        mediaType: 'photo',
+        mediaType: kShouldOfferImagePickerMixedMedia ? 'mixed' : 'photo',
 
         quality: 1.0,
         includeBase64: false,
@@ -248,7 +259,25 @@ export default function ComposeMenu(props: Props): Node {
 
     launchCamera(
       {
-        mediaType: 'photo',
+        // Here's how iOS video recording works in an attempt on iOS 16:
+        //   - iOS gives a native interface with a camera preview. You can
+        //     choose "photo" or "video", with "photo" selected by default.
+        //   - On tapping "video" for the first time, it shows a permissions
+        //     prompt with the NSMicrophoneUsageDescription string. (If we
+        //     didn't declare that string, the app would hang here.)
+        //   - If you grant the permission, the interaction proceeds as
+        //     you'd hope: you take a video (or cancel), then confirm,
+        //     retake, or cancel.
+        //   - If you don't grant the permission, it proceeds similarly,
+        //     except the sent video will have no sound. Later interactions
+        //     will also let you take video without sound, and you won't get
+        //     prompted about permissions (!). If you want to record videos
+        //     with sound, you have to look in Settings by yourself and
+        //     grant the permission there.
+        //
+        // 'mixed' is not supported on Android:
+        //   https://github.com/react-native-image-picker/react-native-image-picker#options
+        mediaType: Platform.OS === 'ios' ? 'mixed' : 'photo',
 
         // On Android ≤9 (see above) and on iOS, this means putting up a
         // scary permission request. Shrug, because other apps seem to save

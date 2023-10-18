@@ -40,6 +40,165 @@ It doesn't include
 ## Unreleased
 
 
+## 27.216 (2023-10-10)
+
+This is an Android-only release.
+
+
+### Highlights for users, vs. v27.214 (last beta release)
+
+* (Android) Disabled Sentry error reporting, to resolve
+  crashes following a recent Android update. (#5778)
+
+
+### Highlights for developers, vs. v27.214 (last release from main)
+
+* Disabled Sentry on Android again. (#5778)
+
+
+## 27.215 (2023-10-10)
+
+This was an alpha-only, Android-only release in the v27.211 series,
+with cherry-picked changes atop v27.213.
+
+
+### Highlights for users, vs. v27.213
+
+* (Android) Update various behavior on Android 13+ as required by
+  Google Play. (#5453)
+
+
+### Highlights for developers, vs. v27.213
+
+* Bumped `targetSdkVersion` to 33, aka Android 13, this time handling the
+  new POST_NOTIFICATIONS permission. (#5753, #5453)
+
+
+## 27.214 (2023-10-05)
+
+On Android this was a beta-only release.
+
+
+### Highlights for users, vs. v27.213 (last prod release)
+
+* In an interleaved stream view, "Quote and reply" now fills the topic
+  input, if it was empty, and focuses the message input. (#5718)
+
+
+### Highlights for developers, vs. v27.212 (last release from main)
+
+* (Android) Configured Sentry with `enableNdk: false`, as a workaround for
+  the crash bug #5757. (#5766)
+
+* In the notification troubleshooting screen, when the email library reports
+  successfully sending a support email, that fact will be reported in
+  Sentry. (PR #5775)
+
+* Resolved issues: #5766
+
+
+## 27.213 (2023-09-20)
+
+This is an Android-only release in the v27.211 series.
+
+
+### Highlights for users, vs. v27.211
+
+* (Android) Disabled Sentry error reporting, which was causing
+  crashes following a recent Android update. (#5757)
+
+
+### Highlights for developers, vs. v27.211
+
+* Disabled Sentry on Android, as a workaround for the newly-frequent
+  crash bug #5757.
+
+
+## 27.212 (2023-09-15)
+
+This was an alpha-only release.
+
+
+### Highlights for users
+
+* In an interleaved stream view, "Quote and reply" now fills the topic
+  input, if it was empty, and focuses the message input. (#5718)
+
+
+### Highlights for developers
+
+* Bumped `targetSdkVersion` to 33, aka Android 13, this time handling the
+  new POST_NOTIFICATIONS permission. (#5753, #5453)
+
+* Bumped `kMinAllowedServerVersion` to 4.0 and
+  `kMinSupportedVersion` to 5.0. (PR #5762)
+
+* Ran `yarn upgrade`. (PR #5756)
+
+* (Android) Added device manufacturer/model to notification troubleshooting
+  data. (PR #5754)
+
+* Resolved issues: #5718, #5753, #5453
+
+
+## 27.211 (2023-08-31)
+
+This is an Android-only release. It is the same as v27.209 except its
+version number.
+
+
+### Highlights for users
+
+* Fixed a bug introduced in v27.210 where notifications stopped working on
+  Android 13. (#5752)
+
+This release is identical to v27.209 except for its version number.
+
+
+### Highlights for developers
+
+* Reverted the `targetSdkVersion` bump to 33, so it's back to 31. (#5752)
+
+* Resolved issues: PR #5752
+
+
+## 27.210 (2023-08-29)
+
+This is an Android-only release.
+
+
+### Highlights for users
+
+* (Android) In this release, we adjust some build configuration as required
+  by Google Play. (We set targetSdkVersion to 33, a.k.a. Android 13.) (#5453)
+
+
+### Highlights for developers
+
+* Bumped `targetSdkVersion` to 33, aka Android 13. (#5453)
+
+* Resolved issues: #5453
+
+
+## 27.209 (2023-08-18)
+
+### Highlights for users
+
+* (iOS) You can now upload video attachments from your camera or media
+  library. (#3624, #5733)
+* (Android) You can now upload video attachments from your media library
+  (Android 13+). (#3624)
+
+
+### Highlights for developers
+
+* Bumped `kMinAllowedServerVersion` to 3.0. (PR #5747)
+
+* Bumped `kMinSupportedVersion` to 4.10. (PR #5748)
+
+* Resolved issues: #3624, #5733
+
+
 ## 27.208 (2023-05-25)
 
 ### Highlights for users

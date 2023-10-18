@@ -62,6 +62,7 @@ export function isTopicVisibleInStream(streamId: number, topic: string, mute: Mu
     case UserTopicVisibilityPolicy.Muted:
       return false;
     case UserTopicVisibilityPolicy.Unmuted:
+    case UserTopicVisibilityPolicy.Followed:
       return true;
   }
 }
@@ -89,6 +90,7 @@ export function isTopicVisible(
     case UserTopicVisibilityPolicy.Muted:
       return false;
     case UserTopicVisibilityPolicy.Unmuted:
+    case UserTopicVisibilityPolicy.Followed:
       return true;
   }
 }
@@ -99,6 +101,21 @@ export function isTopicVisible(
 //
 
 const initialState: MuteState = Immutable.Map();
+
+/**
+ * Warn and return true on an unexpected value; else return false.
+ *
+ * This lets us keep out of our data structures any values we
+ * don't expect in our types.
+ */
+function warnInvalidVisibilityPolicy(visibility_policy: UserTopicVisibilityPolicy): boolean {
+  if (!UserTopicVisibilityPolicy.isValid((visibility_policy: number))) {
+    // Not a value we expect.  Keep it out of our data structures.
+    logging.warn(`unexpected UserTopicVisibilityPolicy: ${(visibility_policy: number)}`);
+    return true;
+  }
+  return false;
+}
 
 /** Consume the old `muted_topics` format. */
 function convertLegacy(data, streams): MuteState {
@@ -128,9 +145,7 @@ function convertInitial(data): MuteState {
   // plain old Array.
   const byStream = new DefaultMap(() => []);
   for (const { stream_id, topic_name, visibility_policy } of data) {
-    if (!UserTopicVisibilityPolicy.isValid((visibility_policy: number))) {
-      // Not a value we expect.  Keep it out of our data structures.
-      logging.warn(`unexpected UserTopicVisibilityPolicy: ${(visibility_policy: number)}`);
+    if (warnInvalidVisibilityPolicy(visibility_policy)) {
       continue;
     }
     byStream.getOrCreate(stream_id).push([topic_name, visibility_policy]);
@@ -186,7 +201,11 @@ export const reducer = (
       const { event } = action;
       switch (event.type) {
         case EventTypes.user_topic: {
-          const { stream_id, topic_name, visibility_policy } = event;
+          const { stream_id, topic_name } = event;
+          let { visibility_policy } = event;
+          if (warnInvalidVisibilityPolicy(visibility_policy)) {
+            visibility_policy = UserTopicVisibilityPolicy.None;
+          }
           if (visibility_policy === UserTopicVisibilityPolicy.None) {
             // This is the "zero value" for this type, which our MuteState
             // data structure represents by leaving the topic out entirely.

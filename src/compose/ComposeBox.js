@@ -264,15 +264,12 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
     setFocusState(state => ({ ...state, either: state.message || state.topic }));
   }, []);
 
-  const canSelectTopic = useMemo(() => {
-    if (isEditing) {
-      return isStreamOrTopicNarrow(narrow);
-    }
-    if (!isStreamNarrow(narrow)) {
-      return false;
-    }
-    return focusState.either;
-  }, [isEditing, narrow, focusState.either]);
+  const topicSelectionAllowed = useMemo(
+    () => (isEditing ? isStreamOrTopicNarrow(narrow) : isStreamNarrow(narrow)),
+    [isEditing, narrow],
+  );
+
+  const topicInputVisible = topicSelectionAllowed && (focusState.either || isEditing);
 
   /**
    * Inserts text at the message input's cursor position.
@@ -391,8 +388,9 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
   const anyQuoteAndReplyInProgress = activeQuoteAndRepliesCount > 0;
   const doQuoteAndReply = useCallback(
     async message => {
-      // TODO: If not already there, re-narrow to `message`'s conversation
-      //   narrow, with getNarrowForReply, and do the quote-and-reply there.
+      // TODO: For composing a new message (i.e. isEditing is false), if
+      //   not already there, re-narrow to `message`'s conversation narrow,
+      //   with getNarrowForReply, and do the quote-and-reply there.
       //   Discussion:
       //   https://chat.zulip.org/#narrow/stream/243-mobile-team/topic/.23M1975.20Quote.20and.20reply/near/1455302
 
@@ -435,6 +433,12 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           return;
         }
 
+        if (topicSelectionAllowed && topicInputState.value === '' && message.type === 'stream') {
+          // Later, this won't be necessary in the case of composing a new
+          // message. See TODO above about re-narrowing to `message`'s
+          // conversation.
+          setTopicInputValue(message.subject);
+        }
         const quoteAndReplyText = getQuoteAndReplyText({
           message,
           rawContent,
@@ -445,6 +449,7 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           _,
         });
         setMessageInputValue(state => state.value.replace(quotingPlaceholder, quoteAndReplyText));
+        messageInputRef.current?.focus();
       } finally {
         setActiveQuoteAndRepliesCount(v => v - 1);
         activeInvocations.current = activeInvocations.current.filter(x => x !== serialNumber);
@@ -458,6 +463,10 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
       setMessageInputValue,
       zulipFeatureLevel,
       _,
+      topicSelectionAllowed,
+      topicInputState.value,
+      setTopicInputValue,
+      messageInputRef,
     ],
   );
   useImperativeHandle(ref, () => ({ doQuoteAndReply }), [doQuoteAndReply]);
@@ -681,7 +690,7 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           // (https://stackoverflow.com/a/49817873), which doesn't work
           // either. However, a combinarion of the two of them seems to
           // work.
-          ...(!canSelectTopic && { position: 'absolute', transform: [{ scale: 0 }] }),
+          ...(!topicInputVisible && { position: 'absolute', transform: [{ scale: 0 }] }),
         },
         composeTextInput: {
           // These border attributes override styles set in <Input />.
@@ -694,7 +703,7 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           backgroundColor,
         },
       }),
-    [inputMarginPadding, backgroundColor, height, submitButtonDisabled, canSelectTopic],
+    [inputMarginPadding, backgroundColor, height, submitButtonDisabled, topicInputVisible],
   );
 
   const submitButtonHitSlop = useMemo(() => ({ top: 8, right: 8, bottom: 8, left: 8 }), []);

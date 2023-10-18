@@ -25,24 +25,20 @@ export const kServerSupportDocUrl: URL = new URL(
 /**
  * The oldest version we currently support.
  *
- * Should match what we say at kServerSupportDocUrl.
+ * Should match the policy stated at kServerSupportDocUrl: all versions
+ * below this should be older than 18 months.
  *
  * See also kMinAllowedServerVersion in apiErrors.js, for the version below
  * which we just refuse to connect.
  */
-export const kMinSupportedVersion: ZulipVersion = new ZulipVersion('4.0');
-// Notes on known breakage at older versions:
-//  * Before 1.8, the server doesn't send found_newest / found_oldest on
-//    fetching messages, and so `state.caughtUp` will never have truthy
-//    values.  This probably means annoying behavior in a message list,
-//    as we keep trying to fetch newer messages.
+export const kMinSupportedVersion: ZulipVersion = new ZulipVersion('5.0');
 
 /**
  * The next value we'll give to kMinSupportedVersion in the future.
  *
  * This should be the next major Zulip Server version after kMinSupportedVersion.
  */
-export const kNextMinSupportedVersion: ZulipVersion = new ZulipVersion('5.0');
+export const kNextMinSupportedVersion: ZulipVersion = new ZulipVersion('6.0');
 
 type Props = $ReadOnly<{||}>;
 

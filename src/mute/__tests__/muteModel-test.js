@@ -15,6 +15,7 @@ import { makeMuteState, makeUserTopic } from './mute-testlib';
 import { tryGetActiveAccountState } from '../../selectors';
 import { UserTopicVisibilityPolicy } from '../../api/modelTypes';
 import { EventTypes } from '../../api/eventTypes';
+import * as logging from '../../utils/logging';
 
 /* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "check"] }] */
 
@@ -44,6 +45,13 @@ describe('getters', () => {
         UserTopicVisibilityPolicy.Unmuted,
       );
     });
+
+    test('with topic followed', () => {
+      check(
+        makeMuteState([[eg.stream, 'topic', UserTopicVisibilityPolicy.Followed]]),
+        UserTopicVisibilityPolicy.Followed,
+      );
+    });
   });
 
   describe('isTopicVisibleInStream', () => {
@@ -65,6 +73,10 @@ describe('getters', () => {
 
     test('with topic unmuted', () => {
       check(makeMuteState([[eg.stream, 'topic', UserTopicVisibilityPolicy.Unmuted]]), true);
+    });
+
+    test('with topic followed', () => {
+      check(makeMuteState([[eg.stream, 'topic', UserTopicVisibilityPolicy.Followed]]), true);
     });
   });
 
@@ -89,6 +101,10 @@ describe('getters', () => {
       check(false, UserTopicVisibilityPolicy.Unmuted, true);
     });
 
+    test('stream unmuted, topic-policy Followed', () => {
+      check(false, UserTopicVisibilityPolicy.Followed, true);
+    });
+
     test('stream muted, topic-policy None', () => {
       check(true, UserTopicVisibilityPolicy.None, false);
     });
@@ -99,6 +115,10 @@ describe('getters', () => {
 
     test('stream muted, topic-policy Unmuted', () => {
       check(true, UserTopicVisibilityPolicy.Unmuted, true);
+    });
+
+    test('stream muted, topic-policy Followed', () => {
+      check(true, UserTopicVisibilityPolicy.Followed, true);
     });
   });
 });
@@ -136,6 +156,25 @@ describe('reducer', () => {
           [eg.stream, 'topic', UserTopicVisibilityPolicy.Muted],
           [eg.stream, 'other topic', UserTopicVisibilityPolicy.Unmuted],
         ]),
+      );
+    });
+
+    test('in modern user_topics format: invalid enum values discarded', () => {
+      // $FlowFixMe[prop-missing]: Jest mock
+      logging.warn.mockReturnValue();
+
+      const action1 = eg.mkActionRegisterComplete({
+        user_topics: [
+          // $FlowIgnore[incompatible-call]: simulates a future server
+          makeUserTopic(eg.stream, 'topic', 42),
+          makeUserTopic(eg.stream, 'other topic', UserTopicVisibilityPolicy.Muted),
+        ],
+      });
+      const action2 = eg.mkActionRegisterComplete({
+        user_topics: [makeUserTopic(eg.stream, 'other topic', UserTopicVisibilityPolicy.Muted)],
+      });
+      expect(reducer(initialState, action1, eg.plusReduxState)).toEqual(
+        reducer(initialState, action2, eg.plusReduxState),
       );
     });
 
@@ -229,6 +268,21 @@ describe('reducer', () => {
         makeMuteState([[eg.stream, 'topic']]),
         makeUserTopic(eg.stream, 'topic', UserTopicVisibilityPolicy.None),
         initialState,
+      );
+    });
+
+    test('treat invalid enum value as removing', () => {
+      // $FlowFixMe[prop-missing]: Jest mock
+      logging.warn.mockReturnValue();
+
+      check(
+        makeMuteState([
+          [eg.stream, 'topic'],
+          [eg.stream, 'other topic'],
+        ]),
+        // $FlowIgnore[incompatible-call]: simulates a future server
+        makeUserTopic(eg.stream, 'topic', 999),
+        makeMuteState([[eg.stream, 'other topic']]),
       );
     });
   });

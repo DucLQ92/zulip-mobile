@@ -645,11 +645,11 @@ export type Topic = $ReadOnly<{|
 export enum UserTopicVisibilityPolicy {
   None = 0,
   Muted = 1,
-  // Not in the API docs yet, but the API has been agreed on:
-  //   https://chat.zulip.org/#narrow/stream/378-api-design/topic/muted.20topics/near/1501574
-  //   https://chat.zulip.org/#narrow/stream/378-api-design/topic/muted.20topics/near/1528885
-  // TODO(server): delete this comment once documented
   Unmuted = 2,
+  // Not in the API docs yet.  But it is, uh, in the server implementation:
+  //   https://github.com/zulip/zulip/blob/2ec8273c6/zerver/models.py#L2794-L2797
+  // TODO(server): delete this comment once documented
+  Followed = 3,
 }
 
 /**
