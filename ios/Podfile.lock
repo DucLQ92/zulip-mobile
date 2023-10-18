@@ -312,7 +312,7 @@ PODS:
     - React-Core
   - react-native-document-picker (8.2.0):
     - React-Core
-  - react-native-image-picker (4.10.3):
+  - react-native-image-picker (5.7.0):
     - React-Core
   - react-native-netinfo (6.0.0):
     - React-Core
@@ -438,14 +438,14 @@ PODS:
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
-  - RNSentry (3.4.3):
+  - RNSentry (5.11.1):
     - React-Core
-    - Sentry (= 7.11.0)
+    - Sentry/HybridSDK (= 8.13.0)
   - RNVectorIcons (9.2.0):
     - React-Core
-  - Sentry (7.11.0):
-    - Sentry/Core (= 7.11.0)
-  - Sentry/Core (7.11.0)
+  - Sentry/HybridSDK (8.13.0):
+    - SentryPrivate (= 8.13.0)
+  - SentryPrivate (8.13.0)
   - SocketRocket (0.6.0)
   - Toast (4.0.0)
   - Yoga (1.14.0)
@@ -555,6 +555,7 @@ SPEC REPOS:
     - libevent
     - OpenSSL-Universal
     - Sentry
+    - SentryPrivate
     - SocketRocket
     - Toast
     - YogaKit
@@ -729,7 +730,7 @@ SPEC CHECKSUMS:
   React-logger: b75b80500ea80457b2cf169427d66de986cdcb29
   react-native-cameraroll: cb752fda6d5268f1646b4390bd5be1f27706b9a0
   react-native-document-picker: 495c444c0c773c6e83a5d91165890ecb1c0a399a
-  react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
+  react-native-image-picker: 3269f75c251cdcd61ab51b911dd30d6fff8c6169
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
   react-native-photo-view: ea0ec91bf5991a6843e740b1f47ab355171c996c
   react-native-safe-area-context: 1d596539b05a78f2b346e954e7c577f6f9be7544
@@ -755,9 +756,10 @@ SPEC CHECKSUMS:
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNReanimated: e7d8afaf8fed4b3bf1a46e06adb2e04a2b248f1c
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
-  RNSentry: 85f6525b5fe8d2ada065858026b338605b3c09da
+  RNSentry: e668d4e68fe09d475dc084bab81f02c3be2db173
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
-  Sentry: 0c5cd63d714187b4a39c331c1f0eb04ba7868341
+  Sentry: a067ca1db308066097314d8478e9682f3b575dee
+  SentryPrivate: 917c91aeb0f199cd079404fab2b50c83e4bad25c
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: 0bc4b37c3b8a345336ff601e2cf7d9704bab7e93
