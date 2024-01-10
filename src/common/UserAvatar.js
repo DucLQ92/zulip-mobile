@@ -8,11 +8,11 @@ import { getAuthHeaders } from '../api/transport';
 import { getAuth } from '../account/accountsSelectors';
 import Touchable from './Touchable';
 import { AvatarURL, FallbackAvatarURL } from '../utils/avatar';
-import { IconUserMuted } from './Icons';
+import { IconUserBlank } from './Icons';
 import { ThemeContext } from '../styles';
 
 type Props = $ReadOnly<{|
-  avatarUrl: AvatarURL,
+  avatarUrl: AvatarURL | null,
   size: number,
   isMuted?: boolean,
   children?: Node,
@@ -45,23 +45,28 @@ function UserAvatar(props: Props): Node {
 
   const auth = useSelector(state => getAuth(state));
 
+  let userImage;
+  if (isMuted || !avatarUrl) {
+    userImage = <IconUserBlank size={size} color={color} style={iconStyle} />;
+  } else {
+    userImage = (
+      <Image
+        source={{
+          uri: avatarUrl.get(PixelRatio.getPixelSizeForLayoutSize(size)).toString(),
+          ...(avatarUrl instanceof FallbackAvatarURL
+            ? { headers: getAuthHeaders(auth) }
+            : undefined),
+        }}
+        style={style}
+        resizeMode="cover"
+      />
+    );
+  }
+
   return (
     <Touchable onPress={onPress}>
       <View accessibilityIgnoresInvertColors>
-        {!isMuted ? (
-          <Image
-            source={{
-              uri: avatarUrl.get(PixelRatio.getPixelSizeForLayoutSize(size)).toString(),
-              ...(avatarUrl instanceof FallbackAvatarURL
-                ? { headers: getAuthHeaders(auth) }
-                : undefined),
-            }}
-            style={style}
-            resizeMode="cover"
-          />
-        ) : (
-          <IconUserMuted size={size} color={color} style={iconStyle} />
-        )}
+        {userImage}
         {children}
       </View>
     </Touchable>

@@ -12,6 +12,12 @@ import Touchable from '../common/Touchable';
 import UnreadCount from '../common/UnreadCount';
 import { getMutedUsers } from '../selectors';
 import { TranslationContext } from '../boot/TranslationProvider';
+import {
+  getFullNameOrMutedUserReactText,
+  getFullNameOrMutedUserText,
+} from '../users/userSelectors';
+import ZulipTextIntl from '../common/ZulipTextIntl';
+import { getRealm } from '../directSelectors';
 
 const componentStyles = createStyleSheet({
   text: {
@@ -41,20 +47,35 @@ export default function GroupPmConversationItem<U: $ReadOnlyArray<UserOrBot>>(
 
   const _ = useContext(TranslationContext);
   const mutedUsers = useSelector(getMutedUsers);
+  const enableGuestUserIndicator = useSelector(state => getRealm(state).enableGuestUserIndicator);
   const names = users.map(user =>
-    mutedUsers.has(user.user_id) ? _('Muted user') : user.full_name,
+    _(getFullNameOrMutedUserText({ user, mutedUsers, enableGuestUserIndicator })),
   );
+
+  const namesReact = [];
+  users.forEach((user, i) => {
+    if (i !== 0) {
+      namesReact.push(
+        <ZulipText key={`${user.user_id}-comma`} inheritColor inheritFontSize text=", " />,
+      );
+    }
+    namesReact.push(
+      <ZulipTextIntl
+        key={`${user.user_id}`}
+        inheritColor
+        inheritFontSize
+        text={getFullNameOrMutedUserReactText({ user, mutedUsers, enableGuestUserIndicator })}
+      />,
+    );
+  });
 
   return (
     <Touchable onPress={handlePress}>
       <View style={styles.listItem}>
         <GroupAvatar size={48} names={names} />
-        <ZulipText
-          style={componentStyles.text}
-          numberOfLines={2}
-          ellipsizeMode="tail"
-          text={names.join(', ')}
-        />
+        <ZulipText style={componentStyles.text} numberOfLines={2} ellipsizeMode="tail">
+          {namesReact}
+        </ZulipText>
         <UnreadCount count={unreadCount} />
       </View>
     </Touchable>

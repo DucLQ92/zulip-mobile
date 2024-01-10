@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, ScrollView, NativeModules } from 'react-native';
+import { Platform, View, ScrollView, NativeModules } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as MailComposer from 'expo-mail-composer';
@@ -15,6 +15,7 @@ import type { AppNavigationProp } from '../nav/AppNavigator';
 import Screen from '../common/Screen';
 import { createStyleSheet } from '../styles';
 import { useDispatch, useGlobalSelector, useSelector } from '../react-redux';
+import { getRealmName } from '../selectors';
 import {
   getAccounts,
   getGlobalSession,
@@ -31,11 +32,10 @@ import {
 } from '../account/accountsSelectors';
 import { showErrorAlert, showToast } from '../utils/info';
 import Input from '../common/Input';
-import ZulipButton from '../common/ZulipButton';
 import { identityOfAccount, keyOfIdentity } from '../account/accountMisc';
 import AlertItem from '../common/AlertItem';
 import ZulipText from '../common/ZulipText';
-import type { Identity } from '../types';
+import type { Identity, LocalizableText, LocalizableReactText } from '../types';
 import type { SubsetProperties } from '../generics';
 import type { ZulipVersion } from '../utils/zulipVersion';
 import { androidBrand, androidManufacturer, androidModel, useAppState } from '../reactNativeUtils';
@@ -44,10 +44,11 @@ import { getHaveServerData } from '../haveServerDataSelectors';
 import { TranslationContext } from '../boot/TranslationProvider';
 import isAppOwnDomain from '../isAppOwnDomain';
 import { openLinkWithUserPreference, openSystemNotificationSettings } from '../utils/openLink';
-import { getOwnUserRole, roleIsAtLeast } from '../permissionSelectors';
-import { Role } from '../api/permissionsTypes';
 import { initNotifications } from '../notification/notifTokens';
 import { ApiError } from '../api/apiErrors';
+import NavRow from '../common/NavRow';
+import RowGroup from '../common/RowGroup';
+import TextRow from '../common/TextRow';
 
 const {
   Notifications, // android
@@ -134,6 +135,100 @@ export enum NotificationProblem {
   //   - Can't reach the server (ideally after #5615, to be less buggy)
   //   - Android notification sound file missing (#5484)
 }
+
+const notifProblemsHighToLowShortTextPrecedence: $ReadOnlyArray<NotificationProblem> = [
+  NotificationProblem.SystemSettingsDisabled,
+  NotificationProblem.GooglePlayServicesNotAvailable,
+  NotificationProblem.ServerHasNotEnabled,
+  NotificationProblem.TokenNotAcked,
+  NotificationProblem.TokenUnknown,
+];
+
+invariant(
+  new Set(notifProblemsHighToLowShortTextPrecedence).size
+    === [...NotificationProblem.members()].length,
+  'notifProblemsHighToLowShortTextPrecedence missing or duplicate members',
+);
+
+/**
+ * Which of a NotificationReport's `problem`s to show short text for if any.
+ *
+ * Use this with notifProblemShortText and notifProblemShortReactText,
+ * where there's room for just one problem's short text, like in the
+ * NavRow leading to the notification settings screen.
+ */
+export const chooseNotifProblemForShortText = (args: {|
+  // eslint-disable-next-line no-use-before-define
+  report: { +problems: NotificationReport['problems'], ... },
+  ignoreServerHasNotEnabled?: boolean,
+|}): NotificationProblem | null => {
+  const { report, ignoreServerHasNotEnabled = false } = args;
+  const result = notifProblemsHighToLowShortTextPrecedence.find(p => {
+    if (p === NotificationProblem.ServerHasNotEnabled && ignoreServerHasNotEnabled) {
+      return false;
+    }
+    return report.problems.includes(p);
+  });
+
+  return result ?? null;
+};
+
+/**
+ * A one-line summary of a NotificationProblem, as LocalizableText.
+ *
+ * For this as a LocalizableReactText, see notifProblemShortReactText.
+ */
+export const notifProblemShortText = (
+  problem: NotificationProblem,
+  realmName: string,
+): LocalizableText => {
+  switch (problem) {
+    case NotificationProblem.TokenNotAcked:
+    case NotificationProblem.TokenUnknown:
+      return 'Notifications for this account may not arrive.';
+    case NotificationProblem.SystemSettingsDisabled:
+      return 'Notifications are disabled in system settings.';
+    case NotificationProblem.GooglePlayServicesNotAvailable:
+      return 'Notifications require Google Play Services, which is unavailable.';
+    case NotificationProblem.ServerHasNotEnabled:
+      return {
+        text: 'Push notifications are not enabled for {realmName}.',
+        values: { realmName },
+      };
+  }
+};
+
+/**
+ * A one-line summary of a NotificationProblem, as LocalizableReactText.
+ *
+ * For this as a LocalizableText, see notifProblemShortText.
+ */
+export const notifProblemShortReactText = (
+  problem: NotificationProblem,
+  realmName: string,
+): LocalizableReactText => {
+  switch (problem) {
+    case NotificationProblem.TokenNotAcked:
+    case NotificationProblem.TokenUnknown:
+    case NotificationProblem.SystemSettingsDisabled:
+    case NotificationProblem.GooglePlayServicesNotAvailable:
+      return notifProblemShortText(problem, realmName);
+    case NotificationProblem.ServerHasNotEnabled:
+      return {
+        text: 'Push notifications are not enabled for {realmName}.',
+        values: {
+          realmName: (
+            <ZulipText
+              inheritColor
+              inheritFontSize
+              style={{ fontWeight: 'bold' }}
+              text={realmName}
+            />
+          ),
+        },
+      };
+  }
+};
 
 /**
  * Data relevant to an account's push notifications, for support requests.
@@ -321,7 +416,7 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
 
   const account = useSelector(getAccount);
   const identity = identityOfAccount(account);
-  const isAtLeastAdmin = useSelector(state => roleIsAtLeast(getOwnUserRole(state), Role.Admin));
+  const realmName = useSelector(getRealmName);
 
   const notificationReportsByIdentityKey = useNotificationReportsByIdentityKey();
   const report = notificationReportsByIdentityKey.get(keyOfIdentity(identityOfAccount(account)));
@@ -332,9 +427,6 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
       createStyleSheet({
         contentArea: {
           flex: 1,
-        },
-        button: {
-          marginBottom: 8,
         },
         emailText: {
           fontWeight: 'bold',
@@ -381,6 +473,13 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
 
   const mailComposerIsAvailable = useMailComposerIsAvailable();
 
+  const handlePressTroubleshootingGuide = React.useCallback(() => {
+    openLinkWithUserPreference(
+      new URL('https://zulip.com/help/mobile-notifications#troubleshooting-mobile-notifications'),
+      settings,
+    );
+  }, [settings]);
+
   const handlePressEmailSupport = React.useCallback(async () => {
     const result = await MailComposer.composeAsync({
       recipients: ['support@zulip.com'],
@@ -423,7 +522,7 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
     <AlertItem
       bottomMargin
       text={{
-        text: 'Notifications for this account may not arrive. Please contact {supportEmail} with the details below.',
+        text: 'Notifications for this account may not arrive. Please refer to the troubleshooting guide or contact {supportEmail} with the details below.',
         values: {
           supportEmail: (
             <ZulipText
@@ -447,7 +546,7 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
               { id: 'fix', label: 'Open settings', onPress: openSystemNotificationSettings },
             ]}
             bottomMargin
-            text="Notifications are disabled in system settings."
+            text={notifProblemShortReactText(problem, realmName)}
           />,
         );
         break;
@@ -459,10 +558,7 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
         //     fix problems with Google Play Services:
         //       https://developers.google.com/android/reference/com/google/android/gms/common/GoogleApiAvailability
         alerts.push(
-          <AlertItem
-            bottomMargin
-            text="Notifications require Google Play Services, which is unavailable on this device."
-          />,
+          <AlertItem bottomMargin text={notifProblemShortReactText(problem, realmName)} />,
         );
         break;
 
@@ -470,17 +566,7 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
         alerts.push(
           <AlertItem
             bottomMargin
-            text={
-              isAtLeastAdmin
-                ? {
-                    text: 'The Zulip server at {realm} is not set up to deliver push notifications. Please contact your administrator.',
-                    values: { realm: identity.realm.toString() },
-                  }
-                : {
-                    text: 'The Zulip server at {realm} is not set up to deliver push notifications.',
-                    values: { realm: identity.realm.toString() },
-                  }
-            }
+            text={notifProblemShortReactText(problem, realmName)}
             buttons={[
               {
                 id: 'learn-more',
@@ -488,7 +574,7 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
                 onPress: () => {
                   openLinkWithUserPreference(
                     new URL(
-                      'https://zulip.readthedocs.io/en/stable/production/mobile-push-notifications.html',
+                      'https://zulip.com/help/mobile-notifications#enabling-push-notifications-for-self-hosted-servers',
                     ),
                     settings,
                   );
@@ -537,42 +623,60 @@ export default function NotifTroubleshootingScreen(props: Props): React.Node {
   });
 
   return (
-    <Screen scrollEnabled={false} title="Troubleshooting" padding>
+    <Screen scrollEnabled={false} title="Troubleshooting">
       <SafeAreaView mode="padding" edges={['right', 'left']} style={styles.contentArea}>
-        {
-          // TODO: Avoid comparing these complex UI-describing objects:
-          //   https://github.com/zulip/zulip-mobile/pull/5654#discussion_r1105122407
-          uniq(alerts) // Deduplicate genericAlert, which multiple problems might map to
-        }
-        {mailComposerIsAvailable === true && (
-          <ZulipButton
-            style={styles.button}
-            text={{
-              text: 'Email {supportEmail}',
-              values: {
-                supportEmail: (
-                  <ZulipText
-                    inheritColor
-                    inheritFontSize
-                    style={styles.emailText}
-                    text="support@zulip.com"
-                  />
-                ),
-              },
-            }}
-            onPress={handlePressEmailSupport}
-          />
-        )}
-        <ZulipButton style={styles.button} text="Copy to clipboard" onPress={handlePressCopy} />
-        {Platform.OS === 'android' ? (
-          // ScrollView for Android-only symptoms like
-          // facebook/react-native#23117
-          <ScrollView style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+          {
+            // TODO: Avoid comparing these complex UI-describing objects:
+            //   https://github.com/zulip/zulip-mobile/pull/5654#discussion_r1105122407
+            uniq(alerts) // Deduplicate genericAlert, which multiple problems might map to
+          }
+        </View>
+        <RowGroup>
+          {(() => {
+            const children = [];
+            children.push(
+              <NavRow
+                type="external"
+                title="Troubleshooting guide"
+                onPress={handlePressTroubleshootingGuide}
+              />,
+            );
+            if (mailComposerIsAvailable === true) {
+              children.push(
+                <TextRow
+                  title={{
+                    text: 'Email {supportEmail}',
+                    values: {
+                      supportEmail: (
+                        <ZulipText
+                          inheritColor
+                          inheritFontSize
+                          style={styles.emailText}
+                          text="support@zulip.com"
+                        />
+                      ),
+                    },
+                  }}
+                  onPress={handlePressEmailSupport}
+                />,
+              );
+            }
+            children.push(<TextRow title="Copy to clipboard" onPress={handlePressCopy} />);
+            return children;
+          })()}
+        </RowGroup>
+        <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16, flex: 1 }}>
+          {Platform.OS === 'android' ? (
+            // ScrollView for Android-only symptoms like
+            // facebook/react-native#23117
+            <ScrollView style={{ flex: 1 }}>
+              <Input editable={false} multiline style={styles.reportTextInput} value={reportJson} />
+            </ScrollView>
+          ) : (
             <Input editable={false} multiline style={styles.reportTextInput} value={reportJson} />
-          </ScrollView>
-        ) : (
-          <Input editable={false} multiline style={styles.reportTextInput} value={reportJson} />
-        )}
+          )}
+        </View>
       </SafeAreaView>
     </Screen>
   );

@@ -1,5 +1,6 @@
 /* @flow strict-local */
 import { createSelector } from 'reselect';
+import React from 'react';
 
 import type {
   CustomProfileField,
@@ -8,12 +9,16 @@ import type {
   Selector,
   User,
   UserId,
+  LocalizableText,
+  LocalizableReactText,
 } from '../types';
-import type { RealmState } from '../reduxTypes';
+import type { MutedUsersState, RealmState } from '../reduxTypes';
 import { getUsers, getCrossRealmBots, getNonActiveUsers } from '../directSelectors';
 import * as logging from '../utils/logging';
 import { ensureUnreachable } from '../generics';
-import { EmailAddressVisibility } from '../api/permissionsTypes';
+import { EmailAddressVisibility, Role } from '../api/permissionsTypes';
+import ZulipText from '../common/ZulipText';
+import { noTranslation } from '../i18n/i18n';
 
 /**
  * All users in this Zulip org (aka realm).
@@ -125,7 +130,7 @@ export const getOwnUser = (state: PerAccountState): User => {
  *
  * See `getUserForId` for a version which only ever returns a real user,
  * throwing if none.  That makes it a bit simpler to use in contexts where
- * we assume the relevant user must exist, which is true of most of the app.
+ * we assume the relevant user must exist.
  */
 export const tryGetUserForId = (state: PerAccountState, userId: UserId): UserOrBot | null =>
   getAllUsersById(state).get(userId) ?? null;
@@ -136,9 +141,13 @@ export const tryGetUserForId = (state: PerAccountState, userId: UserId): UserOrB
  * This works for any user in this Zulip org/realm, including deactivated
  * users and cross-realm bots.  See `getAllUsers` for details.
  *
- * Throws if no such user exists.
+ * Throws if no such user exists in our data.  This is therefore only
+ * appropriate when we can know the given user must be one we know about,
+ * which is uncommon.  (For example, even if we're looking at a message the
+ * user sent: we might be a guest with limited access to users, and the
+ * other user might no longer be in the stream so not be in our data.)
  *
- * See `tryGetUserForId` for a non-throwing version.
+ * Generally use `tryGetUserForId` instead.
  */
 export const getUserForId = (state: PerAccountState, userId: UserId): UserOrBot => {
   const user = tryGetUserForId(state, userId);
@@ -319,11 +328,131 @@ export function getDisplayEmailForUser(realm: RealmState, user: UserOrBot): stri
   if (user.delivery_email !== undefined) {
     return user.delivery_email;
   } else if (realm.emailAddressVisibility === EmailAddressVisibility.Everyone) {
-    // On future servers, we expect this case will never happen: we'll always include
-    // a delivery_email when you have access, including when the visibility is Everyone
-    // https://github.com/zulip/zulip-mobile/pull/5515#discussion_r997731727
+    // TODO(server-7.0): Not reached on FL 163+, where delivery_email is always present.
     return user.email;
   } else {
     return null;
   }
+}
+
+/**
+ * Display text for a user's name, ignoring muting, as LocalizableText.
+ *
+ * Accepts `null` for the `user` argument; in that case, the name is
+ * taken from `fallback` if present, and otherwise the text is
+ * "(unknown user)".
+ *
+ * For the same text as LocalizableReactText, see getFullNameReactText.
+ *
+ * For a function that gives "Muted user" if the user is muted, see
+ * getFullNameOrMutedUserText.
+ */
+export function getFullNameText(args: {|
+  user: UserOrBot | null,
+  enableGuestUserIndicator: boolean,
+  fallback?: string,
+|}): LocalizableText {
+  const { user, enableGuestUserIndicator, fallback } = args;
+
+  if (user == null) {
+    return fallback != null ? noTranslation(fallback) : '(unknown user)';
+  }
+
+  if (user.role === Role.Guest && enableGuestUserIndicator) {
+    return { text: '{userFullName} (guest)', values: { userFullName: user.full_name } };
+  }
+
+  return noTranslation(user.full_name);
+}
+
+const italicTextStyle = { fontStyle: 'italic' };
+
+/**
+ * Display text for a user's name, ignoring muting, as LocalizableReactText.
+ *
+ * Just like getFullNameText, but gives LocalizableReactText.
+ */
+export function getFullNameReactText(args: {|
+  +user: UserOrBot | null,
+  +enableGuestUserIndicator: boolean,
+  +fallback?: string,
+|}): LocalizableReactText {
+  const { user, enableGuestUserIndicator, fallback } = args;
+
+  if (user == null) {
+    return fallback != null ? noTranslation(fallback) : '(unknown user)';
+  }
+
+  if (user.role === Role.Guest && enableGuestUserIndicator) {
+    return {
+      text: '{userFullName} <i>(guest)</i>',
+      values: {
+        userFullName: user.full_name,
+        i: chunks => (
+          <ZulipText inheritColor inheritFontSize style={italicTextStyle}>
+            {chunks}
+          </ZulipText>
+        ),
+      },
+    };
+  }
+
+  return noTranslation(user.full_name);
+}
+
+/**
+ * Display text for a user's name, as LocalizableText.
+ *
+ * Accepts `null` for the `user` argument; in that case, the name is
+ * taken from `fallback` if present, and otherwise the text is
+ * "(unknown user)".
+ *
+ * If the user is muted, gives "Muted user".
+ *
+ * For the same text as LocalizableReactText, see
+ * getFullNameOrMutedUserReactText.
+ *
+ * For a function that ignores muting, see getFullNameOrMutedUserText.
+ */
+export function getFullNameOrMutedUserText(args: {|
+  user: UserOrBot | null,
+  mutedUsers: MutedUsersState,
+  enableGuestUserIndicator: boolean,
+  fallback?: string,
+|}): LocalizableText {
+  const { user, mutedUsers, enableGuestUserIndicator, fallback } = args;
+
+  if (user == null) {
+    return fallback != null ? noTranslation(fallback) : '(unknown user)';
+  }
+
+  if (mutedUsers.has(user.user_id)) {
+    return 'Muted user';
+  }
+
+  return getFullNameText({ user, enableGuestUserIndicator });
+}
+
+/**
+ * Display text for a user's name, as LocalizableReactText.
+ *
+ * Just like getFullNameOrMutedUserText, but gives LocalizableReactText.
+ */
+export function getFullNameOrMutedUserReactText(args: {|
+  user: UserOrBot | null,
+  mutedUsers: MutedUsersState,
+  enableGuestUserIndicator: boolean,
+  fallback?: string,
+|}): LocalizableReactText {
+  const { user, mutedUsers, enableGuestUserIndicator, fallback } = args;
+
+  if (user == null) {
+    return fallback != null ? noTranslation(fallback) : '(unknown user)';
+  }
+
+  if (mutedUsers.has(user.user_id)) {
+    return 'Muted user';
+  }
+
+  return getFullNameReactText({ user, enableGuestUserIndicator });
 }

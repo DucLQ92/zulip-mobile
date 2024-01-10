@@ -29,9 +29,15 @@ import { kMinSupportedVersion, kServerSupportDocUrl } from '../common/ServerComp
 import { kWarningColor } from '../styles/constants';
 import { showErrorAlert } from '../utils/info';
 import { TranslationContext } from '../boot/TranslationProvider';
-import { useNotificationReportsByIdentityKey } from './NotifTroubleshootingScreen';
+import {
+  useNotificationReportsByIdentityKey,
+  chooseNotifProblemForShortText,
+  notifProblemShortReactText,
+} from './NotifTroubleshootingScreen';
+import { noTranslation } from '../i18n/i18n';
 import { keyOfIdentity } from '../account/accountMisc';
 import languages from './languages';
+import { getRealmName } from '../directSelectors';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'settings'>,
@@ -50,6 +56,7 @@ export default function SettingsScreen(props: Props): Node {
   const notificationReportsByIdentityKey = useNotificationReportsByIdentityKey();
   const notificationReport = notificationReportsByIdentityKey.get(keyOfIdentity(identity));
   invariant(notificationReport, 'SettingsScreen: expected notificationReport');
+  const realmName = useSelector(getRealmName);
 
   const dispatch = useDispatch();
   const _ = React.useContext(TranslationContext);
@@ -92,11 +99,15 @@ export default function SettingsScreen(props: Props): Node {
       <NavRow
         leftElement={{ type: 'icon', Component: IconNotifications }}
         title="Notifications"
-        {...(() =>
-          notificationReport.problems.length > 0 && {
-            leftElement: { type: 'icon', Component: IconAlertTriangle, color: kWarningColor },
-            subtitle: 'Notifications for this account may not arrive.',
-          })()}
+        {...(() => {
+          const problem = chooseNotifProblemForShortText({ report: notificationReport });
+          return (
+            problem != null && {
+              leftElement: { type: 'icon', Component: IconAlertTriangle, color: kWarningColor },
+              subtitle: notifProblemShortReactText(problem, realmName),
+            }
+          );
+        })()}
         onPress={() => {
           navigation.push('notifications');
         }}
@@ -108,8 +119,8 @@ export default function SettingsScreen(props: Props): Node {
         valueKey={language}
         items={languages.map(l => ({
           key: l.tag,
-          title: { text: '{_}', values: { _: l.selfname } },
-          subtitle: { text: '{_}', values: { _: l.name } },
+          title: noTranslation(l.selfname),
+          subtitle: noTranslation(l.name),
         }))}
         onValueChange={value => {
           dispatch(setGlobalSettings({ language: value }));
@@ -126,12 +137,12 @@ export default function SettingsScreen(props: Props): Node {
       <TextRow
         icon={{ Component: IconSmartphone }}
         title="App version"
-        subtitle={{ text: '{_}', values: { _: `v${nativeApplicationVersion ?? '?.?.?'}` } }}
+        subtitle={noTranslation(`v${nativeApplicationVersion ?? '?.?.?'}`)}
       />
       <TextRow
         icon={{ Component: IconServer }}
         title="Server version"
-        subtitle={{ text: '{_}', values: { _: zulipVersion.raw() } }}
+        subtitle={noTranslation(zulipVersion.raw())}
         {...(!zulipVersion.isAtLeast(kMinSupportedVersion) && {
           icon: { Component: IconAlertTriangle, color: kWarningColor },
           onPress: () => {

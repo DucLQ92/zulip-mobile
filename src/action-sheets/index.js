@@ -55,6 +55,7 @@ import { roleIsAtLeast } from '../permissionSelectors';
 import { kNotificationBotEmail } from '../api/constants';
 import type { AppNavigationMethods } from '../nav/AppNavigator';
 import { type ImperativeHandle as ComposeBoxImperativeHandle } from '../compose/ComposeBox';
+import { getFullNameText } from '../users/userSelectors';
 
 // TODO really this belongs in a libdef.
 export type ShowActionSheetWithOptions = (
@@ -324,6 +325,24 @@ const muteTopic = {
       // This still uses a stream name (#3918) because the API method does; see there.
       await api.setTopicMute(auth, stream.name, topic, true);
     }
+  },
+};
+
+const followTopic = {
+  title: 'Follow topic',
+  errorMessage: 'Failed to follow topic',
+  action: async ({ auth, streamId, topic, zulipFeatureLevel }) => {
+    invariant(zulipFeatureLevel >= 219, 'Should only attempt to follow topic on FL 219+');
+    await api.updateUserTopic(auth, streamId, topic, UserTopicVisibilityPolicy.Followed);
+  },
+};
+
+const unfollowTopic = {
+  title: 'Unfollow topic',
+  errorMessage: 'Failed to unfollow topic',
+  action: async ({ auth, streamId, topic, zulipFeatureLevel }) => {
+    invariant(zulipFeatureLevel >= 219, 'Should only attempt to unfollow topic on FL 219+');
+    await api.updateUserTopic(auth, streamId, topic, UserTopicVisibilityPolicy.None);
   },
 };
 
@@ -680,6 +699,11 @@ export const constructTopicActionButtons = (args: {|
   const sub = subscriptions.get(streamId);
   const streamMuted = !!sub && !sub.in_home_view;
 
+  // TODO(server-7.0): Simplify this condition away.
+  const supportsUnmutingTopics = zulipFeatureLevel >= 170;
+  // TODO(server-8.0): Simplify this condition away.
+  const supportsFollowingTopics = zulipFeatureLevel >= 219;
+
   const buttons = [];
   const unreadCount = getUnreadCountForTopic(unread, streamId, topic);
   if (showRenameTopic) {
@@ -693,25 +717,46 @@ export const constructTopicActionButtons = (args: {|
     switch (getTopicVisibilityPolicy(mute, streamId, topic)) {
       case UserTopicVisibilityPolicy.Muted:
         buttons.push(unmuteTopic);
+        if (supportsFollowingTopics) {
+          buttons.push(followTopic);
+        }
         break;
       case UserTopicVisibilityPolicy.None:
       case UserTopicVisibilityPolicy.Unmuted:
+        buttons.push(muteTopic);
+        if (supportsFollowingTopics) {
+          buttons.push(followTopic);
+        }
+        break;
       case UserTopicVisibilityPolicy.Followed:
         buttons.push(muteTopic);
+        if (supportsFollowingTopics) {
+          buttons.push(unfollowTopic);
+        }
         break;
     }
   } else if (sub && streamMuted) {
     // Muted stream.
-    // TODO(server-7.0): Simplify this condition away.
-    if (zulipFeatureLevel >= 170) {
+    if (supportsUnmutingTopics) {
       switch (getTopicVisibilityPolicy(mute, streamId, topic)) {
         case UserTopicVisibilityPolicy.None:
         case UserTopicVisibilityPolicy.Muted:
           buttons.push(unmuteTopicInMutedStream);
+          if (supportsFollowingTopics) {
+            buttons.push(followTopic);
+          }
           break;
         case UserTopicVisibilityPolicy.Unmuted:
+          buttons.push(muteTopic);
+          if (supportsFollowingTopics) {
+            buttons.push(followTopic);
+          }
+          break;
         case UserTopicVisibilityPolicy.Followed:
           buttons.push(muteTopic);
+          if (supportsFollowingTopics) {
+            buttons.push(unfollowTopic);
+          }
           break;
       }
     }
@@ -988,10 +1033,16 @@ export const showPmConversationActionSheet = (args: {|
     navigation: AppNavigationMethods,
     _: GetText,
   |},
-  backgroundData: $ReadOnly<{ ownUser: User, allUsersById: Map<UserId, UserOrBot>, ... }>,
+  backgroundData: $ReadOnly<{
+    ownUser: User,
+    allUsersById: Map<UserId, UserOrBot>,
+    enableGuestUserIndicator: boolean,
+    ...
+  }>,
   pmKeyRecipients: PmKeyRecipients,
 |}): void => {
   const { showActionSheetWithOptions, callbacks, backgroundData, pmKeyRecipients } = args;
+  const { enableGuestUserIndicator } = backgroundData;
   showActionSheet({
     showActionSheetWithOptions,
     // TODO(ios-14.5): Check for Intl.ListFormat support in all environments
@@ -1001,7 +1052,7 @@ export const showPmConversationActionSheet = (args: {|
       .map(userId => {
         const user = backgroundData.allUsersById.get(userId);
         invariant(user, 'allUsersById incomplete; could not show PM action sheet');
-        return user.full_name;
+        return callbacks._(getFullNameText({ user, enableGuestUserIndicator }));
       })
       .sort()
       .join(', '),

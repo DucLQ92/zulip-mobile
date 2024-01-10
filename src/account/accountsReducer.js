@@ -11,6 +11,7 @@ import {
   LOGOUT,
   DISMISS_SERVER_PUSH_SETUP_NOTICE,
   ACCOUNT_REMOVE,
+  SET_SILENCE_SERVER_PUSH_SETUP_WARNINGS,
 } from '../actionConstants';
 import { EventTypes } from '../api/eventTypes';
 import type { AccountsState, Identity, Action, Account } from '../types';
@@ -77,6 +78,7 @@ export default (state: AccountsState = initialState, action: Action): AccountsSt
             zulipVersion: null,
             zulipFeatureLevel: null,
             lastDismissedServerPushSetupNotice: null,
+            silenceServerPushSetupWarnings: false,
           },
           ...state,
         ];
@@ -126,6 +128,10 @@ export default (state: AccountsState = initialState, action: Action): AccountsSt
       return updateActiveAccount(state, { lastDismissedServerPushSetupNotice: action.date });
     }
 
+    case SET_SILENCE_SERVER_PUSH_SETUP_WARNINGS: {
+      return updateActiveAccount(state, { silenceServerPushSetupWarnings: action.value });
+    }
+
     case ACCOUNT_REMOVE: {
       const shouldRemove = a =>
         keyOfIdentity(identityOfAccount(a)) === keyOfIdentity(action.identity);
@@ -151,6 +157,22 @@ export default (state: AccountsState = initialState, action: Action): AccountsSt
             zulipFeatureLevel: zulip_feature_level,
           });
         }
+
+        case EventTypes.realm: {
+          if (event.op === 'update_dict') {
+            return updateActiveAccount(state, {
+              lastDismissedServerPushSetupNotice:
+                event.data.push_notifications_enabled === true
+                  ? null
+                  : state[0].lastDismissedServerPushSetupNotice,
+            });
+          }
+
+          // (We've converted any `op: 'update'` events to
+          //   `op: 'update_dict'` events near the edge.)
+          return state;
+        }
+
         default:
           return state;
       }

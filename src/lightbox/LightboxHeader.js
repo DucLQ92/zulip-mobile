@@ -1,7 +1,7 @@
 /* @flow strict-local */
 import React from 'react';
 import type { Node } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { shortTime, humanDate } from '../utils/date';
@@ -9,7 +9,12 @@ import { createStyleSheet } from '../styles';
 import UserAvatarWithPresence from '../common/UserAvatarWithPresence';
 import { Icon } from '../common/Icons';
 import { OfflineNoticePlaceholder } from '../boot/OfflineNoticeProvider';
-import type { UserId } from '../api/idTypes';
+import { useSelector } from '../react-redux';
+import { getFullNameReactText, tryGetUserForId } from '../users/userSelectors';
+import { getRealm } from '../directSelectors';
+import type { Message } from '../api/modelTypes';
+import ZulipText from '../common/ZulipText';
+import ZulipTextIntl from '../common/ZulipTextIntl';
 
 const styles = createStyleSheet({
   text: {
@@ -39,25 +44,22 @@ const styles = createStyleSheet({
 });
 
 type Props = $ReadOnly<{|
-  senderName: string,
-  senderId: UserId,
-  timestamp: number,
+  message: Message,
   onPressBack: () => void,
 |}>;
 
 /**
  * Shows sender's name and date of photo being displayed.
- *
- * @prop [senderName] - The sender's full name.
- * @prop [avatarUrl]
- * @prop [timestamp]
- * @prop [onPressBack]
  */
 export default function LightboxHeader(props: Props): Node {
-  const { onPressBack, senderName, senderId, timestamp } = props;
+  const { onPressBack, message } = props;
+  const { timestamp, sender_id: senderId } = message;
   const displayDate = humanDate(new Date(timestamp * 1000));
   const time = shortTime(new Date(timestamp * 1000));
   const subheader = `${displayDate} at ${time}`;
+
+  const sender = useSelector(state => tryGetUserForId(state, senderId));
+  const enableGuestUserIndicator = useSelector(state => getRealm(state).enableGuestUserIndicator);
 
   return (
     <SafeAreaView mode="padding" edges={['top']}>
@@ -65,12 +67,18 @@ export default function LightboxHeader(props: Props): Node {
       <SafeAreaView mode="padding" edges={['right', 'left']} style={styles.contentArea}>
         <UserAvatarWithPresence size={36} userId={senderId} />
         <View style={styles.text}>
-          <Text style={styles.name} numberOfLines={1}>
-            {senderName}
-          </Text>
-          <Text style={styles.subheader} numberOfLines={1}>
+          <ZulipTextIntl
+            style={styles.name}
+            numberOfLines={1}
+            text={getFullNameReactText({
+              user: sender,
+              enableGuestUserIndicator,
+              fallback: message.sender_full_name,
+            })}
+          />
+          <ZulipText style={styles.subheader} numberOfLines={1}>
             {subheader}
-          </Text>
+          </ZulipText>
         </View>
         <Pressable style={styles.rightIconTouchTarget} onPress={onPressBack} hitSlop={12}>
           {({ pressed }) => <Icon size={24} color={pressed ? 'gray' : 'white'} name="x" />}

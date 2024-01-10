@@ -40,9 +40,114 @@ It doesn't include
 ## Unreleased
 
 
+## 27.222 (2024-01-05)
+
+### Highlights for users
+
+* We now show a "(guest)" indicator on guest users' names, unless your
+  organization is running Zulip Server 8.0+ and has turned the
+  indicator off: https://zulip.com/help/guest-users . (#5804)
+
+Plus other fixes and improvements for your Zulip experience.
+
+### Highlights for developers
+
+* Resolved issues: #5804, #5785, #5805
+
+
+## 27.221 (2023-12-07)
+
+### Highlights for users
+
+* New "Send a test notification" button in the notification settings,
+  if your organization is running Zulip Server 8 (to be released soon).
+  (#5796)
+
+
+### Highlights for developers
+
+* Resolved issues: #5796
+
+
+## 27.220 (2023-11-22)
+
+### Highlights for users
+
+* Support for followed topics, an upcoming Zulip Server 8 feature. (#5769,
+  #5770, #5771)
+
+* We now offer the app in Latvian and Tagalog. Thanks as always to our kind
+  volunteer translators!
+
+
+### Highlights for developers
+
+* Resolved issues:  #5771, #5770, #5769
+
+
+## 27.219 (2023-11-15)
+
+### Highlights for users
+
+* Support for @topic mentions, an upcoming Zulip Server 8 feature. (#5792)
+
+* Support for the upcoming Zulip Server 8 feature of showing video
+  links and video files uploaded directly in Zulip. (#5781)
+
+Plus other fixes and improvements for your Zulip experience.
+
+
+### Highlights for developers
+
+* Compatibility fixes for the upcoming "limited guests" feature in Zulip
+  Server 8. (PR #5790, part of #5787)
+
+* Resolved issues: PR #5790, #5781
+
+
+## 27.218 (2023-11-09)
+
+### Highlights for users
+
+* Updated translations for Belarusian, German, and Persian.
+  Thanks as always to our kind volunteer translators!
+
+
+### Highlights for developers
+
+* Increased the typing-started expiry period from 15s to 45s. (PR #5786)
+
+* Resolved issues: PR #5786
+
+
+## 27.217 (2023-11-02)
+
+### Highlights for users
+
+* Updated translations for Chinese (China), Danish, German, and Persian.
+  Thanks as always to our kind volunteer translators!
+
+
+### Highlights for developers
+
+* Re-enabled Sentry, this time with no libsentry.so. (#5782)
+
+* We now render @topic mentions (an upcoming Zulip Server 8 feature)
+  correctly in the message list. (#5746)
+
+* Resolved issues: #5782, #5746
+
+
 ## 27.216 (2023-10-10)
 
 This is an Android-only release.
+The equivalent release for iOS was v27.214.
+
+
+### Highlights for users, vs. v27.213 (last prod release)
+
+* In an interleaved stream view, "Quote and reply" now fills the topic
+  input, if it was empty, and focuses the message input. (#5718)
 
 
 ### Highlights for users, vs. v27.214 (last beta release)
@@ -76,7 +181,9 @@ with cherry-picked changes atop v27.213.
 
 ## 27.214 (2023-10-05)
 
-On Android this was a beta-only release.
+On Android this was a beta-only release,
+and the corresponding production release was v27.216.
+On iOS this was a normal production release.
 
 
 ### Highlights for users, vs. v27.213 (last prod release)

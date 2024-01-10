@@ -5,15 +5,20 @@ import type { Node } from 'react';
 import subWeeks from 'date-fns/subWeeks';
 
 import ZulipBanner from './ZulipBanner';
-import { useSelector, useGlobalSelector, useDispatch } from '../react-redux';
-import { getIdentity, getAccount } from '../account/accountsSelectors';
-import { getRealm, getGlobalSettings } from '../directSelectors';
+import { useSelector, useDispatch } from '../react-redux';
+import { getAccount, getSilenceServerPushSetupWarnings } from '../account/accountsSelectors';
+import { getRealm } from '../directSelectors';
+import { getRealmName } from '../selectors';
 import { dismissServerPushSetupNotice } from '../account/accountActions';
-import { openLinkWithUserPreference } from '../utils/openLink';
-import { getOwnUserRole, roleIsAtLeast } from '../permissionSelectors';
-import { Role } from '../api/permissionsTypes';
+import {
+  NotificationProblem,
+  notifProblemShortReactText,
+} from '../settings/NotifTroubleshootingScreen';
+import type { AppNavigationMethods } from '../nav/AppNavigator';
 
-type Props = $ReadOnly<{||}>;
+type Props = $ReadOnly<{|
+  navigation: AppNavigationMethods,
+|}>;
 
 /**
  * A "nag banner" saying the server hasn't enabled push notifications, if so
@@ -25,19 +30,22 @@ type Props = $ReadOnly<{||}>;
  * un-setup, a new notice will apply.)
  */
 export default function ServerPushSetupBanner(props: Props): Node {
+  const { navigation } = props;
+
   const dispatch = useDispatch();
 
   const lastDismissedServerPushSetupNotice = useSelector(
     state => getAccount(state).lastDismissedServerPushSetupNotice,
   );
   const pushNotificationsEnabled = useSelector(state => getRealm(state).pushNotificationsEnabled);
-  const realm = useSelector(state => getIdentity(state).realm);
-  const isAtLeastAdmin = useSelector(state => roleIsAtLeast(getOwnUserRole(state), Role.Admin));
-  const settings = useGlobalSelector(getGlobalSettings);
+  const silenceServerPushSetupWarnings = useSelector(getSilenceServerPushSetupWarnings);
+  const realmName = useSelector(getRealmName);
 
   let visible = false;
   let text = '';
   if (pushNotificationsEnabled) {
+    // don't show
+  } else if (silenceServerPushSetupWarnings) {
     // don't show
   } else if (
     lastDismissedServerPushSetupNotice !== null
@@ -48,21 +56,13 @@ export default function ServerPushSetupBanner(props: Props): Node {
     // don't show
   } else {
     visible = true;
-    text = isAtLeastAdmin
-      ? {
-          text: 'The Zulip server at {realm} is not set up to deliver push notifications.',
-          values: { realm: realm.toString() },
-        }
-      : {
-          text: 'The Zulip server at {realm} is not set up to deliver push notifications. Please contact your administrator.',
-          values: { realm: realm.toString() },
-        };
+    text = notifProblemShortReactText(NotificationProblem.ServerHasNotEnabled, realmName);
   }
 
   const buttons = [];
   buttons.push({
     id: 'dismiss',
-    label: 'Remind me later',
+    label: 'Dismiss',
     onPress: () => {
       dispatch(dismissServerPushSetupNotice());
     },
@@ -71,10 +71,8 @@ export default function ServerPushSetupBanner(props: Props): Node {
     id: 'learn-more',
     label: 'Learn more',
     onPress: () => {
-      openLinkWithUserPreference(
-        new URL('https://zulip.readthedocs.io/en/stable/production/mobile-push-notifications.html'),
-        settings,
-      );
+      dispatch(dismissServerPushSetupNotice());
+      navigation.push('notifications');
     },
   });
 

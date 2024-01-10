@@ -8,7 +8,6 @@ import type {
 import {
   CreatePublicOrPrivateStreamPolicy,
   CreateWebPublicStreamPolicy,
-  EmailAddressVisibility,
 } from '../api/permissionsTypes';
 import { EventTypes } from '../api/eventTypes';
 import {
@@ -53,17 +52,14 @@ const initialState = {
   waitingPeriodThreshold: 90,
   allowEditHistory: false,
   enableReadReceipts: false,
-  emailAddressVisibility: EmailAddressVisibility.Admins,
+  emailAddressVisibility: null,
+  enableGuestUserIndicator: false,
 
   //
   // InitialDataRealmUser
   //
 
   canCreateStreams: true,
-  isAdmin: false,
-  isOwner: false,
-  isModerator: false,
-  isGuest: false,
   user_id: undefined,
   email: undefined,
   crossRealmBots: [],
@@ -144,6 +140,8 @@ export default (
           providerId: action.data.realm_video_chat_provider,
         }),
 
+        // Realm settings.
+        // These should each get updated on realm/update_dict events, below.
         mandatoryTopics: action.data.realm_mandatory_topics,
         messageContentDeleteLimitSeconds: action.data.realm_message_content_delete_limit_seconds,
         messageContentEditLimitSeconds: action.data.realm_message_content_edit_limit_seconds,
@@ -165,17 +163,14 @@ export default (
         waitingPeriodThreshold: action.data.realm_waiting_period_threshold,
         allowEditHistory: action.data.realm_allow_edit_history,
         enableReadReceipts: action.data.realm_enable_read_receipts ?? false,
-        emailAddressVisibility: action.data.realm_email_address_visibility,
+        emailAddressVisibility: action.data.realm_email_address_visibility ?? null,
+        enableGuestUserIndicator: action.data.realm_enable_guest_user_indicator ?? true,
 
         //
         // InitialDataRealmUser
         //
 
         canCreateStreams: action.data.can_create_streams,
-        isAdmin: action.data.is_admin,
-        isOwner: action.data.is_owner,
-        isModerator: action.data.is_moderator ?? action.data.is_admin,
-        isGuest: action.data.is_guest,
         user_id: action.data.user_id,
         email: action.data.email,
         crossRealmBots: action.data.cross_realm_bots,
@@ -257,6 +252,9 @@ export default (
             if (data.message_content_edit_limit_seconds !== undefined) {
               result.messageContentEditLimitSeconds = data.message_content_edit_limit_seconds;
             }
+            if (data.push_notifications_enabled !== undefined) {
+              result.pushNotificationsEnabled = data.push_notifications_enabled;
+            }
             if (data.create_stream_policy !== undefined) {
               // TODO(server-5.0): Stop expecting create_stream_policy; simplify.
               result.createPublicStreamPolicy = data.create_stream_policy;
@@ -268,6 +266,7 @@ export default (
             if (data.create_private_stream_policy !== undefined) {
               result.createPrivateStreamPolicy = data.create_private_stream_policy;
             }
+            // no event updates result.webPublicStreamsEnabled, because it's a server setting
             if (data.create_web_public_stream_policy !== undefined) {
               result.createWebPublicStreamPolicy = data.create_web_public_stream_policy;
             }
@@ -285,6 +284,9 @@ export default (
             }
             if (data.email_address_visibility !== undefined) {
               result.emailAddressVisibility = data.email_address_visibility;
+            }
+            if (data.enable_guest_user_indicator !== undefined) {
+              result.enableGuestUserIndicator = data.enable_guest_user_indicator;
             }
 
             return result;

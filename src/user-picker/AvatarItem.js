@@ -1,16 +1,18 @@
 /* @flow strict-local */
-import React, { PureComponent } from 'react';
+import React from 'react';
 import type { Node } from 'react';
-import { Animated, Easing, View } from 'react-native';
-import type AnimatedValue from 'react-native/Libraries/Animated/nodes/AnimatedValue';
+import { View } from 'react-native';
 
 import type { UserId, UserOrBot } from '../types';
 import UserAvatarWithPresence from '../common/UserAvatarWithPresence';
 import ComponentWithOverlay from '../common/ComponentWithOverlay';
-import ZulipText from '../common/ZulipText';
 import Touchable from '../common/Touchable';
 import { createStyleSheet } from '../styles';
 import { IconCancel } from '../common/Icons';
+import { getFullNameReactText } from '../users/userSelectors';
+import ZulipTextIntl from '../common/ZulipTextIntl';
+import { useSelector } from '../react-redux';
+import { getRealm } from '../directSelectors';
 
 const styles = createStyleSheet({
   wrapper: {
@@ -25,7 +27,6 @@ const styles = createStyleSheet({
     textAlign: 'center',
   },
   textFrame: {
-    height: 20,
     width: 50,
     flexDirection: 'row',
   },
@@ -39,51 +40,33 @@ type Props = $ReadOnly<{|
 /**
  * Pressable avatar for items in the user-picker card.
  */
-export default class AvatarItem extends PureComponent<Props> {
-  animatedValue: AnimatedValue = new Animated.Value(0);
+export default function AvatarItem(props: Props): Node {
+  const { user, onPress } = props;
 
-  componentDidMount() {
-    Animated.timing(this.animatedValue, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-      easing: Easing.elastic(),
-    }).start();
-  }
+  const enableGuestUserIndicator = useSelector(state => getRealm(state).enableGuestUserIndicator);
 
-  handlePress: () => void = () => {
-    const { user, onPress } = this.props;
-    Animated.timing(this.animatedValue, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-      easing: Easing.elastic(),
-    }).start(() => onPress(user.user_id));
-  };
+  const handlePress = React.useCallback(() => {
+    onPress(user.user_id);
+  }, [onPress, user.user_id]);
 
-  render(): Node {
-    const { user } = this.props;
-    const animatedStyle = {
-      transform: [{ scale: this.animatedValue }],
-    };
-    const firstName = user.full_name.trim().split(' ')[0];
-
-    return (
-      <Animated.View style={[styles.wrapper, animatedStyle]}>
-        <Touchable onPress={this.handlePress}>
-          <ComponentWithOverlay
-            overlaySize={20}
-            overlayColor="white"
-            overlayPosition="bottom-right"
-            overlay={<IconCancel color="gray" size={20} />}
-          >
-            <UserAvatarWithPresence key={user.user_id} size={50} userId={user.user_id} />
-          </ComponentWithOverlay>
-        </Touchable>
-        <View style={styles.textFrame}>
-          <ZulipText style={styles.text} text={firstName} numberOfLines={1} />
-        </View>
-      </Animated.View>
-    );
-  }
+  return (
+    <View style={styles.wrapper}>
+      <Touchable onPress={handlePress}>
+        <ComponentWithOverlay
+          overlaySize={20}
+          overlayColor="white"
+          overlayPosition="bottom-right"
+          overlay={<IconCancel color="gray" size={20} />}
+        >
+          <UserAvatarWithPresence key={user.user_id} size={50} userId={user.user_id} />
+        </ComponentWithOverlay>
+      </Touchable>
+      <View style={styles.textFrame}>
+        <ZulipTextIntl
+          style={styles.text}
+          text={getFullNameReactText({ user, enableGuestUserIndicator })}
+        />
+      </View>
+    </View>
+  );
 }

@@ -20,6 +20,7 @@ import WildcardMentionItem, {
   WildcardMentionType,
 } from './WildcardMentionItem';
 import { TranslationContext } from '../boot/TranslationProvider';
+import { getZulipFeatureLevel } from '../account/accountsSelectors';
 
 type Props = $ReadOnly<{|
   filter: string,
@@ -32,6 +33,7 @@ export default function PeopleAutocomplete(props: Props): Node {
 
   const _ = useContext(TranslationContext);
 
+  const zulipFeatureLevel = useSelector(getZulipFeatureLevel);
   const mutedUsers = useSelector(getMutedUsers);
   const ownUserId = useSelector(getOwnUserId);
   const users = useSelector(getSortedUsers);
@@ -67,7 +69,13 @@ export default function PeopleAutocomplete(props: Props): Node {
   );
 
   const filteredUserGroups = getAutocompleteUserGroupSuggestions(userGroups, filter);
-  const wildcardMentionsForQuery = getWildcardMentionsForQuery(filter, destinationNarrow, _);
+  const wildcardMentionsForQuery = getWildcardMentionsForQuery(
+    filter,
+    destinationNarrow,
+    // TODO(server-8.0)
+    zulipFeatureLevel >= 224,
+    _,
+  );
   const filteredUsers = getAutocompleteSuggestion(users, filter, ownUserId, mutedUsers);
 
   if (filteredUserGroups.length + filteredUsers.length === 0) {

@@ -13,6 +13,8 @@ import { showToast } from '../utils/info';
 
 import MentionedUserNotSubscribed from '../message/MentionedUserNotSubscribed';
 import { makeUserId } from '../api/idTypes';
+import { getFullNameText } from '../users/userSelectors';
+import { getRealm } from '../directSelectors';
 
 type Props = $ReadOnly<{|
   narrow: Narrow,
@@ -42,6 +44,7 @@ function MentionWarningsInner(props: Props, ref): Node {
 
   const auth = useSelector(getAuth);
   const allUsersById = useSelector(getAllUsersById);
+  const enableGuestUserIndicator = useSelector(state => getRealm(state).enableGuestUserIndicator);
 
   const [unsubscribedMentions, setUnsubscribedMentions] = useState<$ReadOnlyArray<UserId>>([]);
 
@@ -86,11 +89,11 @@ function MentionWarningsInner(props: Props, ref): Node {
     (mentionedUser: UserOrBot) => {
       showToast(
         _('Couldn’t load information about {fullName}', {
-          fullName: mentionedUser.full_name,
+          fullName: _(getFullNameText({ user: mentionedUser, enableGuestUserIndicator })),
         }),
       );
     },
-    [_],
+    [enableGuestUserIndicator, _],
   );
 
   useImperativeHandle(

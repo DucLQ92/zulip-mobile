@@ -102,10 +102,17 @@ describe('migrations', () => {
     },
   };
 
+  // What `base` becomes after migrations up through 62.
+  const base62 = {
+    ...base52,
+    migrations: { version: 62 },
+    accounts: base52.accounts.map(a => ({ ...a, silenceServerPushSetupWarnings: false })),
+  };
+
   // What `base` becomes after all migrations.
   const endBase = {
-    ...base52,
-    migrations: { version: 60 },
+    ...base62,
+    migrations: { version: 64 },
   };
 
   for (const [desc, before, after] of [
@@ -128,9 +135,9 @@ describe('migrations', () => {
     // redundant with this one, because none of the migration steps notice
     // whether any properties outside `storeKeys` are present or not.
     [
-      'check dropCache at 60',
+      'check dropCache at 64',
       // Just before the `dropCache`, plus a `cacheKeys` property, plus junk.
-      { ...base52, migrations: { version: 59 }, mute: [], nonsense: [1, 2, 3] },
+      { ...base62, migrations: { version: 63 }, mute: [], nonsense: [1, 2, 3] },
       // Should wind up with the same result as without the extra properties.
       endBase,
     ],
@@ -282,7 +289,7 @@ describe('migrations', () => {
     [
       'check 57 with an `undefined` in state.accounts',
       { ...base52, migrations: { version: 56 }, accounts: [...base37.accounts, undefined] },
-      { ...endBase, accounts: [...base37.accounts] },
+      { ...endBase, accounts: [...endBase.accounts] },
     ],
     [
       'check 58 with a malformed Account in state.accounts',
@@ -299,8 +306,9 @@ describe('migrations', () => {
           ...base37.accounts,
         ],
       },
-      { ...endBase, accounts: [...base37.accounts] },
+      { ...endBase, accounts: [...endBase.accounts] },
     ],
+    // 61 covered by whole
   ]) {
     test(desc, async () => {
       // $FlowIgnore[incompatible-exact]

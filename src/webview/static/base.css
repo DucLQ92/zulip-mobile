@@ -116,9 +116,21 @@ body {
 .topic-text {
   flex: 1;
   padding: 0 8px;
+  display: flex;
+  align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
+}
+.topic-text[data-followed="true"]::after {
+  content: "";
+  background-image: url("images/follow.svg");
+  margin-left: 12px;
+  width: 17px;
+  height: 17px;
+  /* opacity: 0.2 on web, but that's with the pastel stream colors;
+   * 0.3 stands up better to our gray. */
+  opacity: 0.3;
 }
 .topic-date {
   opacity: 0.5;
@@ -506,6 +518,9 @@ th, td {
   color: white;
 }
 
+/* TODO differentiate these three kinds of mentions */
+/* TODO differentiate on .user-mention-me (whether mention includes self-user) */
+.topic-mention,
 .user-group-mention,
 .user-mention {
   white-space: nowrap;
@@ -536,6 +551,27 @@ time {
   width: 100%;
   height: 160px;
   object-fit: contain;
+}
+
+.message_inline_video {
+  position: relative;
+}
+.message_inline_video video {
+  width: 240px;
+  height: 160px;
+  background: black;
+}
+.message_inline_video::after {
+  content: "";
+  background-image: url("images/play_button.svg");
+  display: block;
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top: calc(50% - 16px);
+  left: calc(50% - 16px);
+  border-radius: 100%;
+  transform: scale(0.8);
 }
 
 .twitter-tweet {

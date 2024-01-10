@@ -3,6 +3,15 @@
 This doc describes how to test and develop changes to Zulip's mobile
 push notifications.
 
+#### Contents (with permalinks)
+
+* [General tips](#general-tips)
+* [Testing server-side changes (iOS or Android)](#server)
+* [Testing client-side changes on Android](#android)
+* [Testing client-side changes on iOS](#ios)
+
+
+<div id="general-tips" />
 
 ## General tips
 
@@ -47,6 +56,8 @@ When testing Zulip's push notifications:
   keep it on screen, or force-kill it, to test different scenarios!
 
 
+<div id="server" />
+
 ## Testing server-side changes (iOS or Android)
 
 When making changes to the Zulip server, use these steps to test how
@@ -56,7 +67,7 @@ First, three one-time setup steps:
 
 1. [Set up the dev server for mobile development](dev-server.md).
 
-2. Add the following line to `zproject/dev_settings.py`:
+2. Create a `zproject/custom_dev_settings.py` with the following line:
 
    ```python
    PUSH_NOTIFICATION_BOUNCER_URL = 'https://push.zulipchat.com'
@@ -65,7 +76,8 @@ First, three one-time setup steps:
    This matches the default setting for a production install of the
    Zulip server (generated from `zproject/prod_settings_template.py`.)
 
-   You can keep this around via `git stash`.
+   The Zulip server will helpfully print a line on startup to remind
+   you that this settings override file exists.
 
 3. Register your development server with our production bouncer by
    running the following command:
@@ -104,6 +116,8 @@ Then, each time you test:
    If you don't, check the general tips above.  Then ask in chat and
    let's debug.
 
+
+<div id="android" />
 
 ## Testing client-side changes on Android
 
@@ -147,6 +161,8 @@ make it into the final code you send in a PR.  Here's another example:
 ```
 
 
+<div id="ios" />
+
 ## Testing client-side changes on iOS
 
 Apple makes this much more of a pain than it is on Android: APNs (*)
@@ -160,8 +176,8 @@ idiosyncratic capitalization shown.
 
 ### Current workaround
 
-This workaround means using a development server. If that won't work
-for you, you'll have to try the second workaround, below.
+This workaround means using a development server.  You'll first need
+to [set up the dev server for mobile development](dev-server.md).
 
 You can tell your development server to talk to Apple's APNs "sandbox"
 server, instead of its server meant for production, but you'll need a
@@ -169,73 +185,47 @@ certificate signed by Apple authorizing you to do so. Some background
 on that is
 [here](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns/#2947606).
 
-1. First, generate a Certificate Signing Request (CSR). Apple
-   Developer's instructions are
-   [here](https://developer.apple.com/help/account/create-certificates/create-a-certificate-signing-request).
-   You can use something like "John Appleseed APNs Sandbox" for the
-   "Common Name."
+1. First, generate a certificate signing request (CSR) and
+   corresponding private key.  Use the `tools/setup/apns/prep-cert`
+   script from the Zulip server tree:
+   ```
+   $ tools/setup/apns/prep-cert request /tmp/apns.key /tmp/apns.csr
+   ```
 
 2. Greg is authorized in Apple Developer to upload the CSR and obtain
-   the actual certificate, so you should send it to him and ask him to
-   do that. He'll follow something like [these
-   instructions](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_certificate-based_connection_to_apns)
-   to upload your CSR and obtain an APNs SSL (Sandbox) certificate
-   (not Sandbox & Production). Greg will send you the certificate.
-   Open the file, so Keychain Access will import it into your
-   keychain.
+   the actual certificate, so you should send `apns.csr` to him and
+   ask him to do that.  He'll follow the steps at
+   https://developer.apple.com/account/resources/certificates/add
+   with:
+   * Cert type: “Apple Push Notification service SSL (Sandbox)"
+     (not "Sandbox & Production")
+   * App ID: 66KHCWMEYB.org.zulip.Zulip
 
-   (Note: When you created the CSR, Keychain Access also created a
-   private key. The CSR itself is not the private key, so it doesn't
-   require extra care to send over the Internet. As of 2020-03-02, the
-   APNs certificate doc incorrectly conflates the CSR and the private
-   key. The CSR file contains only the public key and a signed hash of
-   the request itself; this can be confirmed by extracting its
-   contents with OpenSSL:
+   to obtain a certificate file `aps_development.cer`,
+   and send it back to you.
 
-   `openssl asn1parse -i -in CertificateSigningRequest.certSigningRequest`
+3. Combine the certificate with the key using the same tool:
+   ```
+   $ tools/setup/apns/prep-cert combine \
+       /tmp/apns.key /tmp/aps_development.cer zproject/apns-dev.pem
+   ```
 
-   `openssl req -in CertificateSigningRequest.certSigningRequest -text -noout`
+   The file `zproject/apns-dev.pem` is the output of all the steps
+   up to this point.
+   You can now delete the other files `/tmp/apns.key`, `/tmp/apns.csr`,
+   and `/tmp/aps_development.cer`.
 
-   .)
+4. Restart `tools/run-dev` to let the server pick up the change.
+   It should automatically see the file `zproject/apns-dev.pem`
+   and use it to communicate with the APNs sandbox server.
 
-3. Keychain Access will recognize that the certificate corresponds to
-   your private key. Select them both and choose to export them to a
-   single .p12 (PKCS #12 format) file.
+You should now be getting notifications on your iOS development build!
 
-4. Move the .p12 file into your zulip.git clone, in /zproject. Then
-   ssh into the Vagrant container (`vagrant ssh`) and convert the .p12
-   file into a .pem file, with
-
-   `openssl pkcs12 -in Certificates.p12 -out apns-sandbox.pem -nodes`
-
-   (replacing Certificates.p12 with whatever your filename is). If
-   openssl isn't installed, run `sudo apt install openssl`. Then
-   delete the .p12 file; you won't need it anymore.
-
-5. The .pem file contains your private key, so be sure you don't push
-   it to GitHub! One way this could be done is with the .gitignore
-   file, but .gitignore is itself version-controlled, and other people
-   probably don't have a .pem file with the same name. The
-   .git/info/exclude file lets you tell Git what to ignore, but it
-   isn't in version control, so other people won't be confused by its
-   contents. Add a line with "zproject/apns-sandbox.pem" (or whatever
-   the path is for you). Confirm that the .pem file isn't being
-   tracked by Git; it should not show up at all when you run `git
-   status`.
-
-6. Add a line with `APNS_CERT_FILE = "zproject/apns-sandbox.pem"` to
-   zproject/dev_settings.py. This lets Python use the certificate to
-   communicate with the APNs sandbox server.
-
-Now, restart the server, and you should be receiving notifications on
-your iOS development build! Be sure mobile notification settings are
-on, using the web app's settings interface. (You're all set to do this
-if your branch is up-to-date with a version of `main` from 2020-03
-or later; if not, you'll need the changes in [this
-commit](https://github.com/zulip/zulip/commit/23ba2b63c5c10f43b02a2bb2c470cc6ff597d839)).
-If it's not working, please say so in
-[#mobile](https://chat.zulip.org/#narrow/stream/48-mobile) on
+If it's not working, first check that mobile notification settings are
+on, using the web app's settings interface.  Then please ask for help
+in [#mobile](https://chat.zulip.org/#narrow/stream/48-mobile) on
 chat.zulip.org, so we can debug.
+
 
 ### Another workaround (if the first doesn't work)
 

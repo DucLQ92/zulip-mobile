@@ -21,7 +21,7 @@ import { randString, randInt } from '../../utils/misc';
 import { makeUserId } from '../../api/idTypes';
 import type { InitialData } from '../../api/apiTypes';
 import { EventTypes, type UpdateMessageEvent } from '../../api/eventTypes';
-import { CreateWebPublicStreamPolicy, EmailAddressVisibility } from '../../api/permissionsTypes';
+import { CreateWebPublicStreamPolicy, Role } from '../../api/permissionsTypes';
 import type {
   AccountSwitchAction,
   LoginSuccessAction,
@@ -131,6 +131,7 @@ type UserOrBotPropertiesArgs = {|
   email?: string,
   full_name?: string,
   avatar_url?: AvatarURL,
+  role?: Role,
 |};
 
 /**
@@ -161,7 +162,7 @@ const userOrBotProperties = (args: UserOrBotPropertiesArgs) => {
 
     email: args.email ?? `${randName}@example.org`,
     full_name: args.full_name ?? `${randName} User`,
-    is_admin: false,
+    role: args.role ?? Role.Member,
     timezone: 'UTC',
     user_id,
   });
@@ -175,8 +176,6 @@ export const makeUser = (args: UserOrBotPropertiesArgs = Object.freeze({})): Use
     is_bot: false,
     bot_type: null,
     // bot_owner omitted
-
-    is_guest: false,
     profile_data: {},
   });
 
@@ -212,8 +211,8 @@ export const userStatusEmojiRealm: UserStatus['status_emoji'] = deepFreeze({
 export const realm: URL = new URL('https://zulip.example.org');
 
 /** These may be raised but should not be lowered. */
-export const recentZulipVersion: ZulipVersion = new ZulipVersion('6.0-dev-2191-gf56ce7a159');
-export const recentZulipFeatureLevel = 153;
+export const recentZulipVersion: ZulipVersion = new ZulipVersion('8.0-dev-2894-g86100cdb4e');
+export const recentZulipFeatureLevel = 226;
 
 export const makeAccount = (
   args: {|
@@ -248,6 +247,7 @@ export const makeAccount = (
     zulipVersion: zulipVersionInner,
     ackedPushToken,
     lastDismissedServerPushSetupNotice,
+    silenceServerPushSetupWarnings: false,
   });
 };
 
@@ -648,6 +648,7 @@ export const plusReduxState: GlobalState & PerAccountState = reduxState({
       zulipVersion: recentZulipVersion,
       zulipFeatureLevel: recentZulipFeatureLevel,
       lastDismissedServerPushSetupNotice: null,
+      silenceServerPushSetupWarnings: false,
     },
   ],
   realm: {
@@ -764,7 +765,6 @@ export const action = Object.freeze({
       realm_avatar_changes_disabled: false,
       realm_bot_creation_policy: 3,
       realm_bot_domain: 'example.com',
-      realm_community_topic_editing_limit_seconds: 600,
       realm_create_private_stream_policy: 3,
       realm_create_public_stream_policy: 3,
       realm_create_web_public_stream_policy: CreateWebPublicStreamPolicy.ModeratorOrAbove,
@@ -784,7 +784,6 @@ export const action = Object.freeze({
       realm_digest_weekday: 2,
       realm_disallow_disposable_email_addresses: true,
       realm_edit_topic_policy: 3,
-      realm_email_address_visibility: EmailAddressVisibility.Admins,
       realm_email_auth_enabled: true,
       realm_email_changes_disabled: true,
       realm_emails_restricted_to_domains: false,
@@ -860,10 +859,7 @@ export const action = Object.freeze({
       can_create_web_public_streams: false,
       can_subscribe_other_users: false,
       can_invite_others_to_realm: false,
-
-      // $FlowIgnore[cannot-read]: Faithfully representing what servers send
-      is_admin: selfUser.is_admin,
-
+      is_admin: false,
       is_owner: false,
       is_billing_admin: selfUser.is_billing_admin,
       is_moderator: false,

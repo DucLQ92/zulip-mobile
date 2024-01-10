@@ -1,9 +1,9 @@
 /* @flow strict-local */
-import React, { useCallback, useContext } from 'react';
+import invariant from 'invariant';
+import React, { useCallback } from 'react';
 import type { Node } from 'react';
 import { View } from 'react-native';
 
-import { TranslationContext } from '../boot/TranslationProvider';
 import type { UserId, UserOrBot } from '../types';
 import ZulipText from '../common/ZulipText';
 import Touchable from '../common/Touchable';
@@ -11,11 +11,13 @@ import UnreadCount from '../common/UnreadCount';
 import UserAvatarWithPresence from '../common/UserAvatarWithPresence';
 import { createStyleSheet, BRAND_COLOR } from '../styles';
 import { useSelector } from '../react-redux';
-import { getUserForId } from './userSelectors';
+import { getFullNameOrMutedUserReactText, tryGetUserForId } from './userSelectors';
 import { getMutedUsers } from '../selectors';
 import { getUserStatus } from '../user-statuses/userStatusesModel';
 import { emojiTypeFromReactionType } from '../emoji/data';
 import Emoji from '../emoji/Emoji';
+import ZulipTextIntl from '../common/ZulipTextIntl';
+import { getRealm } from '../directSelectors';
 
 type Props = $ReadOnly<{|
   userId: UserId,
@@ -38,18 +40,34 @@ export default function UserItem(props: Props): Node {
     showEmail = false,
     size = 'large',
   } = props;
-  const _ = useContext(TranslationContext);
 
-  const user = useSelector(state => getUserForId(state, userId));
+  const enableGuestUserIndicator = useSelector(state => getRealm(state).enableGuestUserIndicator);
 
-  const isMuted = useSelector(getMutedUsers).has(user.user_id);
-  const userStatusEmoji = useSelector(state => getUserStatus(state, user.user_id)).status_emoji;
+  const user = useSelector(state => tryGetUserForId(state, userId));
 
-  const handlePress = useCallback(() => {
-    if (onPress) {
-      onPress(user);
-    }
+  const mutedUsers = useSelector(getMutedUsers);
+  const isMuted = mutedUsers.has(userId);
+  const userStatusEmoji = useSelector(
+    state => user && getUserStatus(state, user.user_id),
+  )?.status_emoji;
+
+  // eslint-disable-next-line no-underscore-dangle
+  const _handlePress = useCallback(() => {
+    invariant(user, 'Callback is used only if user is known');
+    invariant(onPress, 'Callback is used only if onPress provided');
+    onPress(user);
   }, [onPress, user]);
+  const handlePress = onPress && user ? _handlePress : undefined;
+
+  const displayName = getFullNameOrMutedUserReactText({
+    user,
+    mutedUsers,
+    enableGuestUserIndicator,
+  });
+  let displayEmail = null;
+  if (user != null && !isMuted && showEmail) {
+    displayEmail = user.email;
+  }
 
   const styles = React.useMemo(
     () =>
@@ -94,20 +112,20 @@ export default function UserItem(props: Props): Node {
         <UserAvatarWithPresence
           // At size medium, keep just big enough for a 48px touch target.
           size={size === 'large' ? 48 : 32}
-          userId={user.user_id}
-          onPress={onPress && handlePress}
+          userId={userId}
+          onPress={handlePress}
         />
         <View style={styles.textWrapper}>
-          <ZulipText
+          <ZulipTextIntl
             style={[styles.text, isSelected && styles.selectedText]}
-            text={isMuted ? _('Muted user') : user.full_name}
+            text={displayName}
             numberOfLines={1}
             ellipsizeMode="tail"
           />
-          {showEmail && !isMuted && (
+          {displayEmail != null && (
             <ZulipText
               style={[styles.text, styles.textEmail, isSelected && styles.selectedText]}
-              text={user.email}
+              text={displayEmail}
               numberOfLines={1}
               ellipsizeMode="tail"
             />

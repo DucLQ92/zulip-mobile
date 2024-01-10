@@ -517,6 +517,21 @@ const migrationsInner: {| [string]: (LessPartialState) => LessPartialState |} = 
   // Discard invalid enum values from `state.mute`.
   '60': dropCache,
 
+  // Fix emailAddressVisibility accidentally being undefined/dropped
+  '61': dropCache,
+
+  // Add silenceServerPushSetupWarnings to accounts.
+  '62': state => ({
+    ...state,
+    accounts: state.accounts.map(a => ({ ...a, silenceServerPushSetupWarnings: false })),
+  }),
+
+  // Made UserOrBot.role required; removed is_owner, is_admin, is_guest
+  '63': dropCache,
+
+  // Add enableGuestUserIndicator to state.realm
+  '64': dropCache,
+
   // TIP: When adding a migration, consider just using `dropCache`.
   //   (See its jsdoc for guidance on when that's the right answer.)
 };

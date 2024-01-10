@@ -11,7 +11,7 @@ import type { Narrow } from '../types';
 import styles, { createStyleSheet } from '../styles';
 import { useSelector, useDispatch } from '../react-redux';
 import StreamIcon from '../streams/StreamIcon';
-import { isTopicNarrow, topicOfNarrow } from '../utils/narrow';
+import { isTopicNarrow, streamIdOfNarrow, topicOfNarrow } from '../utils/narrow';
 import {
   getAuth,
   getFlags,
@@ -22,12 +22,12 @@ import {
   getSettings,
   getZulipFeatureLevel,
 } from '../selectors';
-import { getMute } from '../mute/muteModel';
+import { getMute, isTopicFollowed } from '../mute/muteModel';
 import { showStreamActionSheet, showTopicActionSheet } from '../action-sheets';
 import type { ShowActionSheetWithOptions } from '../action-sheets';
 import { getUnread } from '../unread/unreadModel';
-import { getOwnUserRole } from '../permissionSelectors';
 import { useNavigation } from '../react-navigation';
+import { IconFollow } from '../common/Icons';
 
 type Props = $ReadOnly<{|
   narrow: Narrow,
@@ -46,6 +46,14 @@ const componentStyles = createStyleSheet({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  topicRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  followIcon: {
+    paddingLeft: 4,
+    opacity: 0.4,
+  },
 });
 
 export default function TitleStream(props: Props): Node {
@@ -53,24 +61,33 @@ export default function TitleStream(props: Props): Node {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const stream = useSelector(state => getStreamInNarrow(state, narrow));
-  const backgroundData = useSelector(state => ({
-    auth: getAuth(state),
-    mute: getMute(state),
-    streams: getStreamsById(state),
-    subscriptions: getSubscriptionsById(state),
-    unread: getUnread(state),
-    ownUser: getOwnUser(state),
-    ownUserRole: getOwnUserRole(state),
-    flags: getFlags(state),
-    userSettingStreamNotification: getSettings(state).streamNotification,
-    zulipFeatureLevel: getZulipFeatureLevel(state),
-    showRenameTopic: true,
-    firstMessageId,
-  }));
+  const backgroundData = useSelector(state => {
+    const ownUser = getOwnUser(state);
+    return {
+      auth: getAuth(state),
+      mute: getMute(state),
+      streams: getStreamsById(state),
+      subscriptions: getSubscriptionsById(state),
+      unread: getUnread(state),
+      ownUser,
+      ownUserRole: ownUser.role,
+      flags: getFlags(state),
+      userSettingStreamNotification: getSettings(state).streamNotification,
+      zulipFeatureLevel: getZulipFeatureLevel(state),
+      showRenameTopic: true,
+      firstMessageId,
+    };
+  });
 
   const showActionSheetWithOptions: ShowActionSheetWithOptions =
     useActionSheet().showActionSheetWithOptions;
   const _ = useContext(TranslationContext);
+
+  const isFollowed = useSelector(
+    state =>
+      isTopicNarrow(narrow)
+      && isTopicFollowed(streamIdOfNarrow(narrow), topicOfNarrow(narrow), getMute(state)),
+  );
 
   return (
     <TouchableWithoutFeedback
@@ -115,9 +132,14 @@ export default function TitleStream(props: Props): Node {
           </Text>
         </View>
         {isTopicNarrow(narrow) && (
-          <Text style={[styles.navSubtitle, { color }]} numberOfLines={1} ellipsizeMode="tail">
-            {topicOfNarrow(narrow)}
-          </Text>
+          <View style={componentStyles.topicRow}>
+            <Text style={[styles.navSubtitle, { color }]} numberOfLines={1} ellipsizeMode="tail">
+              {topicOfNarrow(narrow)}
+            </Text>
+            {isFollowed && (
+              <IconFollow size={14} color={color} style={componentStyles.followIcon} />
+            )}
+          </View>
         )}
       </View>
     </TouchableWithoutFeedback>

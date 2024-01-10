@@ -12,6 +12,8 @@ import ZulipButton from '../common/ZulipButton';
 import ZulipTextIntl from '../common/ZulipTextIntl';
 import { getAuth } from '../selectors';
 import { kWarningColor } from '../styles/constants';
+import { getFullNameReactText } from '../users/userSelectors';
+import { getRealm } from '../directSelectors';
 
 type Props = $ReadOnly<{|
   user: UserOrBot,
@@ -55,6 +57,7 @@ const styles = createStyleSheet({
 export default function MentionedUserNotSubscribed(props: Props): Node {
   const { user, stream, onDismiss } = props;
   const auth = useSelector(getAuth);
+  const enableGuestUserIndicator = useSelector(state => getRealm(state).enableGuestUserIndicator);
 
   const handleDismiss = useCallback(() => {
     onDismiss(user);
@@ -72,7 +75,15 @@ export default function MentionedUserNotSubscribed(props: Props): Node {
         <ZulipTextIntl
           text={{
             text: '{username} will not be notified unless you subscribe them to this stream.',
-            values: { username: user.full_name },
+            values: {
+              username: (
+                <ZulipTextIntl
+                  inheritColor
+                  inheritFontSize
+                  text={getFullNameReactText({ user, enableGuestUserIndicator })}
+                />
+              ),
+            },
           }}
           style={styles.text}
         />

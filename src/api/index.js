@@ -60,6 +60,7 @@ import updateUserStatus from './users/updateUserStatus';
 import getFileTemporaryUrl from './messages/getFileTemporaryUrl';
 import getReadReceipts from './messages/getReadReceipts';
 import updateTopicName from './updateTopicName';
+import sendTestNotification from './notifications/sendTestNotification';
 
 export {
   fetchServerEmojiData,
@@ -114,4 +115,5 @@ export {
   getFileTemporaryUrl,
   getReadReceipts,
   updateTopicName,
+  sendTestNotification,
 };

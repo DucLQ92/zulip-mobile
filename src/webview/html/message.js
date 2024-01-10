@@ -26,6 +26,7 @@ import { displayCharacterForUnicodeEmojiCode } from '../../emoji/data';
 import processAlertWords from './processAlertWords';
 import * as logging from '../../utils/logging';
 import { getUserStatusFromModel } from '../../user-statuses/userStatusesCore';
+import { getFullNameOrMutedUserText, getFullNameText } from '../../users/userSelectors';
 
 const messageTagsAsHtml = (isStarred: boolean, timeEdited: number | void): string => {
   const pieces = [];
@@ -42,7 +43,7 @@ const messageTagsAsHtml = (isStarred: boolean, timeEdited: number | void): strin
 // Like get_display_full_names in the web app's people.js, but also gives
 // "You" so callers don't have to.
 const getDisplayFullNames = (userIds, backgroundData, _) => {
-  const { allUsersById, mutedUsers, ownUser } = backgroundData;
+  const { allUsersById, mutedUsers, ownUser, enableGuestUserIndicator } = backgroundData;
   return userIds.map(id => {
     const user = allUsersById.get(id);
     if (!user) {
@@ -54,11 +55,8 @@ const getDisplayFullNames = (userIds, backgroundData, _) => {
       return _('You');
     }
 
-    if (mutedUsers.has(id)) {
-      return _('Muted user');
-    }
-
-    return user.full_name;
+    // TODO use italics for "(guest)"
+    return _(getFullNameOrMutedUserText({ user, mutedUsers, enableGuestUserIndicator }));
   });
 };
 
@@ -282,7 +280,16 @@ $!${divOpenHtml}
 </div>`;
   }
 
-  const { sender_full_name, sender_id } = message;
+  const { sender_id } = message;
+  const sender = backgroundData.allUsersById.get(sender_id) ?? null;
+  const senderFullName = _(
+    // TODO use italics for "(guest)"
+    getFullNameText({
+      user: sender,
+      enableGuestUserIndicator: backgroundData.enableGuestUserIndicator,
+      fallback: message.sender_full_name,
+    }),
+  );
   const avatarUrl = message.avatar_url
     .get(
       // 48 logical pixels; see `.avatar` and `.avatar img` in
@@ -293,7 +300,7 @@ $!${divOpenHtml}
   const subheaderHtml = template`\
 <div class="subheader">
   <div class="name-and-status-emoji" data-sender-id="${sender_id}">
-    ${sender_full_name}$!${senderEmojiStatus(
+    ${senderFullName}$!${senderEmojiStatus(
     getUserStatusFromModel(backgroundData.userStatuses, sender_id).status_emoji,
     backgroundData,
   )}
@@ -310,7 +317,7 @@ $!${divOpenHtml}
   return template`\
 $!${divOpenHtml}
   <div class="avatar">
-    <img src="${avatarUrl}" alt="${sender_full_name}" class="avatar-img" data-sender-id="${sender_id}">
+    <img src="${avatarUrl}" alt="${senderFullName}" class="avatar-img" data-sender-id="${sender_id}">
   </div>
   <div class="content">
     $!${subheaderHtml}

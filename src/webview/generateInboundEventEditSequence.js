@@ -8,6 +8,8 @@ import { ensureUnreachable } from '../generics';
 import type { BackgroundData } from './backgroundData';
 import messageListElementHtml from './html/messageListElementHtml';
 import { getUserStatusFromModel } from '../user-statuses/userStatusesCore';
+import { isTopicFollowed } from '../mute/muteModel';
+import { pmUiRecipientsFromMessage } from '../utils/recipient';
 
 const NODE_ENV = process.env.NODE_ENV;
 
@@ -55,7 +57,7 @@ function areElementsInOrder(elements: $ReadOnlyArray<MessageListElement>): boole
  *
  * Ignores all background data that doesn't belong to the two particular
  * elements and could plausibly affect all elements: language, narrow,
- * dark/light theme, current date, user's role (e.g., admin), etc.
+ * dark/light theme, current date, self-user's role (e.g., admin), etc.
  */
 function doElementsDifferInterestingly(
   oldElement,
@@ -70,11 +72,56 @@ function doElementsDifferInterestingly(
     case 'time':
       // TODO(?): False positives on `.subsequentMessage.content` changes
       return !isEqual(oldElement, newElement);
-    case 'header':
+    case 'header': {
+      invariant(newElement.type === 'header', 'oldElement.type equals newElement.type');
+
       // TODO(?): False positives on `.subsequentMessage.content` changes
-      return !isEqual(oldElement, newElement);
+      if (!isEqual(oldElement, newElement)) {
+        return true;
+      }
+      const subsequentMessage = oldElement.subsequentMessage;
+      if (subsequentMessage.type === 'stream') {
+        if (
+          isTopicFollowed(
+            subsequentMessage.stream_id,
+            subsequentMessage.subject,
+            oldBackgroundData.mute,
+          )
+          !== isTopicFollowed(
+            subsequentMessage.stream_id,
+            subsequentMessage.subject,
+            newBackgroundData.mute,
+          )
+        ) {
+          return true;
+        }
+      } else {
+        invariant(
+          oldBackgroundData.ownUser.user_id === newBackgroundData.ownUser.user_id,
+          'self-user ID not supposed to change',
+        );
+        const ownUserId = oldBackgroundData.ownUser.user_id;
+        const messageRecipients = pmUiRecipientsFromMessage(subsequentMessage, ownUserId);
+        for (const recipient of messageRecipients) {
+          const oldRecipientUser = oldBackgroundData.allUsersById.get(recipient.id);
+          const newRecipientUser = newBackgroundData.allUsersById.get(recipient.id);
+          if (
+            oldRecipientUser?.full_name !== newRecipientUser?.full_name
+            || oldRecipientUser?.role !== newRecipientUser?.role
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
     case 'message': {
       invariant(newElement.type === 'message', 'oldElement.type equals newElement.type');
+
+      const oldMessage = oldElement.message;
+      const oldSender = oldBackgroundData.allUsersById.get(oldMessage.sender_id);
+      const newMessage = newElement.message;
+      const newSender = newBackgroundData.allUsersById.get(newMessage.sender_id);
 
       return (
         !isEqual(oldElement, newElement)
@@ -93,6 +140,8 @@ function doElementsDifferInterestingly(
             && oldBackgroundData.flags[flagName][oldElement.message.id]
               !== newBackgroundData.flags[flagName][newElement.message.id],
         )
+        || oldSender?.full_name !== newSender?.full_name
+        || oldSender?.role !== newSender?.role
         || oldBackgroundData.mutedUsers.get(oldElement.message.sender_id)
           !== newBackgroundData.mutedUsers.get(newElement.message.sender_id)
         || getUserStatusFromModel(oldBackgroundData.userStatuses, oldElement.message.sender_id)
@@ -132,6 +181,9 @@ export function getEditSequence(
   }
 
   const hasLanguageChanged = oldArgs._ !== newArgs._;
+  const hasGuestIndicatorSettingChanged =
+    oldArgs.backgroundData.enableGuestUserIndicator
+    !== newArgs.backgroundData.enableGuestUserIndicator;
 
   const result = [];
 
@@ -165,8 +217,8 @@ export function getEditSequence(
       //
       // False positives might be acceptable; false negatives are not.
       if (
-        // Replace any translated text, like muted-user placeholders.
-        hasLanguageChanged
+        hasLanguageChanged // Replace any translated text, like muted-user placeholders.
+        || hasGuestIndicatorSettingChanged // Add/remove guest indicators
         || doElementsDifferInterestingly(
           oldElement,
           newElement,
