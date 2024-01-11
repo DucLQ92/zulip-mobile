@@ -10,7 +10,7 @@
     <string>manual</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>org.zulip.Zulip</key>
+        <key>vn.nextpay.nptalk</key>
         <!-- TODO: Try a name that doesn't have to change when we renew -->
         <string>iOS app distribution 2022</string>
     </dict>

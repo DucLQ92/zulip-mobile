@@ -199,7 +199,7 @@ on that is
    with:
    * Cert type: “Apple Push Notification service SSL (Sandbox)"
      (not "Sandbox & Production")
-   * App ID: 66KHCWMEYB.org.zulip.Zulip
+   * App ID: 66KHCWMEYB.vn.nextpay.nptalk
 
    to obtain a certificate file `aps_development.cer`,
    and send it back to you.

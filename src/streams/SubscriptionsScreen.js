@@ -34,7 +34,6 @@ import type { ShowActionSheetWithOptions } from '../action-sheets';
 import { TranslationContext } from '../boot/TranslationProvider';
 import { getMute } from '../mute/muteModel';
 import { getUnread } from '../unread/unreadModel';
-import { getOwnUserRole } from '../permissionSelectors';
 
 const styles = createStyleSheet({
   container: {
@@ -113,18 +112,21 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
     const showActionSheetWithOptions: ShowActionSheetWithOptions =
         useActionSheet().showActionSheetWithOptions;
     const context = useContext(TranslationContext);
-    const backgroundData = useSelector(state => ({
-        auth: getAuth(state),
-        mute: getMute(state),
-        streams: getStreamsById(state),
-        subscriptions: getSubscriptionsById(state),
-        unread: getUnread(state),
-        ownUser: getOwnUser(state),
-        ownUserRole: getOwnUserRole(state),
-        flags: getFlags(state),
-        zulipFeatureLevel: getZulipFeatureLevel(state),
-        showRenameTopic: false,
-    }));
+    const backgroundData = useSelector(state => {
+        const ownUser = getOwnUser(state);
+        return {
+            auth: getAuth(state),
+            mute: getMute(state),
+            streams: getStreamsById(state),
+            subscriptions: getSubscriptionsById(state),
+            unread: getUnread(state),
+            ownUser: getOwnUser(state),
+            ownUserRole: ownUser.role,
+            flags: getFlags(state),
+            zulipFeatureLevel: getZulipFeatureLevel(state),
+            showRenameTopic: false,
+        };
+    });
   const topics = item.topics;
   const showedMoreFeatureShow = (item.topics ?? []).length > showLessCountItem;
   const showedMore = listIdStreamShowedMore.indexOf(streamId) > -1;

@@ -64,6 +64,7 @@ export const apiCall = async (
       response = await apiFetch(auth, route, params);
       json = await response.json().catch(() => undefined);
     } catch (errorIllTyped) {
+      console.log('////------ API Fetch ERROR ------////\n', `--route: ${decodeURIComponent(route)}\n`, `--params.body: ${decodeURIComponent(params.body)}\n`, errorIllTyped);
       const error: mixed = errorIllTyped; // https://github.com/facebook/flow/issues/2470
       if (error instanceof TypeError) {
         // This really is how `fetch` is supposed to signal a network error:
@@ -72,9 +73,8 @@ export const apiCall = async (
       }
       throw error;
     }
-
+    console.log('////------ API Fetch SUCCESS ------////\n', `--route: ${decodeURIComponent(route)}\n`, `--params.body: ${decodeURIComponent(params.body)}\n`, response, json);
     const result = interpretApiResponse(response.status, json);
-    console.log('////------ API Fetch ------////\n', `--route: ${decodeURIComponent(route)}\n`, `--params.body: ${decodeURIComponent(params.body)}\n`, result);
     return result;
   } catch (errorIllTyped) {
     const error: mixed = errorIllTyped; // https://github.com/facebook/flow/issues/2470

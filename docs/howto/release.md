@@ -633,10 +633,10 @@ keyPassword=*****
 You might get an error like this from `tools/ios build` (reformatted
 slightly for readability):
 ```
-error: Provisioning profile "iOS Team Provisioning Profile: org.zulip.Zulip"
+error: Provisioning profile "iOS Team Provisioning Profile: vn.nextpay.nptalk"
   doesn't support the Sign In with Apple capability.
   (in target 'ZulipMobile' from project 'ZulipMobile')
-error: Provisioning profile "iOS Team Provisioning Profile: org.zulip.Zulip"
+error: Provisioning profile "iOS Team Provisioning Profile: vn.nextpay.nptalk"
   doesn't include the com.apple.developer.applesignin entitlement.
   (in target 'ZulipMobile' from project 'ZulipMobile')
 ```
@@ -683,11 +683,11 @@ Error Domain=IDEProvisioningErrorDomain Code=19
 followed perhaps by an error like this:
 ```
 error: exportArchive: Provisioning profile
-  "iOS Team Store Provisioning Profile: org.zulip.Zulip"
+  "iOS Team Store Provisioning Profile: vn.nextpay.nptalk"
   doesn't support the Sign In with Apple capability.
 
 Error Domain=IDEProfileQualificationErrorDomain Code=7
-  "Provisioning profile "iOS Team Store Provisioning Profile: org.zulip.Zulip"
+  "Provisioning profile "iOS Team Store Provisioning Profile: vn.nextpay.nptalk"
     doesn't support the Sign In with Apple capability."
   UserInfo={IDEProfileQualificationError_Profile=<
     IDEEmbeddedProvisioningProfile ...
@@ -696,13 +696,13 @@ Error Domain=IDEProfileQualificationErrorDomain Code=7
 
 or like this:
 ```
-error: exportArchive: No profiles for 'org.zulip.Zulip' were found
+error: exportArchive: No profiles for 'vn.nextpay.nptalk' were found
 
 Error Domain=IDEProfileLocatorErrorDomain Code=1
-  "No profiles for 'org.zulip.Zulip' were found"
+  "No profiles for 'vn.nextpay.nptalk' were found"
   UserInfo={
-    NSLocalizedDescription=No profiles for 'org.zulip.Zulip' were found,
-    NSLocalizedRecoverySuggestion=Xcode couldn't find any iOS App Store provisioning profiles matching 'org.zulip.Zulip'.}
+    NSLocalizedDescription=No profiles for 'vn.nextpay.nptalk' were found,
+    NSLocalizedRecoverySuggestion=Xcode couldn't find any iOS App Store provisioning profiles matching 'vn.nextpay.nptalk'.}
 
 ** EXPORT FAILED **
 ```
