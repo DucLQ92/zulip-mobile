@@ -8,20 +8,21 @@ import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
 import type { UserId } from '../types';
 import globalStyles, { createStyleSheet } from '../styles';
-import { useSelector, useDispatch } from '../react-redux';
+import { useSelector, useDispatch, useGlobalSelector } from '../react-redux';
 import Screen from '../common/Screen';
 import ZulipButton from '../common/ZulipButton';
 import ZulipTextIntl from '../common/ZulipTextIntl';
-import { IconPrivateChat } from '../common/Icons';
+import { IconAlertTriangle, IconPrivateChat } from '../common/Icons';
 import { pm1to1NarrowFromUser } from '../utils/narrow';
 import AccountDetails from './AccountDetails';
 import ZulipText from '../common/ZulipText';
 import ActivityText from '../title/ActivityText';
 import { doNarrow } from '../actions';
-import { getFullNameReactText, getUserIsActive, tryGetUserForId } from '../users/userSelectors';
+import { getFullNameReactText, getOwnUser, getUserIsActive, tryGetUserForId } from '../users/userSelectors';
 import { nowInTimeZone } from '../utils/date';
 import CustomProfileFields from './CustomProfileFields';
-import { getRealm } from '../directSelectors';
+import { getGlobalSettings, getRealm } from '../directSelectors';
+import { openLinkWithUserPreference } from '../utils/openLink';
 
 const styles = createStyleSheet({
   errorText: {
@@ -44,6 +45,10 @@ const styles = createStyleSheet({
     marginBottom: 16,
     marginHorizontal: 16,
   },
+  buttonRed: {
+    flex: 1,
+    backgroundColor: '#CF232A',
+  },
 });
 
 type Props = $ReadOnly<{|
@@ -51,8 +56,24 @@ type Props = $ReadOnly<{|
   route: RouteProp<'account-details', {| userId: UserId |}>,
 |}>;
 
+function ReportUserButton({ user, ownUser }) {
+  const globalSettings = useGlobalSelector(getGlobalSettings);
+  const openReportPage = useCallback(() => {
+    openLinkWithUserPreference(new URL(`https://tech.nextpay.vn/nextpay-talk-user-report?me=${ownUser.full_name}&reported_user=${user.full_name}`), globalSettings);
+  }, [globalSettings, ownUser, user]);
+  return (
+    <ZulipButton
+      style={styles.buttonRed}
+      text="Report user"
+      Icon={IconAlertTriangle}
+      onPress={openReportPage}
+    />
+  );
+}
+
 export default function AccountDetailsScreen(props: Props): Node {
   const dispatch = useDispatch();
+  const ownUser = useSelector(getOwnUser);
   const user = useSelector(state => tryGetUserForId(state, props.route.params.userId));
   const isActive = useSelector(state => getUserIsActive(state, props.route.params.userId));
   const enableGuestUserIndicator = useSelector(state => getRealm(state).enableGuestUserIndicator);
@@ -104,6 +125,12 @@ export default function AccountDetailsScreen(props: Props): Node {
         onPress={handleChatPress}
         Icon={IconPrivateChat}
       />
+      <View style={{ height: 20 }} />
+      {user.email === ownUser.email ? <View /> : (
+        <View style={styles.pmButton}>
+          <ReportUserButton user={user} ownUser={ownUser} />
+        </View>
+)}
     </Screen>
   );
 }

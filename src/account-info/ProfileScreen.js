@@ -1,5 +1,5 @@
 /* @flow strict-local */
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import type { Node } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,12 +10,12 @@ import { noTranslation } from '../i18n/i18n';
 import type { RouteProp } from '../react-navigation';
 import type { MainTabsNavigationProp } from '../main/MainTabsScreen';
 import { createStyleSheet } from '../styles';
-import { useDispatch, useSelector } from '../react-redux';
+import { useDispatch, useGlobalSelector, useSelector } from '../react-redux';
 import ZulipButton from '../common/ZulipButton';
 import { logout } from '../account/logoutActions';
 import { tryStopNotifications } from '../notification/notifTokens';
 import AccountDetails from './AccountDetails';
-import { getRealm } from '../directSelectors';
+import { getGlobalSettings, getRealm } from '../directSelectors';
 import { getOwnUser, getOwnUserId } from '../users/userSelectors';
 import { getAuth, getAccount, getZulipFeatureLevel } from '../account/accountsSelectors';
 import { useNavigation } from '../react-navigation';
@@ -27,6 +27,8 @@ import * as api from '../api';
 import { identityOfAccount } from '../account/accountMisc';
 import NavRow from '../common/NavRow';
 import { emojiTypeFromReactionType } from '../emoji/data';
+import { IconAlertTriangle } from '../common/Icons';
+import { openLinkWithUserPreference } from '../utils/openLink';
 
 const styles = createStyleSheet({
   buttonRow: {
@@ -36,6 +38,11 @@ const styles = createStyleSheet({
   button: {
     flex: 1,
     margin: 8,
+  },
+  buttonRed: {
+    flex: 1,
+    margin: 8,
+    backgroundColor: '#CF232A',
   },
 });
 
@@ -110,6 +117,38 @@ function LogoutButton(props: {||}) {
   );
 }
 
+function DeleteAccountButton(props: {||}) {
+    const dispatch = useDispatch();
+    const _ = useContext(TranslationContext);
+    const account = useSelector(getAccount);
+    const identity = identityOfAccount(account);
+    const globalSettings = useGlobalSelector(getGlobalSettings);
+
+    return (
+      <ZulipButton
+        style={styles.buttonRed}
+        text="Delete account"
+        Icon={IconAlertTriangle}
+        onPress={() => {
+            showConfirmationDialog({
+                destructive: true,
+                title: 'Delete account',
+                message: {
+                    text: 'This action will send a request to remove account {email} from the system.',
+                    values: { email: identity.email },
+                },
+                onPressConfirm: () => {
+                    openLinkWithUserPreference(new URL(`https://tech.nextpay.vn/nextpay-talk-user-delete?me=${identity.email}`), globalSettings);
+                    dispatch(tryStopNotifications(account));
+                    dispatch(logout());
+                },
+                _,
+            });
+            }}
+      />
+    );
+}
+
 type Props = $ReadOnly<{|
   navigation: MainTabsNavigationProp<'profile'>,
   route: RouteProp<'profile', void>,
@@ -181,6 +220,10 @@ export default function ProfileScreen(props: Props): Node {
         <View style={styles.buttonRow}>
           <SwitchAccountButton />
           <LogoutButton />
+        </View>
+        <View style={{ height: 20 }} />
+        <View style={styles.buttonRow}>
+          <DeleteAccountButton />
         </View>
       </ScrollView>
     </SafeAreaView>

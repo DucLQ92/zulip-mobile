@@ -14,19 +14,19 @@ import InputRowRadioButtons from '../common/InputRowRadioButtons';
 import SwitchRow from '../common/SwitchRow';
 import Screen from '../common/Screen';
 import {
-  IconNotifications,
-  IconLanguage,
-  IconMoreHorizontal,
-  IconSmartphone,
-  IconServer,
-  IconAlertTriangle,
+    IconNotifications,
+    IconLanguage,
+    IconMoreHorizontal,
+    IconSmartphone,
+    IconServer,
+    IconAlertTriangle, IconPrivateChat,
 } from '../common/Icons';
 import { setGlobalSettings } from '../actions';
-import { shouldUseInAppBrowser } from '../utils/openLink';
+import { openLinkWithUserPreference, shouldUseInAppBrowser } from '../utils/openLink';
 import TextRow from '../common/TextRow';
 import { getIdentity, getServerVersion } from '../account/accountsSelectors';
 import { kMinSupportedVersion, kServerSupportDocUrl } from '../common/ServerCompatBanner';
-import { kWarningColor } from '../styles/constants';
+import { kWarningColor } from '../styles';
 import { showErrorAlert } from '../utils/info';
 import { TranslationContext } from '../boot/TranslationProvider';
 import {
@@ -132,6 +132,13 @@ export default function SettingsScreen(props: Props): Node {
         title="Legal"
         onPress={() => {
           navigation.push('legal');
+        }}
+      />
+      <NavRow
+        leftElement={{ type: 'icon', Component: IconPrivateChat }}
+        title="Contact support"
+        onPress={() => {
+            openLinkWithUserPreference(new URL('https://tech.nextpay.vn/nextpay-talk-support'), globalSettings);
         }}
       />
       <TextRow

@@ -292,6 +292,8 @@ export default function MessageList(outerProps: OuterProps): React.Node {
     }
   }, [props, sendInboundEvents]);
 
+  const globalSettings = useGlobalSelector(getGlobalSettings);
+
   const handleMessage = React.useCallback(
     (event: { +nativeEvent: { +data: string, ... }, ... }) => {
       const eventData: WebViewOutboundEvent = JSON.parse(event.nativeEvent.data);
@@ -313,7 +315,7 @@ export default function MessageList(outerProps: OuterProps): React.Node {
         // (The distinction may not matter much here in practice.  But a
         // nice bonus of this way is that we avoid re-renders of
         // SinglePageWebView, potentially a helpful optimization.)
-        handleWebViewOutboundEvent(propsRef.current, navigation, eventData);
+        handleWebViewOutboundEvent(propsRef.current, navigation, eventData, globalSettings);
       }
     },
     [sendInboundEvents, navigation],

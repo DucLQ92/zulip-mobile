@@ -21,7 +21,7 @@ import type {
   UserOrBot,
   EditMessage,
   Stream,
-  LocalizableText,
+  LocalizableText, GlobalSettingsState,
 } from '../types';
 import { UserTopicVisibilityPolicy } from '../api/modelTypes';
 import type { UnreadState } from '../unread/unreadModelTypes';
@@ -56,6 +56,7 @@ import { kNotificationBotEmail } from '../api/constants';
 import type { AppNavigationMethods } from '../nav/AppNavigator';
 import { type ImperativeHandle as ComposeBoxImperativeHandle } from '../compose/ComposeBox';
 import { getFullNameText } from '../users/userSelectors';
+import { openLinkWithUserPreference } from '../utils/openLink';
 
 // TODO really this belongs in a libdef.
 export type ShowActionSheetWithOptions = (
@@ -599,6 +600,14 @@ const showReactions = {
   },
 };
 
+const reportMessage = {
+  title: 'Report bad content',
+  errorMessage: 'Failed to report bad content',
+  action: ({ message, globalSettings, ownUser }) => {
+    openLinkWithUserPreference(new URL(`https://tech.nextpay.vn/nextpay-talk-user-report?me=${ownUser.full_name}&reported_user=${message.sender_full_name}&bad_content=${message.content}`), globalSettings);
+  },
+};
+
 const viewReadReceipts = {
   title: 'View read receipts',
   errorMessage: 'Failed to show read receipts',
@@ -881,6 +890,7 @@ export const constructMessageActionButtons = (args: {|
   if (backgroundData.enableReadReceipts) {
     buttons.push(viewReadReceipts);
   }
+  buttons.push(reportMessage);
   buttons.push(cancel);
   return buttons;
 };
@@ -952,8 +962,9 @@ export const showMessageActionSheet = (args: {|
   }>,
   message: Message | Outbox,
   narrow: Narrow,
+  globalSettings: GlobalSettingsState,
 |}): void => {
-  const { showActionSheetWithOptions, callbacks, backgroundData, message, narrow } = args;
+  const { showActionSheetWithOptions, callbacks, backgroundData, message, narrow, globalSettings } = args;
   showActionSheet({
     showActionSheetWithOptions,
     options: constructMessageActionButtons({
@@ -962,7 +973,7 @@ export const showMessageActionSheet = (args: {|
       narrow,
       canStartQuoteAndReply: callbacks.composeBoxImperativeHandle !== null,
     }),
-    args: { ...backgroundData, ...callbacks, message, narrow },
+    args: { ...backgroundData, ...callbacks, message, narrow, globalSettings },
   });
 };
 

@@ -4,7 +4,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 
 import * as api from '../api';
 import config from '../config';
-import type { UserId } from '../types';
+import type { GlobalSettingsState, UserId } from '../types';
 import type { JSONableDict } from '../utils/jsonable';
 import { showErrorAlert, showToast } from '../utils/info';
 import { pmKeyRecipientsFromMessage } from '../utils/recipient';
@@ -204,8 +204,9 @@ const handleLongPress = (args: {|
   messageId: number,
   href: string | null,
   navigation: AppNavigationMethods,
+  globalSettings: GlobalSettingsState,
 |}) => {
-  const { props, target, messageId, href, navigation } = args;
+  const { props, target, messageId, href, navigation, globalSettings } = args;
 
   if (href !== null) {
     const url = new URL(href, props.backgroundData.auth.realm).toString();
@@ -266,6 +267,7 @@ const handleLongPress = (args: {|
       backgroundData,
       message,
       narrow,
+      globalSettings,
     });
   }
 };
@@ -274,6 +276,7 @@ export const handleWebViewOutboundEvent = (
   props: Props,
   navigation: AppNavigationMethods,
   event: WebViewOutboundEvent,
+  globalSettings: GlobalSettingsState,
 ) => {
   switch (event.type) {
     case 'ready':
@@ -305,6 +308,7 @@ export const handleWebViewOutboundEvent = (
         messageId: event.messageId,
         href: event.href,
         navigation,
+        globalSettings,
       });
       break;
 
