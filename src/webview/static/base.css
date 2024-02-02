@@ -145,13 +145,17 @@ body {
   word-wrap: break-word;
   /* This value is used for messageReadSlop in src/webview/js/js.js, if
    * updating one, please update the other */
-  padding: 16px;
+  padding: 12px;
   -webkit-tap-highlight-color: transparent;
 }
 .message-brief {
   /* This value is used for messageReadSlop in src/webview/js/js.js, if
    * updating one, please update the other */
-  padding: 0 16px 16px 80px;
+  padding: 0 0 12px 72px;
+}
+
+.message-brief-own {
+  padding: 0 72px 12px 0;
 }
 
 .message-brief[data-mute-state="hidden"] {
@@ -343,11 +347,23 @@ body {
   min-width: 48px;
   width: 48px;
   height: 48px;
-  margin-right: 16px;
+  margin-right: 12px;
 }
 .avatar img {
   width: 100%;
-  border-radius: 3px;
+  border-radius: 30px;
+}
+
+.avatar-own,
+.loading-avatar-own {
+  min-width: 48px;
+  width: 48px;
+  height: 48px;
+  margin-left: 12px;
+}
+.avatar-own img {
+  width: 100%;
+  border-radius: 30px;
 }
 
 /* The "subheader" showing sender, emoji status, and timestamp. */
@@ -376,6 +392,14 @@ body {
   color: hsl(0, 0%, 60%);
   font-size: 0.9rem;
   white-space: nowrap;
+  margin-left: 8px;
+}
+
+.static-timestamp-own {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  margin-left: 8px;
 }
 
 /* Timestamp pills. */
@@ -411,9 +435,22 @@ body {
 
 /* The message content! */
 .content {
-  width: 100%;
   max-width: 100%;
   overflow: hidden;
+  border-radius: 16px;
+  padding: 8px;
+  background: rgb(244, 244, 244);;
+  direction: ltr
+}
+
+.content-own {
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 8px;
+  background: rgb(93, 143, 194);
+  direction: ltr;
+  color: white;
 }
 
 /* Tags, like "starred" or "edited 2 minutes ago". */
@@ -438,8 +475,22 @@ body {
   color: hsl(0, 0%, 50%);
   display: inline-block;
   padding: 5px 6.5px;
-  border-radius: 3px;
+  border-radius: 4px;
   border: 1px solid hsla(0, 0%, 50%, 0.75);
+  line-height: 1.2rem;
+
+  /* No max height. With `displayEmojiReactionUsers: true`, users' names may
+     wrap onto multiple lines. */
+  min-height: 1rem;
+
+  margin: 4px 8px 4px 0;
+}
+.reaction-own {
+  color: rgb(209, 209, 209);
+  display: inline-block;
+  padding: 5px 6.5px;
+  border-radius: 4px;
+  border: 1px solid rgb(209, 209, 209);
   line-height: 1.2rem;
 
   /* No max height. With `displayEmojiReactionUsers: true`, users' names may
@@ -473,14 +524,14 @@ p {
   margin: 0;
 }
 .message p + p {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 .message ul {
   padding-left: 20px;
   margin: 4px 0 0 0;
 }
 .message ul + p {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 blockquote {

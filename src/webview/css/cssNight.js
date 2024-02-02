@@ -2,7 +2,7 @@
 
 export default `
 body {
-  color: hsl(210, 11%, 85%);
+  color: rgb(255, 255, 255);
   background: hsl(212, 28%, 18%);
 }
 .poll-vote {
@@ -16,5 +16,11 @@ body {
 }
 .highlight {
   background-color: hsla(51, 100%, 64%, 0.42);
+}
+.content {
+  background-color: rgb(36, 48, 63);
+}
+.content-own {
+  background-color: rgb(72, 105, 147);
 }
 `;

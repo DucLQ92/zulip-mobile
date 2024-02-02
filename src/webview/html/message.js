@@ -65,9 +65,10 @@ const messageReactionAsHtml = (
   reaction: AggregatedReaction,
   shouldShowNames: boolean,
   _: GetText,
+  isOwn: boolean,
 ): string => {
   const { allImageEmojiById } = backgroundData;
-  return template`<span onClick="" class="reaction${reaction.selfReacted ? ' self-voted' : ''}"
+  return template`<span onClick="" class="${isOwn ? 'reaction-own' : 'reaction'}${reaction.selfReacted ? ' self-voted' : ''}"
         data-name="${reaction.name}"
         data-code="${reaction.code}"
         data-type="${reaction.type}">$!${
@@ -86,6 +87,7 @@ const messageReactionListAsHtml = (
   backgroundData: BackgroundData,
   reactions: $ReadOnlyArray<Reaction>,
   _: GetText,
+  isOwn: boolean,
 ): string => {
   const { ownUser, displayEmojiReactionUsers } = backgroundData;
 
@@ -99,7 +101,7 @@ const messageReactionListAsHtml = (
     // The API lets clients choose the threshold. We use 3 like the web app.
     && reactions.length <= 3;
   const htmlList = aggregateReactions(reactions, ownUser.user_id).map(r =>
-    messageReactionAsHtml(backgroundData, r, shouldShowNames, _),
+    messageReactionAsHtml(backgroundData, r, shouldShowNames, _, isOwn),
   );
   return template`<div class="reaction-list">$!${htmlList.join('')}</div>`;
 };
@@ -108,11 +110,12 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   const { alertWords, flags } = backgroundData;
   const { id, isOutbox, last_edit_timestamp, match_content, reactions } = (message: MessageLike);
   const content = match_content ?? message.content;
+  const isOwn = backgroundData.ownUser.user_id === message.sender_id;
   return template`\
 $!${processAlertWords(content, id, alertWords, flags)}
 $!${isOutbox === true ? '<div class="loading-spinner outbox-spinner"></div>' : ''}
 $!${messageTagsAsHtml(!!flags.starred[id], last_edit_timestamp)}
-$!${messageReactionListAsHtml(backgroundData, reactions, _)}`;
+$!${messageReactionListAsHtml(backgroundData, reactions, _, isOwn)}`;
 };
 
 /**
@@ -248,13 +251,23 @@ export default (
   const { id, timestamp } = message;
   const flagStrings = flagsStateToStringList(backgroundData.flags, id);
   const isUserMuted = !!message.sender_id && backgroundData.mutedUsers.has(message.sender_id);
+  const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
-  const divOpenHtml = template`\
+  const divOpenHtml = isOwn ? template`\
+<div
+  class="msglist-element message ${isBrief ? 'message-brief-own' : 'message-full'}"
+  id="msg-${id}"
+  data-msg-id="${id}"
+  data-mute-state="${isUserMuted ? 'hidden' : 'shown'}"
+  style="direction: rtl"
+  $!${flagStrings.map(flag => template`data-${flag}="true" `).join('')}
+>` : template`\
 <div
   class="msglist-element message ${isBrief ? 'message-brief' : 'message-full'}"
   id="msg-${id}"
   data-msg-id="${id}"
   data-mute-state="${isUserMuted ? 'hidden' : 'shown'}"
+  style="direction: ltr"
   $!${flagStrings.map(flag => template`data-${flag}="true" `).join('')}
 >`;
   const messageTime = shortTime(new Date(timestamp * 1000), backgroundData.twentyFourHourTime);
@@ -273,7 +286,7 @@ export default (
   if (isBrief) {
     return template`\
 $!${divOpenHtml}
-  <div class="content">
+  <div class="${isOwn ? 'content-own' : 'content'}">
     $!${timestampHtml(false)}
     $!${bodyHtml}
   </div>
@@ -305,7 +318,7 @@ $!${divOpenHtml}
     backgroundData,
   )}
   </div>
-  <div class="static-timestamp">${messageTime}</div>
+  <div class="${isOwn ? 'static-timestamp-own' : 'static-timestamp'}">${messageTime}</div>
 </div>`;
   const mutedMessageHtml = isUserMuted
     ? template`\
@@ -316,10 +329,10 @@ $!${divOpenHtml}
 
   return template`\
 $!${divOpenHtml}
-  <div class="avatar">
-    <img src="${avatarUrl}" alt="${senderFullName}" class="avatar-img" data-sender-id="${sender_id}">
+  <div class= "${isOwn ? 'avatar-own' : 'avatar'}">
+    <img src="${avatarUrl}" alt="${senderFullName}" class="${isOwn ? 'avatar-own-img' : 'avatar-img'}" data-sender-id="${sender_id}">
   </div>
-  <div class="content">
+  <div class="${isOwn ? 'content-own' : 'content'}">
     $!${subheaderHtml}
     $!${bodyHtml}
   </div>

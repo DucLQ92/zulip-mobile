@@ -175,11 +175,11 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
                 >
                   <Text style={{
                             color: streamColor,
-                            fontSize: 18,
+                            fontSize: 14,
                             fontWeight: 'bold',
                         }}
                   >
-                    {'-  '}
+                    {!showedMore ? '▼  ' : '▲  '}
                   </Text>
                   <ZulipTextIntl
                     style={{
