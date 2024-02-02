@@ -18,9 +18,12 @@ body {
   background-color: hsla(51, 100%, 64%, 0.42);
 }
 .content {
-  background-color: rgb(36, 48, 63);
+  background-color: #33393f;
 }
 .content-own {
-  background-color: rgb(72, 105, 147);
+  background-color: #2a2f33;
+}
+.static-timestamp-own {
+  color: rgba(255, 255, 255, 0.5);
 }
 `;
