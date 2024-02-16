@@ -152,7 +152,7 @@ class PasswordAuthScreenInner extends PureComponent<Props, State> {
           <View style={{ flex: 1 }} />
           <View style={styles.linksTouchable}>
             <ZulipText style={styles.forgotPasswordText}>
-              <WebLink url={new URL('/accounts/password/reset/', realm)}>
+              <WebLink url={new URL('/request-reset-password', 'https://dir.nextpay.vn')}>
                 <ZulipTextIntl inheritColor text="Forgot password?" />
               </WebLink>
             </ZulipText>

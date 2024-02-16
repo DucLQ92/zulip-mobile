@@ -42,7 +42,7 @@ const messageTagsAsHtml = (isStarred: boolean, timeEdited: number | void): strin
 
 // Like get_display_full_names in the web app's people.js, but also gives
 // "You" so callers don't have to.
-const getDisplayFullNames = (userIds, backgroundData, _) => {
+const  getDisplayFullNames = (userIds, backgroundData, _) => {
   const { allUsersById, mutedUsers, ownUser, enableGuestUserIndicator } = backgroundData;
   return userIds.map(id => {
     const user = allUsersById.get(id);
@@ -112,7 +112,7 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   const content = match_content ?? message.content;
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
   return template`\
-$!${processAlertWords(content, id, alertWords, flags)}
+$!${processAlertWords(content.replace('<blockquote>', `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}">`), id, alertWords, flags)}
 $!${isOutbox === true ? '<div class="loading-spinner outbox-spinner"></div>' : ''}
 $!${messageTagsAsHtml(!!flags.starred[id], last_edit_timestamp)}
 $!${messageReactionListAsHtml(backgroundData, reactions, _, isOwn)}`;

@@ -37,6 +37,7 @@ import { TranslationContext } from '../boot/TranslationProvider';
 import * as api from '../api';
 import { useConditionalEffect } from '../reactUtils';
 import config from '../config';
+import { FIRST_UNREAD_ANCHOR } from '../anchor';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'chat'>,
@@ -60,7 +61,7 @@ const componentStyles = createStyleSheet({
  * whole process.
  */
 const useMessagesWithFetch = args => {
-  const { narrow } = args;
+  const { narrow, anchor } = args;
 
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
@@ -87,7 +88,7 @@ const useMessagesWithFetch = args => {
   const fetch = React.useCallback(async () => {
     shouldFetchWhenNextFocused.current = false;
     try {
-      await dispatch(fetchMessagesInNarrow(narrow));
+      await dispatch(fetchMessagesInNarrow(narrow, anchor));
     } catch (errorIllTyped) {
       const e: mixed = errorIllTyped; // https://github.com/facebook/flow/issues/2470
       setFetchError(e);
@@ -135,7 +136,7 @@ export default function ChatScreen(props: Props): Node {
   const { route, navigation } = props;
   const { backgroundColor } = React.useContext(ThemeContext);
 
-  const { narrow, editMessage } = route.params;
+  const { narrow, editMessage, anchor } = route.params;
   const setEditMessage = useCallback(
     (value: EditMessage | null) => navigation.setParams({ editMessage: value }),
     [navigation],
@@ -145,7 +146,7 @@ export default function ChatScreen(props: Props): Node {
   const draft = useSelector(state => getDraftForNarrow(state, narrow));
 
   const { fetchError, isFetching, messages, firstUnreadIdInNarrow } = useMessagesWithFetch({
-    narrow,
+    narrow, anchor
   });
 
   const showMessagePlaceholders = messages.length === 0 && isFetching;
@@ -278,10 +279,11 @@ export default function ChatScreen(props: Props): Node {
               narrow={narrow}
               messages={messages}
               initialScrollMessageId={
-                firstUnreadIdInNarrow
-                // `messages` might be empty
-                ?? (messages[messages.length - 1]: (typeof messages)[number] | void)?.id
-                ?? null
+                (anchor !== undefined && anchor !== FIRST_UNREAD_ANCHOR) ? anchor
+                    : (firstUnreadIdInNarrow
+                      // `messages` might be empty
+                      ?? (messages[messages.length - 1]: (typeof messages)[number] | void)?.id
+                      ?? null)
               }
               showMessagePlaceholders={showMessagePlaceholders}
               startEditMessage={setEditMessage}

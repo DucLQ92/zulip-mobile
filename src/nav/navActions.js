@@ -9,6 +9,7 @@ import {
 import * as NavigationService from './NavigationService';
 import type { Narrow } from '../types';
 import type { SharedData } from '../sharing/types';
+import { FIRST_UNREAD_ANCHOR } from '../anchor';
 
 // TODO: Probably just do a StackActions.pop()?
 export const navigateBack = (): StackActionType => {
@@ -39,9 +40,9 @@ export const resetToMainTabs = (): NavigationAction =>
  */
 
 /** Only call this via `doNarrow`.  See there for details. */
-export const navigateToChat = (narrow: Narrow): NavigationAction =>
+export const navigateToChat = (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR): NavigationAction =>
   // This route name 'chat' appears in one more place than usual: doEventActionSideEffects.js .
-  StackActions.push('chat', { narrow, editMessage: null });
+  StackActions.push('chat', { narrow, editMessage: null, anchor });
 
 export const replaceWithChat = (narrow: Narrow): NavigationAction =>
   StackActions.replace('chat', { narrow, editMessage: null });

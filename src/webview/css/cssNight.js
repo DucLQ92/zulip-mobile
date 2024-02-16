@@ -21,9 +21,19 @@ body {
   background-color: #33393f;
 }
 .content-own {
-  background-color: #2a2f33;
+  background-color: #7944c6;
 }
 .static-timestamp-own {
   color: rgba(255, 255, 255, 0.5);
+}
+.blockquote {
+  background: rgb(66, 47, 39);
+  border-radius: 4px;
+  border-color: rgb(199, 124, 56);
+}
+.blockquote-own {
+  background: rgb(146, 95, 236);
+  border-radius: 4px;
+  border-color: #ffffff;
 }
 `;

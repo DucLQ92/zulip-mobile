@@ -36,7 +36,7 @@ export const doNarrow =
   (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR): ThunkAction<void> =>
   (dispatch, getState) => {
     // TODO: Use `anchor` to open the message list to a particular message.
-    NavigationService.dispatch(navigateToChat(narrow));
+    NavigationService.dispatch(navigateToChat(narrow, anchor));
   };
 
 /**
