@@ -7,6 +7,7 @@ import { View, SectionList, Text, FlatList, TouchableOpacity } from 'react-nativ
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Collapsible from 'react-native-collapsible';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import removeAccents from 'remove-accents';
 import { useNavigation } from '../react-navigation';
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
@@ -34,6 +35,8 @@ import type { ShowActionSheetWithOptions } from '../action-sheets';
 import { TranslationContext } from '../boot/TranslationProvider';
 import { getMute } from '../mute/muteModel';
 import { getUnread } from '../unread/unreadModel';
+import { IconSearch } from '../common/Icons';
+import Input from '../common/Input';
 
 const styles = createStyleSheet({
   container: {
@@ -226,12 +229,13 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
 
 export default function SubscriptionsScreen(props: Props): Node {
   const dispatch = useDispatch();
-  const subscriptions = useSelector(getSubscriptions);
+  const subscriptionsAll = useSelector(getSubscriptions);
   const unreadByStream = useSelector(getUnreadByStream);
+  const [filterStreamText, setFilterStreamText] = useState<string>('');
   // const sortedSubscriptions = subscriptions
   //     .slice()
   //     .sort((a, b) => caseInsensitiveCompareFunc(a.name, b.name));
-
+    const subscriptions = filterStreamText.trim() === '' ? subscriptionsAll : subscriptionsAll.filter(s => removeAccents(s.name).indexOf(removeAccents(filterStreamText.trim())) > -1);
     const allTopics = useSelector(state => getTopicsAll(state));
     for (let i = 0; i < subscriptions.length; i++) {
         const topics = allTopics[subscriptions[i].stream_id] ?? [];
@@ -268,6 +272,20 @@ export default function SubscriptionsScreen(props: Props): Node {
       <ModalNavBar
         canGoBack={false}
         title="Streams"
+        middleView={(
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <IconSearch style={{ marginLeft: 4 }} size={16} color={HIGHLIGHT_COLOR} />
+            <Input
+              style={{ flex: 1 }}
+              placeholder="Filter streams"
+              defaultValue=""
+              onChangeText={setFilterStreamText}
+              returnKeyType="done"
+              placeholderTextColor={HIGHLIGHT_COLOR}
+              underlineColorAndroid={HIGHLIGHT_COLOR}
+            />
+          </View>
+          )}
         rightView={(listIdStreamExpanded ?? []).length
           ? (
             <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 8 }} onPress={() => setListIdStreamExpanded([])}>

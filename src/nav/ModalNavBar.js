@@ -32,14 +32,14 @@ export default function ModalNavBar(props: Props): Node {
   // And the `NavBarBackButton` comes with 12px padding around icon and
   // wants another 4px padding at start.
 
-  const { canGoBack, title, rightView } = props;
+  const { canGoBack, title, rightView, middleView } = props;
   const { backgroundColor } = useContext(ThemeContext);
 
   const styles = useMemo(
     () => ({
       text: [
         globalStyles.navTitle,
-        { flex: 1 },
+        middleView !== undefined ? {} : { flex: 1 },
         canGoBack ? { marginStart: 20, marginEnd: 8 } : { marginHorizontal: 8 },
       ],
       surface: {
@@ -63,6 +63,7 @@ export default function ModalNavBar(props: Props): Node {
       <SafeAreaView mode="padding" edges={['right', 'left']} style={styles.contentArea}>
         {canGoBack && <NavBarBackButton />}
         <ZulipTextIntl style={styles.text} text={title} numberOfLines={1} ellipsizeMode="tail" />
+        {middleView !== undefined ? <View style={{ flex: 1 }}>{middleView}</View> : <View />}
         {rightView ?? <View />}
       </SafeAreaView>
     </SafeAreaView>

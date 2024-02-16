@@ -410,5 +410,6 @@
   "Admin": "Admin",
   "Moderator": "Moderator",
   "Member": "Member",
-  "Guest": "Guest"
+  "Guest": "Guest",
+  "Filter streams": "Filter streams"
 }
