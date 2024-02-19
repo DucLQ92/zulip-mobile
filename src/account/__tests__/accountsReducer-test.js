@@ -16,6 +16,7 @@ import { ZulipVersion } from '../../utils/zulipVersion';
 import * as eg from '../../__tests__/lib/exampleData';
 import { identityOfAccount } from '../accountMisc';
 import { EventTypes } from '../../api/eventTypes';
+import type { RealmUpdateDictEvent } from '../../api/eventTypes';
 
 describe('accountsReducer', () => {
   describe('REGISTER_COMPLETE', () => {
@@ -53,6 +54,49 @@ describe('accountsReducer', () => {
           }),
         ),
       ).toEqual([{ ...account1, zulipFeatureLevel: newZulipFeatureLevel }, account2, account3]);
+    });
+
+    test('when realm_push_notifications_enabled: true, clears lastDismissedServerPushSetupNotice', () => {
+      const account = { ...eg.selfAccount, lastDismissedServerPushSetupNotice: new Date() };
+      const actualState = accountsReducer(
+        [account],
+        eg.mkActionRegisterComplete({ realm_push_notifications_enabled: true }),
+      );
+      expect(actualState).toEqual([{ ...account, lastDismissedServerPushSetupNotice: null }]);
+    });
+
+    test('when realm_push_notifications_enabled: false, preserves lastDismissedServerPushSetupNotice', () => {
+      const account = { ...eg.selfAccount, lastDismissedServerPushSetupNotice: new Date() };
+      const actualState = accountsReducer(
+        [account],
+        eg.mkActionRegisterComplete({ realm_push_notifications_enabled: false }),
+      );
+      expect(actualState).toEqual([account]);
+    });
+
+    test('when realm_push_notifications_enabled_end_timestamp is null, clears lastDismissedServerNotifsExpiringBanner', () => {
+      const account = { ...eg.selfAccount, lastDismissedServerNotifsExpiringBanner: new Date() };
+      const actualState = accountsReducer(
+        [account],
+        eg.mkActionRegisterComplete({ realm_push_notifications_enabled_end_timestamp: null }),
+      );
+      expect(actualState).toEqual([{ ...account, lastDismissedServerNotifsExpiringBanner: null }]);
+    });
+
+    test('when realm_push_notifications_enabled_end_timestamp is not null, preserves lastDismissedServerNotifsExpiringBanner', () => {
+      const account = { ...eg.selfAccount, lastDismissedServerNotifsExpiringBanner: new Date() };
+      const actualState = accountsReducer(
+        [account],
+        eg.mkActionRegisterComplete({ realm_push_notifications_enabled_end_timestamp: 1705616035 }),
+      );
+      expect(actualState).toEqual([account]);
+    });
+
+    // TODO(server-8.0)
+    test('legacy: when realm_push_notifications_enabled_end_timestamp missing, preserves lastDismissedServerNotifsExpiringBanner: null', () => {
+      const account = { ...eg.selfAccount, lastDismissedServerNotifsExpiringBanner: null };
+      const actualState = accountsReducer([account], eg.mkActionRegisterComplete({}));
+      expect(actualState).toEqual([account]);
     });
   });
 
@@ -222,67 +266,113 @@ describe('accountsReducer', () => {
   });
 
   describe('EventTypes.realm, op update_dict', () => {
-    const stateWithDismissedNotice = [
-      { ...eg.plusReduxState.accounts[0], lastDismissedServerPushSetupNotice: new Date() },
-    ];
-    const stateWithoutDismissedNotice = [
-      { ...eg.plusReduxState.accounts[0], lastDismissedServerPushSetupNotice: null },
-    ];
-
-    const eventCommon = { id: 0, type: EventTypes.realm, op: 'update_dict', property: 'default' };
-
-    test('data.push_notifications_enabled is true, on state with dismissed notice', () => {
-      expect(
-        accountsReducer(stateWithDismissedNotice, {
-          type: EVENT,
-          event: { ...eventCommon, data: { push_notifications_enabled: true } },
-        }),
-      ).toEqual(stateWithoutDismissedNotice);
+    const eventWith = (data: RealmUpdateDictEvent['data']) => ({
+      type: EVENT,
+      event: { id: 0, type: EventTypes.realm, op: 'update_dict', property: 'default', data },
     });
 
-    test('data.push_notifications_enabled is true, on state without dismissed notice', () => {
-      expect(
-        accountsReducer(stateWithoutDismissedNotice, {
-          type: EVENT,
-          event: { ...eventCommon, data: { push_notifications_enabled: true } },
-        }),
-      ).toEqual(stateWithoutDismissedNotice);
+    describe('lastDismissedServerPushSetupNotice', () => {
+      const stateWithDismissedNotice = [
+        { ...eg.plusReduxState.accounts[0], lastDismissedServerPushSetupNotice: new Date() },
+      ];
+      const stateWithoutDismissedNotice = [
+        { ...eg.plusReduxState.accounts[0], lastDismissedServerPushSetupNotice: null },
+      ];
+
+      test('data.push_notifications_enabled is true, on state with dismissed notice', () => {
+        const actualState = accountsReducer(
+          stateWithDismissedNotice,
+          eventWith({ push_notifications_enabled: true }),
+        );
+        expect(actualState).toEqual(stateWithoutDismissedNotice);
+      });
+
+      test('data.push_notifications_enabled is true, on state without dismissed notice', () => {
+        const actualState = accountsReducer(
+          stateWithoutDismissedNotice,
+          eventWith({ push_notifications_enabled: true }),
+        );
+        expect(actualState).toEqual(stateWithoutDismissedNotice);
+      });
+
+      test('data.push_notifications_enabled is false, on state with dismissed notice', () => {
+        const actualState = accountsReducer(
+          stateWithDismissedNotice,
+          eventWith({ push_notifications_enabled: false }),
+        );
+        expect(actualState).toEqual(stateWithDismissedNotice);
+      });
+
+      test('data.push_notifications_enabled is false, on state without dismissed notice', () => {
+        const actualState = accountsReducer(
+          stateWithoutDismissedNotice,
+          eventWith({ push_notifications_enabled: false }),
+        );
+        expect(actualState).toEqual(stateWithoutDismissedNotice);
+      });
+
+      test('data.push_notifications_enabled is absent, on state with dismissed notice', () => {
+        const actualState = accountsReducer(stateWithDismissedNotice, eventWith({}));
+        expect(actualState).toEqual(stateWithDismissedNotice);
+      });
+
+      test('data.push_notifications_enabled is absent, on state without dismissed notice', () => {
+        const actualState = accountsReducer(stateWithoutDismissedNotice, eventWith({}));
+        expect(actualState).toEqual(stateWithoutDismissedNotice);
+      });
     });
 
-    test('data.push_notifications_enabled is false, on state with dismissed notice', () => {
-      expect(
-        accountsReducer(stateWithDismissedNotice, {
-          type: EVENT,
-          event: { ...eventCommon, data: { push_notifications_enabled: false } },
-        }),
-      ).toEqual(stateWithDismissedNotice);
-    });
+    describe('lastDismissedServerNotifsExpiringBanner', () => {
+      const stateWithDismissedBanner = [
+        { ...eg.plusReduxState.accounts[0], lastDismissedServerNotifsExpiringBanner: new Date() },
+      ];
+      const stateWithoutDismissedBanner = [
+        { ...eg.plusReduxState.accounts[0], lastDismissedServerNotifsExpiringBanner: null },
+      ];
 
-    test('data.push_notifications_enabled is false, on state without dismissed notice', () => {
-      expect(
-        accountsReducer(stateWithoutDismissedNotice, {
-          type: EVENT,
-          event: { ...eventCommon, data: { push_notifications_enabled: false } },
-        }),
-      ).toEqual(stateWithoutDismissedNotice);
-    });
+      const someTimestamp = 1705616035;
 
-    test('data.push_notifications_enabled is absent, on state with dismissed notice', () => {
-      expect(
-        accountsReducer(stateWithDismissedNotice, {
-          type: EVENT,
-          event: { ...eventCommon, data: {} },
-        }),
-      ).toEqual(stateWithDismissedNotice);
-    });
+      test('data.push_notifications_enabled_end_timestamp is null, on state with dismissed banner', () => {
+        const actualState = accountsReducer(
+          stateWithDismissedBanner,
+          eventWith({ push_notifications_enabled_end_timestamp: null }),
+        );
+        expect(actualState).toEqual(stateWithoutDismissedBanner);
+      });
 
-    test('data.push_notifications_enabled is absent, on state without dismissed notice', () => {
-      expect(
-        accountsReducer(stateWithoutDismissedNotice, {
-          type: EVENT,
-          event: { ...eventCommon, data: {} },
-        }),
-      ).toEqual(stateWithoutDismissedNotice);
+      test('data.push_notifications_enabled_end_timestamp is null, on state without dismissed banner', () => {
+        const actualState = accountsReducer(
+          stateWithoutDismissedBanner,
+          eventWith({ push_notifications_enabled_end_timestamp: null }),
+        );
+        expect(actualState).toEqual(stateWithoutDismissedBanner);
+      });
+
+      test('data.push_notifications_enabled_end_timestamp is non-null, on state with dismissed banner', () => {
+        const actualState = accountsReducer(
+          stateWithDismissedBanner,
+          eventWith({ push_notifications_enabled_end_timestamp: someTimestamp }),
+        );
+        expect(actualState).toEqual(stateWithDismissedBanner);
+      });
+
+      test('data.push_notifications_enabled_end_timestamp is non-null, on state without dismissed banner', () => {
+        const actualState = accountsReducer(
+          stateWithoutDismissedBanner,
+          eventWith({ push_notifications_enabled_end_timestamp: someTimestamp }),
+        );
+        expect(actualState).toEqual(stateWithoutDismissedBanner);
+      });
+
+      test('data.push_notifications_enabled_end_timestamp is absent, on state with dismissed banner', () => {
+        const actualState = accountsReducer(stateWithDismissedBanner, eventWith({}));
+        expect(actualState).toEqual(stateWithDismissedBanner);
+      });
+
+      test('data.push_notifications_enabled_end_timestamp is absent, on state without dismissed banner', () => {
+        const actualState = accountsReducer(stateWithoutDismissedBanner, eventWith({}));
+        expect(actualState).toEqual(stateWithoutDismissedBanner);
+      });
     });
   });
 });

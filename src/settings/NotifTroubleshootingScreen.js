@@ -9,6 +9,7 @@ import * as MailComposer from 'expo-mail-composer';
 import { nativeApplicationVersion } from 'expo-application';
 // $FlowFixMe[untyped-import]
 import uniq from 'lodash.uniq';
+import subDays from 'date-fns/subDays';
 
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
@@ -49,6 +50,12 @@ import { ApiError } from '../api/apiErrors';
 import NavRow from '../common/NavRow';
 import RowGroup from '../common/RowGroup';
 import TextRow from '../common/TextRow';
+import type { PerAccountState } from '../reduxTypes';
+import { useDateRefreshedAtInterval } from '../reactUtils';
+import { roleIsAtLeast } from '../permissionSelectors';
+import { Role } from '../api/permissionsTypes';
+import { getOwnUser } from '../users/userSelectors';
+import WebLink from '../common/WebLink';
 
 const {
   Notifications, // android
@@ -272,6 +279,8 @@ export type NotificationReport = {|
     +zulipVersion: ZulipVersion,
     +zulipFeatureLevel: number,
     +pushNotificationsEnabled: boolean,
+    +pushNotificationsEnabledEndTimestamp: number | null,
+    +endTimestampIsNear: boolean,
     +offlineNotification: boolean,
     +onlineNotification: boolean,
     +streamNotification: boolean,
@@ -289,6 +298,56 @@ function jsonifyNotificationReport(report: NotificationReport): string {
   );
 }
 
+export const kPushNotificationsEnabledEndDoc: URL = new URL(
+  'https://zulip.com/help/self-hosted-billing#upgrades-for-legacy-customers',
+);
+
+export const pushNotificationsEnabledEndTimestampWarning = (
+  state: PerAccountState,
+  dateNow: Date,
+): {| text: LocalizableText, reactText: LocalizableReactText |} | null => {
+  if (!getHaveServerData(state)) {
+    return null;
+  }
+  const realmState = getRealm(state);
+  const { pushNotificationsEnabledEndTimestamp: timestamp, pushNotificationsEnabled } = realmState;
+  if (timestamp == null || !pushNotificationsEnabled) {
+    return null;
+  }
+  const timestampMs = timestamp * 1000;
+  const warningPeriodDays = roleIsAtLeast(getOwnUser(state).role, Role.Admin) ? 15 : 10;
+  if (subDays(new Date(timestampMs), warningPeriodDays) > dateNow) {
+    return null;
+  }
+  const realmName = realmState.name;
+  const twentyFourHourTime = realmState.twentyFourHourTime;
+
+  return {
+    text: {
+      text: twentyFourHourTime
+        ? '{realmName} is scheduled to switch to a plan that does not include mobile notifications on {endTimestamp, date, short} at {endTimestamp, time, ::H:mm z}.'
+        : '{realmName} is scheduled to switch to a plan that does not include mobile notifications on {endTimestamp, date, short} at {endTimestamp, time, ::h:mm z}.',
+      values: { endTimestamp: timestampMs, realmName },
+    },
+    reactText: {
+      text: twentyFourHourTime
+        ? '{realmName} is scheduled to switch to a <z-link>plan</z-link> that does not include mobile notifications on {endTimestamp, date, short} at {endTimestamp, time, ::H:mm z}.'
+        : '{realmName} is scheduled to switch to a <z-link>plan</z-link> that does not include mobile notifications on {endTimestamp, date, short} at {endTimestamp, time, ::h:mm z}.',
+      values: {
+        endTimestamp: timestampMs,
+        realmName: (
+          <ZulipText inheritColor inheritFontSize style={{ fontWeight: 'bold' }} text={realmName} />
+        ),
+        'z-link': chunks => (
+          <WebLink inheritFontSize url={new URL('https://zulip.com/plans/#self-hosted')}>
+            {chunks}
+          </WebLink>
+        ),
+      },
+    },
+  };
+};
+
 /**
  * Generate and return a NotificationReport for all accounts we know about.
  */
@@ -301,6 +360,8 @@ export function useNotificationReportsByIdentityKey(): Map<string, NotificationR
   const pushToken = useGlobalSelector(state => getGlobalSession(state).pushToken);
   const accounts = useGlobalSelector(getAccounts);
   const activeAccountState = useGlobalSelector(tryGetActiveAccountState);
+
+  const dateNow = useDateRefreshedAtInterval(60_000);
 
   return React.useMemo(
     () =>
@@ -324,6 +385,11 @@ export function useNotificationReportsByIdentityKey(): Map<string, NotificationR
                   zulipVersion: getServerVersion(activeAccountState),
                   zulipFeatureLevel: getZulipFeatureLevel(activeAccountState),
                   pushNotificationsEnabled: getRealm(activeAccountState).pushNotificationsEnabled,
+                  pushNotificationsEnabledEndTimestamp:
+                    getRealm(activeAccountState).pushNotificationsEnabledEndTimestamp,
+                  endTimestampIsNear:
+                    pushNotificationsEnabledEndTimestampWarning(activeAccountState, dateNow)
+                    != null,
                   offlineNotification: getSettings(activeAccountState).offlineNotification,
                   onlineNotification: getSettings(activeAccountState).onlineNotification,
                   streamNotification: getSettings(activeAccountState).streamNotification,
@@ -375,7 +441,7 @@ export function useNotificationReportsByIdentityKey(): Map<string, NotificationR
           ];
         }),
       ),
-    [nativeState, accounts, activeAccountState, pushToken, platform],
+    [nativeState, accounts, activeAccountState, pushToken, platform, dateNow],
   );
 }
 

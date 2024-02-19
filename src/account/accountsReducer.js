@@ -12,6 +12,7 @@ import {
   DISMISS_SERVER_PUSH_SETUP_NOTICE,
   ACCOUNT_REMOVE,
   SET_SILENCE_SERVER_PUSH_SETUP_WARNINGS,
+  DISMISS_SERVER_NOTIFS_EXPIRING_BANNER,
 } from '../actionConstants';
 import { EventTypes } from '../api/eventTypes';
 import type { AccountsState, Identity, Action, Account } from '../types';
@@ -32,7 +33,7 @@ function updateActiveAccount(state, change) {
   const activeAccount: Account | void = state[0];
   invariant(activeAccount, 'accounts reducer: expected active account');
 
-  return [{ ...activeAccount, ...change }, ...state.slice(1)];
+  return [change(activeAccount), ...state.slice(1)];
 }
 
 // eslint-disable-next-line default-param-last
@@ -43,14 +44,19 @@ export default (state: AccountsState = initialState, action: Action): AccountsSt
       //   this will be the wrong account if the active account changed
       //   while the register was in progress. After #5006, this per-account
       //   action should naturally act on its own per-account state.
-      return updateActiveAccount(state, {
+      return updateActiveAccount(state, current => ({
+        ...current,
         userId: action.data.user_id,
         zulipFeatureLevel: action.data.zulip_feature_level,
         zulipVersion: action.data.zulip_version,
         lastDismissedServerPushSetupNotice: action.data.realm_push_notifications_enabled
           ? null
-          : state[0].lastDismissedServerPushSetupNotice,
-      });
+          : current.lastDismissedServerPushSetupNotice,
+        lastDismissedServerNotifsExpiringBanner:
+          action.data.realm_push_notifications_enabled_end_timestamp == null
+            ? null
+            : current.lastDismissedServerNotifsExpiringBanner,
+      }));
 
     case ACCOUNT_SWITCH: {
       const index = state.findIndex(
@@ -78,6 +84,7 @@ export default (state: AccountsState = initialState, action: Action): AccountsSt
             zulipVersion: null,
             zulipFeatureLevel: null,
             lastDismissedServerPushSetupNotice: null,
+            lastDismissedServerNotifsExpiringBanner: null,
             silenceServerPushSetupWarnings: false,
           },
           ...state,
@@ -121,15 +128,32 @@ export default (state: AccountsState = initialState, action: Action): AccountsSt
       //   between pressing "logout" and confirming with the confirmation
       //   dialog. Fix, perhaps by having the LOGOUT action include an
       //   Identity in its payload.
-      return updateActiveAccount(state, { apiKey: '', ackedPushToken: null });
+      return updateActiveAccount(state, current => ({
+        ...current,
+        apiKey: '',
+        ackedPushToken: null,
+      }));
     }
 
     case DISMISS_SERVER_PUSH_SETUP_NOTICE: {
-      return updateActiveAccount(state, { lastDismissedServerPushSetupNotice: action.date });
+      return updateActiveAccount(state, current => ({
+        ...current,
+        lastDismissedServerPushSetupNotice: action.date,
+      }));
+    }
+
+    case DISMISS_SERVER_NOTIFS_EXPIRING_BANNER: {
+      return updateActiveAccount(state, current => ({
+        ...current,
+        lastDismissedServerNotifsExpiringBanner: action.date,
+      }));
     }
 
     case SET_SILENCE_SERVER_PUSH_SETUP_WARNINGS: {
-      return updateActiveAccount(state, { silenceServerPushSetupWarnings: action.value });
+      return updateActiveAccount(state, current => ({
+        ...current,
+        silenceServerPushSetupWarnings: action.value,
+      }));
     }
 
     case ACCOUNT_REMOVE: {
@@ -152,20 +176,26 @@ export default (state: AccountsState = initialState, action: Action): AccountsSt
 
           // TODO: Detect if the feature level has changed, indicating an upgrade;
           //   if so, trigger a full refetch of server data.  See #4793.
-          return updateActiveAccount(state, {
+          return updateActiveAccount(state, current => ({
+            ...current,
             zulipVersion: new ZulipVersion(zulip_version),
             zulipFeatureLevel: zulip_feature_level,
-          });
+          }));
         }
 
         case EventTypes.realm: {
           if (event.op === 'update_dict') {
-            return updateActiveAccount(state, {
+            return updateActiveAccount(state, current => ({
+              ...current,
               lastDismissedServerPushSetupNotice:
                 event.data.push_notifications_enabled === true
                   ? null
-                  : state[0].lastDismissedServerPushSetupNotice,
-            });
+                  : current.lastDismissedServerPushSetupNotice,
+              lastDismissedServerNotifsExpiringBanner:
+                event.data.push_notifications_enabled_end_timestamp === null
+                  ? null
+                  : current.lastDismissedServerNotifsExpiringBanner,
+            }));
           }
 
           // (We've converted any `op: 'update'` events to

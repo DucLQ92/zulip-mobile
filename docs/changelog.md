@@ -40,6 +40,26 @@ It doesn't include
 ## Unreleased
 
 
+## 27.223 (2024-01-26)
+
+### Highlights for users
+
+* Updated translations for Belarusian, German, and Russian. Thanks as always
+  to our kind volunteer translators!
+
+Plus other fixes and improvements for your Zulip experience.
+
+
+### Highlights for developers
+
+* Updated CocoaPods to 1.13.0.
+
+* We now warn when the realm's push-notifications plan will be expiring
+  soon. (PRs #5812 and #5814)
+
+* Resolved issues: PR #5814, PR #5812
+
+
 ## 27.222 (2024-01-05)
 
 ### Highlights for users

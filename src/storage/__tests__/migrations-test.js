@@ -106,13 +106,24 @@ describe('migrations', () => {
   const base62 = {
     ...base52,
     migrations: { version: 62 },
-    accounts: base52.accounts.map(a => ({ ...a, silenceServerPushSetupWarnings: false })),
+    // $FlowIgnore[prop-missing] same type-lie as in the test, below at end
+    accounts: base52.accounts.map(a => ({
+      ...a,
+      silenceServerPushSetupWarnings: false,
+    })),
+  };
+
+  // What `base` becomes after migrations up through 66.
+  const base66 = {
+    ...base62,
+    migrations: { version: 66 },
+    accounts: base62.accounts.map(a => ({ ...a, lastDismissedServerNotifsExpiringBanner: null })),
   };
 
   // What `base` becomes after all migrations.
   const endBase = {
-    ...base62,
-    migrations: { version: 64 },
+    ...base66,
+    migrations: { version: 66 },
   };
 
   for (const [desc, before, after] of [
@@ -135,9 +146,9 @@ describe('migrations', () => {
     // redundant with this one, because none of the migration steps notice
     // whether any properties outside `storeKeys` are present or not.
     [
-      'check dropCache at 64',
+      'check dropCache at 65',
       // Just before the `dropCache`, plus a `cacheKeys` property, plus junk.
-      { ...base62, migrations: { version: 63 }, mute: [], nonsense: [1, 2, 3] },
+      { ...base62, migrations: { version: 64 }, mute: [], nonsense: [1, 2, 3] },
       // Should wind up with the same result as without the extra properties.
       endBase,
     ],

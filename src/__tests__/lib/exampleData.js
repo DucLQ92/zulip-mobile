@@ -225,6 +225,7 @@ export const makeAccount = (
     zulipVersion?: ZulipVersion | null,
     ackedPushToken?: string | null,
     lastDismissedServerPushSetupNotice?: Date | null,
+    lastDismissedServerNotifsExpiringBanner?: Date | null,
   |} = Object.freeze({}),
 ): Account => {
   const {
@@ -237,6 +238,7 @@ export const makeAccount = (
     zulipVersion: zulipVersionInner = recentZulipVersion,
     ackedPushToken = null,
     lastDismissedServerPushSetupNotice = null,
+    lastDismissedServerNotifsExpiringBanner = null,
   } = args;
   return deepFreeze({
     realm: realmInner,
@@ -247,6 +249,7 @@ export const makeAccount = (
     zulipVersion: zulipVersionInner,
     ackedPushToken,
     lastDismissedServerPushSetupNotice,
+    lastDismissedServerNotifsExpiringBanner,
     silenceServerPushSetupWarnings: false,
   });
 };
@@ -648,6 +651,7 @@ export const plusReduxState: GlobalState & PerAccountState = reduxState({
       zulipVersion: recentZulipVersion,
       zulipFeatureLevel: recentZulipFeatureLevel,
       lastDismissedServerPushSetupNotice: null,
+      lastDismissedServerNotifsExpiringBanner: null,
       silenceServerPushSetupWarnings: false,
     },
   ],
@@ -817,6 +821,7 @@ export const action = Object.freeze({
       realm_presence_disabled: true,
       realm_private_message_policy: 3,
       realm_push_notifications_enabled: true,
+      realm_push_notifications_enabled_end_timestamp: 1704926069,
       realm_send_welcome_emails: true,
       realm_signup_notifications_stream_id: 3,
       realm_upload_quota_mib: 10,
