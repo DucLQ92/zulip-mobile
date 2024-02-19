@@ -2,7 +2,7 @@
 
 import React, { useCallback, useContext, useState } from 'react';
 import type { Node } from 'react';
-import { View, SectionList, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, SectionList, Text, FlatList, TouchableOpacity, Platform } from 'react-native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Collapsible from 'react-native-collapsible';
@@ -37,7 +37,6 @@ import { getMute } from '../mute/muteModel';
 import { getUnread } from '../unread/unreadModel';
 import { IconSearch } from '../common/Icons';
 import Input from '../common/Input';
-import * as ReactNative from 'react-native';
 
 const styles = createStyleSheet({
   container: {
@@ -275,7 +274,7 @@ export default function SubscriptionsScreen(props: Props): Node {
         title="Streams"
         middleView={(
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <IconSearch style={{ marginLeft: 4, marginRight: ReactNative.Platform.OS === 'ios' ? 4 : 0 }} size={16} color={HIGHLIGHT_COLOR} />
+            <IconSearch style={{ marginLeft: 4, marginRight: Platform.OS === 'ios' ? 4 : 0 }} size={16} color={HIGHLIGHT_COLOR} />
             <Input
               style={{ flex: 1 }}
               placeholder="Filter streams"
