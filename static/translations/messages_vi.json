@@ -263,7 +263,7 @@
   "Recipients": "Người nhận",
   "Delete message": "Xóa tin nhắn",
   "System settings for Zulip": "Cài đặt hệ thống cho NextPay Talk",
-  "Silence warnings about disabled mobile push notifications": "Im lặng cảnh báo về thông báo đẩy trên thiết bị di động bị vô hiệu hóa",
+  "Silence warnings about disabled mobile notifications": "Không cảnh báo về việc vô hiệu hoá thông báo của thiết bị",
   "Troubleshooting": "Xử lý sự cố",
   "Send a test notification": "Gửi thông báo kiểm tra",
   "Failed to send test notification": "Không gửi được thông báo kiểm tra",
