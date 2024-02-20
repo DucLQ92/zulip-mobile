@@ -42,6 +42,7 @@ import getServerSettings from './settings/getServerSettings';
 import toggleMobilePushSettings from './settings/toggleMobilePushSettings';
 import createStream from './streams/createStream';
 import getStreams from './streams/getStreams';
+import getStreamsSubscribers from './streams/getStreamsSubscribers';
 import updateStream from './streams/updateStream';
 import sendSubmessage from './submessages/sendSubmessage';
 import getSubscriptions from './subscriptions/getSubscriptions';
@@ -97,6 +98,7 @@ export {
   toggleMobilePushSettings,
   createStream,
   getStreams,
+  getStreamsSubscribers,
   updateStream,
   sendSubmessage,
   getSubscriptions,

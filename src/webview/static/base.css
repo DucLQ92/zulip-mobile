@@ -374,7 +374,7 @@ body {
   margin-bottom: 6px;
 }
 .name-and-status-emoji {
-  display: flex;
+  display: inline-block;
   align-items: center;
   font-weight: bold;
   text-overflow: ellipsis;
@@ -573,7 +573,7 @@ th, td {
 .topic-mention,
 .user-group-mention,
 .user-mention {
-  white-space: nowrap;
+  white-space: normal;
   background-color: hsla(0, 0%, 0%, 0.1);
   border-radius: 3px;
   padding: 0 2px;

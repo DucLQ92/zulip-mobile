@@ -1,13 +1,14 @@
 /* @flow strict-local */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { Node } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, Platform, View } from 'react-native';
 
+import removeAccents from 'remove-accents';
 import Screen from '../common/Screen';
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
-import { createStyleSheet } from '../styles';
+import { createStyleSheet, HIGHLIGHT_COLOR } from '../styles';
 import { useDispatch, useSelector } from '../react-redux';
 import ZulipButton from '../common/ZulipButton';
 import SearchEmptyState from '../common/SearchEmptyState';
@@ -19,6 +20,8 @@ import { doNarrow } from '../actions';
 import { caseInsensitiveCompareFunc } from '../utils/misc';
 import StreamItem from '../streams/StreamItem';
 import { getSubscriptionsById } from './subscriptionSelectors';
+import { IconSearch } from '../common/Icons';
+import Input from '../common/Input';
 
 const styles = createStyleSheet({
   button: {
@@ -42,11 +45,14 @@ export default function StreamListScreen(props: Props): Node {
   const canCreateStreams = useSelector(getCanCreateStreams);
   const subscriptions = useSelector(getSubscriptionsById);
   const streams = useSelector(getStreams);
+  const [filterStreamText, setFilterStreamText] = useState<string>('');
 
   const sortedStreams = useMemo(
     () => streams.slice().sort((a, b) => caseInsensitiveCompareFunc(a.name, b.name)),
     [streams],
   );
+
+  const filteredStreams = filterStreamText.trim() === '' ? sortedStreams : sortedStreams.filter(s => removeAccents(s.name).toUpperCase().indexOf(removeAccents(filterStreamText.trim()).toUpperCase()) > -1);
 
   const handleSubscribeButtonPressed = useCallback(
     (stream, value: boolean) => {
@@ -80,12 +86,24 @@ export default function StreamListScreen(props: Props): Node {
           }
         />
       )}
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 12, marginBottom: 8 }}>
+        <IconSearch style={{ marginLeft: 4, marginRight: Platform.OS === 'ios' ? 4 : 0 }} size={24} color={HIGHLIGHT_COLOR} />
+        <Input
+          style={{ flex: 1, fontSize: 16 }}
+          placeholder="Filter streams"
+          defaultValue=""
+          onChangeText={setFilterStreamText}
+          returnKeyType="done"
+          placeholderTextColor={HIGHLIGHT_COLOR}
+          underlineColorAndroid={HIGHLIGHT_COLOR}
+        />
+      </View>
       {streams.length === 0 ? (
         <SearchEmptyState text="No streams found" />
       ) : (
         <FlatList
           style={styles.list}
-          data={sortedStreams}
+          data={filteredStreams}
           initialNumToRender={20}
           keyExtractor={item => item.stream_id.toString()}
           renderItem={({ item }) => (

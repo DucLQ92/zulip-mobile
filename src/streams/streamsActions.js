@@ -4,6 +4,7 @@ import * as api from '../api';
 import { getAuth, getZulipFeatureLevel } from '../selectors';
 import { ensureUnreachable } from '../generics';
 import type { SubsetProperties } from '../generics';
+import { initTopics } from '../topics/topicActions';
 
 export type Privacy = 'web-public' | 'public' | 'invite-only-public-history' | 'invite-only';
 
@@ -86,3 +87,14 @@ export const updateExistingStream =
 
     await api.updateStream(auth, id, updates);
   };
+
+export const fetchSubscribersByStreamId =
+  (streamId: number): ThunkAction<Promise<void>> =>
+      async (dispatch, getState) => {
+        const auth = getAuth(getState());
+        const { subscribers } = await api.getStreamsSubscribers(auth, streamId);
+        // for (let i = 0; i < (topics ?? []).length; i++) {
+        //   topics[i].streamId = streamId;
+        // }
+        return subscribers;
+      };

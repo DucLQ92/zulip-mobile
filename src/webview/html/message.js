@@ -112,7 +112,7 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   const content = match_content ?? message.content;
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
   return template`\
-$!${processAlertWords(content.replace('<blockquote>', `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}">`), id, alertWords, flags)}
+$!${processAlertWords(content.replace(/<blockquote>/g, `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}">`), id, alertWords, flags)}
 $!${isOutbox === true ? '<div class="loading-spinner outbox-spinner"></div>' : ''}
 $!${messageTagsAsHtml(!!flags.starred[id], last_edit_timestamp)}
 $!${messageReactionListAsHtml(backgroundData, reactions, _, isOwn)}`;

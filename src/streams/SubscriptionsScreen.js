@@ -207,7 +207,7 @@ function ListStreamSubscriptions({ item, listIdStreamExpanded, setListIdStreamEx
                           fontWeight: 'bold',
                       }}
                 >
-                  {'+ '}
+                  {'+  '}
                 </Text>
                 <ZulipTextIntl
                   style={{
@@ -235,7 +235,7 @@ export default function SubscriptionsScreen(props: Props): Node {
   // const sortedSubscriptions = subscriptions
   //     .slice()
   //     .sort((a, b) => caseInsensitiveCompareFunc(a.name, b.name));
-    const subscriptions = filterStreamText.trim() === '' ? subscriptionsAll : subscriptionsAll.filter(s => removeAccents(s.name).indexOf(removeAccents(filterStreamText.trim())) > -1);
+    const subscriptions = filterStreamText.trim() === '' ? subscriptionsAll : subscriptionsAll.filter(s => removeAccents(s.name).toUpperCase().indexOf(removeAccents(filterStreamText.trim()).toUpperCase()) > -1);
     const allTopics = useSelector(state => getTopicsAll(state));
     for (let i = 0; i < subscriptions.length; i++) {
         const topics = allTopics[subscriptions[i].stream_id] ?? [];

@@ -1,7 +1,7 @@
 /* @flow strict-local */
-import React, { useCallback } from 'react';
 import type { Node } from 'react';
-import { View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
@@ -13,13 +13,17 @@ import ZulipButton from '../common/ZulipButton';
 import { getSettings } from '../directSelectors';
 import { getAuth, getOwnUser, getStreamForId } from '../selectors';
 import StreamCard from './StreamCard';
-import { IconPin, IconMute, IconNotifications, IconEdit, IconPlusSquare } from '../common/Icons';
-import styles from '../styles';
+import { IconEdit, IconMute, IconNotifications, IconPin, IconPlusSquare } from '../common/Icons';
+import styles, { BRAND_COLOR, HIGHLIGHT_COLOR } from '../styles';
 import { getSubscriptionsById } from '../subscriptions/subscriptionSelectors';
 import * as api from '../api';
 import getIsNotificationEnabled from './getIsNotificationEnabled';
 import { roleIsAtLeast } from '../permissionSelectors';
 import { Role } from '../api/permissionsTypes';
+import ZulipText from '../common/ZulipText';
+import ZulipTextIntl from '../common/ZulipTextIntl';
+import UserAvatar from '../common/UserAvatar';
+import type { UserOrBot } from '../api/modelTypes';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'stream-settings'>,
@@ -29,6 +33,7 @@ type Props = $ReadOnly<{|
 export default function StreamSettingsScreen(props: Props): Node {
   const { navigation } = props;
   const auth = useSelector(getAuth);
+  const users = useSelector(state => state.users);
   const isAtLeastAdmin = useSelector(state => roleIsAtLeast(getOwnUser(state).role, Role.Admin));
   const stream = useSelector(state => getStreamForId(state, props.route.params.streamId));
   const subscription = useSelector(state =>
@@ -73,8 +78,28 @@ export default function StreamSettingsScreen(props: Props): Node {
     api.setSubscriptionProperty(auth, stream.stream_id, 'push_notifications', !currentValue);
   }, [auth, stream, subscription, userSettingStreamNotification]);
 
+  const [streamsSubscribers, setStreamsSubscribers] = useState<any>([]);
+  useEffect(() => {
+    (async () => {
+      const response = await api.getStreamsSubscribers(auth, stream.stream_id);
+      if (response?.subscribers) {
+        const ss = users.filter(user => response.subscribers.indexOf(user.user_id) > -1);
+        setStreamsSubscribers(ss.sort((a, b) => a.full_name.localeCompare(b.full_name)));
+      } else {
+        setStreamsSubscribers([]);
+      }
+    })();
+  }, [auth, stream.stream_id, users]);
+
+  const handlePressSubscriber = useCallback(
+      (user: UserOrBot) => {
+        navigation.push('account-details', { userId: user.user_id });
+      },
+      [navigation],
+  );
+
   return (
-    <Screen title="Stream">
+    <Screen title="Stream" scrollEnabled={false}>
       <StreamCard stream={stream} subscription={subscription} />
       {subscription && (
         <>
@@ -98,7 +123,7 @@ export default function StreamSettingsScreen(props: Props): Node {
           />
         </>
       )}
-      <View style={styles.padding}>
+      <View style={styles.paddingHorizontal}>
         {isAtLeastAdmin && (
           // TODO: Group all the stream's attributes together (name,
           //   description, policies, etc.), with an associated "Edit"
@@ -138,6 +163,25 @@ export default function StreamSettingsScreen(props: Props): Node {
             onPress={() => delay(handlePressSubscribe)}
           />
         )}
+      </View>
+      <View style={{ paddingHorizontal: 16, flex: 1 }}>
+        {streamsSubscribers ? <ZulipTextIntl style={{ fontSize: 20, marginTop: 16, marginBottom: 8, color: HIGHLIGHT_COLOR }} text="Subscribers" /> : <View />}
+        <FlatList
+          contentContainerStyle={{ paddingBottom: 40 }}
+          style={{ flex: 1 }}
+          data={streamsSubscribers ?? []}
+          keyExtractor={(item, index) => `${item.email}${item.user_id.toString()}`}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={{ flexDirection: 'row', backgroundColor: 'hsla(0, 0%, 50%, 0.1)', marginBottom: 8, padding: 8, borderRadius: 8, alignItems: 'center' }}
+              onPress={() => handlePressSubscriber(item)}
+              activeOpacity={0.8}
+            >
+              <UserAvatar avatarUrl={item.avatar_url} size={48} />
+              <ZulipText style={{ fontSize: 16, color: 'grey', flex: 1, marginLeft: 8 }}>{item.full_name}</ZulipText>
+            </TouchableOpacity>
+            )}
+        />
       </View>
     </Screen>
   );
