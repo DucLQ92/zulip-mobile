@@ -254,7 +254,9 @@ export default (
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
   if (message.typeBlock === 'mentioned' || message.typeBlock === 'starred') {
-    const linkToMessage = `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject)}/near/${message.id}`;
+    const linkToMessage = message.type === 'private'
+        ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id)}-group/near/${message.id}`
+        : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject)}/near/${message.id}`;
     const htmlLinkToMessage = `<a href=${linkToMessage}>[${_.intl.messages['Go to message location']}]</a>`;
     if (message.content.indexOf(htmlLinkToMessage) < 0) {
       message.content += htmlLinkToMessage;
