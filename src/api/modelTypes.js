@@ -987,6 +987,10 @@ type MessageBase = $ReadOnly<{|
    */
   match_content?: string,
   match_subject?: string,
+
+  /**
+   */
+  typeBlock?: string,
 |}>;
 
 export type PmMessage = $ReadOnly<{|

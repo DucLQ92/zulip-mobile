@@ -63,6 +63,7 @@ export default (
       || showDateSeparator
       || showRecipientHeader;
 
+    message.typeBlock = narrow.type;
     pieces.push({
       key: [message.id, 2],
       type: 'message',
