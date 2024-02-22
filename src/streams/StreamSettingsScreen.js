@@ -13,7 +13,14 @@ import ZulipButton from '../common/ZulipButton';
 import { getSettings } from '../directSelectors';
 import { getAuth, getOwnUser, getStreamForId } from '../selectors';
 import StreamCard from './StreamCard';
-import { IconEdit, IconMute, IconNotifications, IconPin, IconPlusSquare } from '../common/Icons';
+import {
+  IconEdit,
+  IconMute,
+  IconNotifications,
+  IconPeople,
+  IconPin,
+  IconPlusSquare
+} from '../common/Icons';
 import styles, { BRAND_COLOR, HIGHLIGHT_COLOR } from '../styles';
 import { getSubscriptionsById } from '../subscriptions/subscriptionSelectors';
 import * as api from '../api';
@@ -91,15 +98,12 @@ export default function StreamSettingsScreen(props: Props): Node {
     })();
   }, [auth, stream.stream_id, users]);
 
-  const handlePressSubscriber = useCallback(
-      (user: UserOrBot) => {
-        navigation.push('account-details', { userId: user.user_id });
-      },
-      [navigation],
-  );
+  const handlePressSubscribers = useCallback(() => {
+    navigation.push('new-1to1-pm', { streamsSubscribers });
+  }, [navigation, streamsSubscribers]);
 
   return (
-    <Screen title="Stream" scrollEnabled={false}>
+    <Screen title="Stream">
       <StreamCard stream={stream} subscription={subscription} />
       {subscription && (
         <>
@@ -141,6 +145,14 @@ export default function StreamSettingsScreen(props: Props): Node {
             onPress={() => delay(handlePressEdit)}
           />
         )}
+        {(streamsSubscribers ?? []).length ? (
+          <ZulipButton
+            style={styles.marginTop}
+            Icon={IconPeople}
+            text="Subscribers"
+            onPress={() => delay(handlePressSubscribers)}
+          />
+        ) : <View />}
         <ZulipButton
           style={styles.marginTop}
           Icon={IconPlusSquare}
@@ -163,25 +175,6 @@ export default function StreamSettingsScreen(props: Props): Node {
             onPress={() => delay(handlePressSubscribe)}
           />
         )}
-      </View>
-      <View style={{ paddingHorizontal: 16, flex: 1 }}>
-        {streamsSubscribers ? <ZulipTextIntl style={{ fontSize: 20, marginTop: 16, marginBottom: 8, color: HIGHLIGHT_COLOR }} text="Subscribers" /> : <View />}
-        <FlatList
-          contentContainerStyle={{ paddingBottom: 40 }}
-          style={{ flex: 1 }}
-          data={streamsSubscribers ?? []}
-          keyExtractor={(item, index) => `${item.email}${item.user_id.toString()}`}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={{ flexDirection: 'row', backgroundColor: 'hsla(0, 0%, 50%, 0.1)', marginBottom: 8, padding: 8, borderRadius: 8, alignItems: 'center' }}
-              onPress={() => handlePressSubscriber(item)}
-              activeOpacity={0.8}
-            >
-              <UserAvatar avatarUrl={item.avatar_url} size={48} />
-              <ZulipText style={{ fontSize: 16, color: 'grey', flex: 1, marginLeft: 8 }}>{item.full_name}</ZulipText>
-            </TouchableOpacity>
-            )}
-        />
       </View>
     </Screen>
   );

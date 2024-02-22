@@ -3,6 +3,7 @@
 import uniq from 'lodash.uniq';
 import * as typeahead from '@zulip/shared/lib/typeahead';
 
+import removeAccents from 'remove-accents';
 import type {
   MutedUsersState,
   UserId,
@@ -65,8 +66,8 @@ export const filterUserList = (
   users.filter(
     user =>
       filter === ''
-      || user.full_name.toLowerCase().includes(filter.toLowerCase())
-      || user.email.toLowerCase().includes(filter.toLowerCase()),
+      || removeAccents(user.full_name).toLowerCase().includes(removeAccents(filter).toLowerCase())
+      || removeAccents(user.email).toLowerCase().includes(removeAccents(filter).toLowerCase()),
   );
 
 export const filterUserStartWith = (

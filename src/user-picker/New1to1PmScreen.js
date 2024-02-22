@@ -31,11 +31,14 @@ export default function New1to1PmScreen(props: Props): Node {
     [dispatch, navigation],
   );
 
+  // from StreamSettingsScreen
+  const { streamsSubscribers } = props.route.params;
+
   const [filter, setFilter] = useState<string>('');
 
   return (
     <Screen search scrollEnabled={false} searchBarOnChange={setFilter}>
-      <UserList users={users} filter={filter} onPress={handleUserNarrow} />
+      <UserList users={streamsSubscribers ?? users} filter={filter} onPress={handleUserNarrow} />
     </Screen>
   );
 }
