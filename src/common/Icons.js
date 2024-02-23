@@ -10,6 +10,8 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Entypo from 'react-native-vector-icons/Entypo';
 import ZulipIcon from './ZulipIcon';
 
 /**
@@ -120,3 +122,6 @@ export const IconWildcardMention: SpecificIconType = makeIcon(FontAwesome, 'bull
 /* eslint-disable react/function-component-definition */
 export const IconWebPublic: SpecificIconType = props => <ZulipIcon name="globe" {...props} />;
 export const IconFollow: SpecificIconType = props => <ZulipIcon name="follow" {...props} />;
+
+export const IconTask: SpecificIconType = makeIcon(FontAwesome5, 'tasks');
+export const IconDotsThreeHorizontal: SpecificIconType = makeIcon(Entypo, 'dots-three-horizontal');

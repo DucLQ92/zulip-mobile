@@ -1,7 +1,7 @@
 /* @flow strict-local */
 import type { Node } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
@@ -21,16 +21,12 @@ import {
   IconPin,
   IconPlusSquare
 } from '../common/Icons';
-import styles, { BRAND_COLOR, HIGHLIGHT_COLOR } from '../styles';
+import styles from '../styles';
 import { getSubscriptionsById } from '../subscriptions/subscriptionSelectors';
 import * as api from '../api';
 import getIsNotificationEnabled from './getIsNotificationEnabled';
 import { roleIsAtLeast } from '../permissionSelectors';
 import { Role } from '../api/permissionsTypes';
-import ZulipText from '../common/ZulipText';
-import ZulipTextIntl from '../common/ZulipTextIntl';
-import UserAvatar from '../common/UserAvatar';
-import type { UserOrBot } from '../api/modelTypes';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'stream-settings'>,

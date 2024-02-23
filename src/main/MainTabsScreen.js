@@ -13,11 +13,12 @@ import type { AppNavigationMethods, AppNavigationProp } from '../nav/AppNavigato
 import { bottomTabNavigatorConfig } from '../styles/tabs';
 import HomeScreen from './HomeScreen';
 import PmConversationsScreen from '../pm-conversations/PmConversationsScreen';
-import { IconInbox, IconStream, IconPeople } from '../common/Icons';
+import { IconInbox, IconStream, IconPeople, IconTask } from '../common/Icons';
 import OwnAvatar from '../common/OwnAvatar';
 import ProfileScreen from '../account-info/ProfileScreen';
 import styles, { BRAND_COLOR, ThemeContext } from '../styles';
 import SubscriptionsScreen from '../streams/SubscriptionsScreen';
+import TaskRedmineScreen from '../task-redmine/TaskRedmineScreen';
 
 export type MainTabsNavigatorParamList = {|
   +home: RouteParamsOf<typeof HomeScreen>,
@@ -82,6 +83,18 @@ export default function MainTabsScreen(props: Props): Node {
               backgroundColor: BRAND_COLOR,
             },
           }}
+        />
+        <Tab.Screen
+          name="task-redmine"
+          component={TaskRedmineScreen}
+          options={{
+                  tabBarLabel: 'Task',
+                  tabBarIcon: ({ color }) => <IconTask size={24} color={color} />,
+                  tabBarBadgeStyle: {
+                      color: 'white',
+                      backgroundColor: BRAND_COLOR,
+                  },
+              }}
         />
         <Tab.Screen
           name="profile"
