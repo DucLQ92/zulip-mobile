@@ -74,6 +74,10 @@ export default function SettingsScreen(props: Props): Node {
     dispatch(setGlobalSettings({ theme: theme === 'default' ? 'night' : 'default' }));
   }, [theme, dispatch]);
 
+  const languagePriority = languages.filter(l => l.tag === 'vi' || l.tag === 'en');
+
+  const languageOther = languages.filter(l => l.tag !== 'vi' && l.tag !== 'en');
+
   return (
     <Screen title="Settings">
       <SwitchRow label="Night mode" value={theme === 'night'} onValueChange={handleThemeChange} />
@@ -132,7 +136,7 @@ export default function SettingsScreen(props: Props): Node {
         navigation={navigation}
         label="Language"
         valueKey={language}
-        items={languages.map(l => ({
+        items={[...languagePriority, ...languageOther].map(l => ({
           key: l.tag,
           title: noTranslation(l.selfname),
           subtitle: noTranslation(l.name),
