@@ -73,9 +73,9 @@ export default function AccountDetails(props: Props): Node {
   const displayEmail = getDisplayEmailForUser(realm, user);
 
   return (
-    <ComponentList outerSpacing itemStyle={componentStyles.componentListItem}>
+    <ComponentList outerSpacing spacing={4} itemStyle={componentStyles.componentListItem} style={{ paddingVertical: 8 }}>
       <View>
-        <UserAvatar avatarUrl={user.avatar_url} size={200} />
+        <UserAvatar avatarUrl={user.avatar_url} size={180} />
       </View>
       <View style={componentStyles.statusWrapper}>
         <PresenceStatusIndicator
@@ -86,6 +86,8 @@ export default function AccountDetails(props: Props): Node {
         />
         <ZulipTextIntl
           selectable
+          adjustsFontSizeToFit
+          numberOfLines={1}
           style={[styles.largerText, componentStyles.boldText]}
           text={getFullNameReactText({ user, enableGuestUserIndicator })}
         />

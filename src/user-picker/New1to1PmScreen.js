@@ -32,7 +32,7 @@ export default function New1to1PmScreen(props: Props): Node {
   );
 
   // from StreamSettingsScreen
-  const { streamsSubscribers } = props.route.params;
+  const streamsSubscribers = props.route.params?.streamsSubscribers;
 
   const [filter, setFilter] = useState<string>('');
 

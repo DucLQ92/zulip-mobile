@@ -105,14 +105,12 @@ export default function AccountDetailsScreen(props: Props): Node {
   return (
     <Screen title={getFullNameReactText({ user, enableGuestUserIndicator })}>
       <AccountDetails user={user} showEmail showStatus />
-      <View style={styles.itemWrapper}>
+      <View style={[styles.itemWrapper, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', }]}>
         <ActivityText style={globalStyles.largerText} user={user} />
+        {localTime !== null && (
+          <ZulipText style={globalStyles.largerText} text={` - ${localTime}`} />
+        )}
       </View>
-      {localTime !== null && (
-        <View style={styles.itemWrapper}>
-          <ZulipText style={globalStyles.largerText} text={localTime} />
-        </View>
-      )}
       <View style={styles.itemWrapper}>
         <CustomProfileFields user={user} />
       </View>
@@ -125,12 +123,11 @@ export default function AccountDetailsScreen(props: Props): Node {
         onPress={handleChatPress}
         Icon={IconPrivateChat}
       />
-      <View style={{ height: 20 }} />
       {user.email === ownUser.email ? <View /> : (
         <View style={styles.pmButton}>
           <ReportUserButton user={user} ownUser={ownUser} />
         </View>
-)}
+      )}
     </Screen>
   );
 }
