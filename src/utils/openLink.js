@@ -13,11 +13,11 @@ export function openLinkExternal(url: URL): void {
 }
 
 /** Open a URL in the in-app browser. */
-export async function openLinkEmbedded(url: URL): void {
+export function openLinkEmbedded(url: URL): void {
   if (Platform.OS === 'ios') {
-    try {
-      await WebBrowser.openBrowserAsync(url.toString());
-    } catch (err) {
+    if (url.href.startsWith('http') || url.href.startsWith('https')) {
+      WebBrowser.openBrowserAsync(url.toString());
+    } else {
       // iOS issue fix: cannot open non-http(https) url
       openLinkExternal(url);
     }

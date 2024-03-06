@@ -21,7 +21,7 @@ PODS:
   - ExpoModulesCore (0.9.2):
     - React-Core
     - ReactCommon/turbomodule/core
-  - ExpoWebBrowser (12.8.2):
+  - ExpoWebBrowser (10.2.1):
     - ExpoModulesCore
   - EXScreenOrientation (4.2.0):
     - ExpoModulesCore
@@ -435,7 +435,7 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.20.0):
+  - RNScreens (3.29.0):
     - React-Core
     - React-RCTImage
   - RNSentry (5.11.1):
@@ -697,7 +697,7 @@ SPEC CHECKSUMS:
   Expo: 1133eaf0e12dc265ac82a256f3815401b7570f96
   ExpoKeepAwake: c0c494b442ecd8122974c13b93ccfb57bd408e88
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
-  ExpoWebBrowser: e31c97230ea93b51a2a74c6c2381b0d4fca5698c
+  ExpoWebBrowser: 4b5f9633e5f169dc948587cb6d26d2d1d1406187
   EXScreenOrientation: e3c072fb0add472a3037482ea43ccbade9b88a25
   EXSQLite: 2b9accd925438293f9f39e0a57a08cca13bdffb2
   FBLazyVector: 63b89dc85804d5817261f56dc4cfb43a9b6d57f5
@@ -755,7 +755,7 @@ SPEC CHECKSUMS:
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNReanimated: e7d8afaf8fed4b3bf1a46e06adb2e04a2b248f1c
-  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
+  RNScreens: fa9b582d85ae5d62c91c66003b5278458fed7aaa
   RNSentry: e668d4e68fe09d475dc084bab81f02c3be2db173
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Sentry: a067ca1db308066097314d8478e9682f3b575dee
