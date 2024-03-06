@@ -54,6 +54,7 @@ export default function TaskRedmineScreen(props: Props): Node {
       <OfflineNoticePlaceholder />
       <WebView
         source={{ uri }}
+        autoManageStatusBarEnabled={false}
         onShouldStartLoadWithRequest={(request) => {
           console.log('///---TASK REDMINE---///-onShouldStartLoadWithRequest:', request);
           return true;

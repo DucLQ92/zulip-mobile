@@ -48,7 +48,7 @@
     "expo-mail-composer": "<11.3.0",
     "expo-screen-orientation": "~4.2.0",
     "expo-sqlite": "~10.2.0",
-    "expo-web-browser": "~10.2.1",
+    "expo-web-browser": "~12.8.2",
     "flow-enums-runtime": "^0.0.6",
     "immutable": "^4.0.0-rc.12",
     "invariant": "^2.2.4",

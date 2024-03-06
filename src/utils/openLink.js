@@ -7,18 +7,23 @@ import type { BrowserPreference, GlobalSettingsState } from '../types';
 
 const { ZLPConstants } = NativeModules;
 
-/** Open a URL in the in-app browser. */
-export function openLinkEmbedded(url: URL): void {
-  if (Platform.OS === 'ios') {
-    WebBrowser.openBrowserAsync(url.toString());
-  } else {
-    NativeModules.CustomTabsAndroid.openURL(url.toString());
-  }
-}
-
 /** Open a URL in the user's default browser app. */
 export function openLinkExternal(url: URL): void {
   Linking.openURL(url.toString());
+}
+
+/** Open a URL in the in-app browser. */
+export async function openLinkEmbedded(url: URL): void {
+  if (Platform.OS === 'ios') {
+    try {
+      await WebBrowser.openBrowserAsync(url.toString());
+    } catch (err) {
+      // iOS issue fix: cannot open non-http(https) url
+      openLinkExternal(url);
+    }
+  } else {
+    NativeModules.CustomTabsAndroid.openURL(url.toString());
+  }
 }
 
 export function shouldUseInAppBrowser(browser: BrowserPreference): boolean {
