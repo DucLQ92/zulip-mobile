@@ -125,3 +125,4 @@ export const IconFollow: SpecificIconType = props => <ZulipIcon name="follow" {.
 
 export const IconTask: SpecificIconType = makeIcon(FontAwesome5, 'tasks');
 export const IconDotsThreeHorizontal: SpecificIconType = makeIcon(Entypo, 'dots-three-horizontal');
+export const IconCall: SpecificIconType = makeIcon(IoniconsIcon, 'call');

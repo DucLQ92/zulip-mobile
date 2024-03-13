@@ -62,6 +62,7 @@ import getFileTemporaryUrl from './messages/getFileTemporaryUrl';
 import getReadReceipts from './messages/getReadReceipts';
 import updateTopicName from './updateTopicName';
 import sendTestNotification from './notifications/sendTestNotification';
+import getPhone from './talk/getPhone';
 
 export {
   fetchServerEmojiData,
@@ -118,4 +119,5 @@ export {
   getReadReceipts,
   updateTopicName,
   sendTestNotification,
+  getPhone,
 };
