@@ -88,20 +88,20 @@ export default function AccountDetails(props: Props): Node {
           selectable
           adjustsFontSizeToFit
           numberOfLines={1}
-          style={[styles.largerText, componentStyles.boldText]}
+          style={[styles.largerText, componentStyles.boldText, { flex: 1 }]}
           text={getFullNameReactText({ user, enableGuestUserIndicator })}
         />
       </View>
       {displayEmail !== null && showEmail && (
         <View>
-          <ZulipText selectable style={styles.largerText} text={displayEmail} />
+          <ZulipText selectable style={styles.largeText} text={displayEmail} />
         </View>
       )}
       <View>
-        <ZulipTextIntl selectable style={styles.largerText} text={getRoleText(user.role)} />
+        <ZulipTextIntl selectable style={styles.largeText} text={getRoleText(user.role)} />
       </View>
       {showStatus && (
-        <View style={componentStyles.statusWrapper}>
+        <View style={[componentStyles.statusWrapper, { paddingHorizontal: 16 }]}>
           {userStatusEmoji && (
             <Emoji
               code={userStatusEmoji.emoji_code}

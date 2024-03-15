@@ -5,6 +5,15 @@ export const statics = {
   largerText: {
     fontSize: 20,
   },
+  largeText: {
+    fontSize: 18,
+  },
+  bigText: {
+    fontSize: 16,
+  },
+  mediumText: {
+    fontSize: 14,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
