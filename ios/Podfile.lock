@@ -8,6 +8,8 @@ PODS:
     - ExpoModulesCore
   - EXConstants (13.1.1):
     - ExpoModulesCore
+  - EXErrorRecovery (3.1.0):
+    - ExpoModulesCore
   - EXFileSystem (14.0.0):
     - ExpoModulesCore
   - EXFont (10.1.0):
@@ -310,7 +312,7 @@ PODS:
     - glog
   - react-native-cameraroll (5.2.4):
     - React-Core
-  - react-native-document-picker (8.2.0):
+  - react-native-document-picker (8.2.2):
     - React-Core
   - react-native-image-picker (5.7.0):
     - React-Core
@@ -318,12 +320,8 @@ PODS:
     - React-Core
   - react-native-photo-view (1.5.3):
     - React-Core
-  - react-native-safe-area-context (4.5.2):
-    - RCT-Folly
-    - RCTRequired
-    - RCTTypeSafety
+  - react-native-safe-area-context (4.9.0):
     - React-Core
-    - ReactCommon/turbomodule/core
   - react-native-simple-toast (1.1.4):
     - React-Core
     - Toast (~> 4.0.0)
@@ -398,13 +396,13 @@ PODS:
     - React-Core
   - RNCAsyncStorage (1.17.12):
     - React-Core
-  - RNCClipboard (1.11.2):
+  - RNCClipboard (1.13.2):
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
-  - RNGestureHandler (2.9.0):
+  - RNGestureHandler (2.15.0):
     - React-Core
   - RNReanimated (2.2.4):
     - DoubleConversion
@@ -435,17 +433,17 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.20.0):
+  - RNScreens (3.29.0):
     - React-Core
     - React-RCTImage
-  - RNSentry (5.11.1):
+  - RNSentry (5.19.0):
     - React-Core
-    - Sentry/HybridSDK (= 8.13.0)
+    - Sentry/HybridSDK (= 8.17.1)
   - RNVectorIcons (9.2.0):
     - React-Core
-  - Sentry/HybridSDK (8.13.0):
-    - SentryPrivate (= 8.13.0)
-  - SentryPrivate (8.13.0)
+  - Sentry/HybridSDK (8.17.1):
+    - SentryPrivate (= 8.17.1)
+  - SentryPrivate (8.17.1)
   - SocketRocket (0.6.0)
   - Toast (4.0.0)
   - Yoga (1.14.0)
@@ -458,6 +456,7 @@ DEPENDENCIES:
   - EXAppleAuthentication (from `../node_modules/expo-apple-authentication/ios`)
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
+  - EXErrorRecovery (from `../node_modules/expo-error-recovery/ios`)
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXMailComposer (from `../node_modules/expo-mail-composer/ios`)
@@ -571,6 +570,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-application/ios"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
+  EXErrorRecovery:
+    :path: "../node_modules/expo-error-recovery/ios"
   EXFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   EXFont:
@@ -691,6 +692,7 @@ SPEC CHECKSUMS:
   EXAppleAuthentication: 709a807fe7f48ac6986a2ceed206ee6a8baf28df
   EXApplication: d6562af1204162e0ac46d341a7d4e5dc720b33de
   EXConstants: fdbe52259365b6a6faaa5e99a3b82cfa6bc2eb61
+  EXErrorRecovery: 3ce46e5d42e53c0371ff048a7f0cbc959968ef4a
   EXFileSystem: 2aa2d9289f84bca9532b9ccbd81504fa31eb1ded
   EXFont: 04235cc22e6fef86028feb67db452978dc6f240f
   EXMailComposer: 2e5fdf265f3a1d5d5ef03724ce361cdedb0f546f
@@ -729,11 +731,11 @@ SPEC CHECKSUMS:
   React-jsinspector: cab4d37ebde480f84c79ac89568abbf76b916c3e
   React-logger: b75b80500ea80457b2cf169427d66de986cdcb29
   react-native-cameraroll: cb752fda6d5268f1646b4390bd5be1f27706b9a0
-  react-native-document-picker: 495c444c0c773c6e83a5d91165890ecb1c0a399a
+  react-native-document-picker: cd4d6b36a5207ad7a9e599ebb9eb0c2e84fa0b87
   react-native-image-picker: 3269f75c251cdcd61ab51b911dd30d6fff8c6169
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
   react-native-photo-view: ea0ec91bf5991a6843e740b1f47ab355171c996c
-  react-native-safe-area-context: 1d596539b05a78f2b346e954e7c577f6f9be7544
+  react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
   React-perflogger: 44436b315d757100a53dfb1ab6b77c58cb646d7d
@@ -750,16 +752,16 @@ SPEC CHECKSUMS:
   ReactCommon: 29bb6fad3242e30e9d049bc9d592736fa3da9e50
   rn-fetch-blob: f525a73a78df9ed5d35e67ea65e79d53c15255bc
   RNCAsyncStorage: 09fc8595e6d6f6d5abf16b23a56b257d9c6b7c5b
-  RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
+  RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
-  RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
+  RNGestureHandler: 0cba6c7c51a90cd793cf2475cf7fdca613ede300
   RNReanimated: e7d8afaf8fed4b3bf1a46e06adb2e04a2b248f1c
-  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
-  RNSentry: e668d4e68fe09d475dc084bab81f02c3be2db173
+  RNScreens: fa9b582d85ae5d62c91c66003b5278458fed7aaa
+  RNSentry: 31f4e38ea1d87d3693f634cbe377640bde583588
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
-  Sentry: a067ca1db308066097314d8478e9682f3b575dee
-  SentryPrivate: 917c91aeb0f199cd079404fab2b50c83e4bad25c
+  Sentry: d9f99f9cc13777c5d938650c1e1c85047bb4f0d1
+  SentryPrivate: 839b1e58addf58624087a80b2628e543193fa8ef
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: 0bc4b37c3b8a345336ff601e2cf7d9704bab7e93
@@ -767,4 +769,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: d89f3b1e89d483f9f945122b7b9ecb7c39b9fe75
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0

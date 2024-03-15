@@ -40,6 +40,56 @@ It doesn't include
 ## Unreleased
 
 
+## 27.225 (2024-02-27)
+
+### Highlights for users, vs. v27.223 (last prod release)
+
+* We now offer the app in Gujarati. Also, updated translations for Italian,
+  Turkish, and Chinese (Taiwan). Thanks as always to our kind volunteer
+  translators!
+
+Plus other fixes and improvements for your Zulip experience.
+
+
+### Highlights for users, vs. v27.224
+
+* (Android) Fixed a crash on startup. (PR #5824)
+
+
+### Highlights for developers, vs. v27.224
+
+* (Android) Updated jsBundleDirRelease for AGP 7.1+, fixing crash on startup
+  (PR #5824)
+
+* Resolved issues: PR #5824
+
+
+## 27.224 (2024-02-26)
+
+This was an alpha-only release.
+
+
+### Highlights for users
+
+* We now offer the app in Gujarati. Also, updated translations for Italian,
+  Turkish, and Chinese (Taiwan). Thanks as always to our kind volunteer
+  translators!
+
+Plus other fixes and improvements for your Zulip experience.
+
+
+### Highlights for developers
+
+* We now show the test-notification button when the server is FL 234+
+  instead of 217+. (PR #5819)
+
+* Bumped the Android Gradle Plugin from 7.0.4 to 7.2.2. (PR #5818)
+
+* Ran `yarn upgrade`. (PRs #5818, #5823)
+
+* Resolved issues: PR #5823, PR #5819, PR #5818
+
+
 ## 27.223 (2024-01-26)
 
 ### Highlights for users

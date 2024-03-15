@@ -139,7 +139,7 @@ export default function SettingsScreen(props: Props): Node {
         items={[...languagePriority, ...languageOther].map(l => ({
           key: l.tag,
           title: noTranslation(l.selfname),
-          subtitle: noTranslation(l.name),
+          subtitle: l.tag === language ? noTranslation(l.selfname) : l.name,
         }))}
         onValueChange={value => {
           dispatch(setGlobalSettings({ language: value }));
