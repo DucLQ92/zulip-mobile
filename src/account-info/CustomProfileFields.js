@@ -109,7 +109,7 @@ export default function CustomProfileFields(props: Props): React.Node {
   return (
     <View style={styles.outer}>
       <View style={styles.inner}>
-        {fields.map((field, i) =>  ['phone', 'zalo'].indexOf((field.name ?? '').toLowerCase()) > -1 ? (<View />)  : (
+        {fields.map((field, i) =>  ['phone', 'zalo', 'telegram'].indexOf((field.name ?? '').toLowerCase()) > -1 ? (<View />)  : (
           <CustomProfileFieldRow
             key={field.fieldId}
             name={field.name}

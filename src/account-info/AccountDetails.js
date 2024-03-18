@@ -77,7 +77,7 @@ export default function AccountDetails(props: Props): Node {
       <View>
         <UserAvatar avatarUrl={user.avatar_url} size={180} />
       </View>
-      <View style={componentStyles.statusWrapper}>
+      <View style={[componentStyles.statusWrapper, { paddingHorizontal: 16 }]}>
         <PresenceStatusIndicator
           style={componentStyles.presenceStatusIndicator}
           userId={user.user_id}
@@ -88,7 +88,7 @@ export default function AccountDetails(props: Props): Node {
           selectable
           adjustsFontSizeToFit
           numberOfLines={1}
-          style={[styles.largerText, componentStyles.boldText, { flex: 1 }]}
+          style={[styles.largerText, componentStyles.boldText]}
           text={getFullNameReactText({ user, enableGuestUserIndicator })}
         />
       </View>
