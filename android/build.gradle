@@ -13,13 +13,13 @@ buildscript {
         // but some testing is required and code changes are often required.
         // See upstream for background and more discussion:
         //   https://medium.com/androiddevelopers/picking-your-compilesdkversion-minsdkversion-targetsdkversion-a098a0341ebd
-        targetSdkVersion = 33
+        targetSdkVersion = 34
 
         // Should be the latest SDK version available.  See upstream recommendation:
         //   https://medium.com/androiddevelopers/picking-your-compilesdkversion-minsdkversion-targetsdkversion-a098a0341ebd
         // What's the latest?  Consult this list:
         //   https://developer.android.com/studio/releases/platforms
-        compileSdkVersion = 33
+        compileSdkVersion = 34
 
         reactNativeVersion = "0.69.4" // https://github.com/expo/expo/issues/18129
     }
@@ -32,7 +32,7 @@ buildscript {
 
         // 7.2.2 cause error "Unable to load script. Make sure you're either running a Metro server (run 'react-native
         // start') or that your bundle 'index.android.bundle' is packaged correctly for release" when build release
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.1.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

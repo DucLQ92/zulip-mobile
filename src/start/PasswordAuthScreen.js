@@ -72,13 +72,16 @@ class PasswordAuthScreenInner extends PureComponent<Props, State> {
       const fetchedKey = await api.fetchApiKey({ realm, apiKey: '', email }, email, password);
       this.setState({ progress: false });
       dispatch(loginSuccess(realm, fetchedKey.email, fetchedKey.api_key));
-    } catch {
+    } catch (e) {
       // TODO: show message for *actual* error, from server; e.g. #4571
+      const errorMessage = e.message === 'Your username or password is incorrect'
+          ? requireEmailFormat
+              ? 'Wrong email or password. Try again.'
+              : 'Wrong username or password. Try again.'
+          : e.message;
       this.setState({
         progress: false,
-        error: requireEmailFormat
-          ? 'Wrong email or password. Try again.'
-          : 'Wrong username or password. Try again.',
+        error: errorMessage,
       });
     }
   };
