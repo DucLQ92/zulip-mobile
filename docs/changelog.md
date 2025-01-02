@@ -40,6 +40,66 @@ It doesn't include
 ## Unreleased
 
 
+## 27.232 (2024-11-13)
+
+### Highlights for users
+
+* (Android) Fixed a crash on Android 14+ when downloading an image from the
+  lightbox screen. (#5903)
+* Updated translations for Czech, Polish, and Russian. Thanks as always to
+  our kind volunteer translators!
+
+
+### Highlights for developers
+
+* We now handle user-deactivated events by removing the user from groups,
+  as required for Zulip Server 10 (feature level 303). (#5899)
+
+* Switched to a patched rn-fetch-blob to fix an Android 14+ crash. (#5903)
+
+* (Android) Upgraded SoLoader, as prompted by a Google Play warning. (#5901)
+
+* (Android build) Updated `tools/checkout-keystore` to work with modern `sq`.
+  (PR #5896)
+
+* (iOS build) Fix a build failure in the '[CP-User] Generate Specs' script
+  that appeared when we started building RN from Git. (PR #5896)
+
+* (iOS build) Updated CocoaPods from 1.15.2 to 1.16.2. (#5907)
+
+* Updated rollup to 3.x, from the last 2.x. (PR #5894)
+
+* Resolved issues: #5899, #5903
+
+
+## 27.231 (2024-09-30)
+
+### Highlights for users
+
+* (Android) Update various behavior on Android 14+ as required by
+  Google Play. (#5877)
+* We now offer the app in Greek. Also, updated translations for Arabic,
+  Danish, German, Polish, and Portuguese (Portugal). Thanks as always
+  to our kind volunteer translators!
+
+
+### Highlights for developers
+
+* Bumped targetSdkVersion to 34, for extended deadline 2024-10-31. (#5877)
+
+* We now build RN from source; see docs/howto/forked-rn.md. (PR #5892)
+
+* Bumped some dependencies following alerts from dependabot. (PRs #5889, #5894)
+
+* Fixed an incompatibility with Apple Silicon in ensure_coreutils. (PR #5890)
+
+* (Android) Forced `me.relex:photodraweeview` at a later version
+  (that's a dependency of react-native-photo-view) because the old one
+  stopped being available on jcenter. (PR #5891)
+
+* Resolved issues: #5877, PR #5890, PR #5891
+
+
 ## 27.230 (2024-07-18)
 
 ### Highlights for users
