@@ -181,7 +181,6 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				6FD412E618344A7FB938E4AC /* Upload Debug Symbols to Sentry */,
-				D1D04A4365DFBB1361E275C8 /* [CP] Embed Pods Frameworks */,
 				4E5E209CDCE0528EB02CF39B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -324,23 +323,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "exec $SRCROOT/../tools/build-webview ios --check-path-name --destination $SRCROOT/webview\n# See this script, or src/webview/static/README.md, for more information.\n";
-		};
-		D1D04A4365DFBB1361E275C8 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZulipMobile/Pods-ZulipMobile-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		F01EFE76A13EBC351B4AAD01 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

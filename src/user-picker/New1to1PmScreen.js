@@ -31,14 +31,25 @@ export default function New1to1PmScreen(props: Props): Node {
     [dispatch, navigation],
   );
 
+  const handleUserInfoNarrow = useCallback(
+      (user: UserOrBot) => {
+        navigation.push('account-details', { userId: user.user_id });
+      },
+      [navigation],
+  );
+
   // from StreamSettingsScreen
   const streamsSubscribers = props.route.params?.streamsSubscribers;
+
+  const canGoBack = props.canGoBack ?? true;
+  const onPressUserToDetail = props.onPressUserToDetail ?? false;
+  const edges = props.edges;
 
   const [filter, setFilter] = useState<string>('');
 
   return (
-    <Screen search scrollEnabled={false} searchBarOnChange={setFilter}>
-      <UserList users={streamsSubscribers ?? users} filter={filter} onPress={handleUserNarrow} />
+    <Screen search scrollEnabled={false} searchBarOnChange={setFilter} canGoBack={canGoBack} edges={edges}>
+      <UserList users={streamsSubscribers ?? users} filter={filter} onPress={onPressUserToDetail ? handleUserInfoNarrow : handleUserNarrow} />
     </Screen>
   );
 }

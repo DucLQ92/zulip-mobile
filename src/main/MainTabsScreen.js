@@ -13,12 +13,13 @@ import type { AppNavigationMethods, AppNavigationProp } from '../nav/AppNavigato
 import { bottomTabNavigatorConfig } from '../styles/tabs';
 import HomeScreen from './HomeScreen';
 import PmConversationsScreen from '../pm-conversations/PmConversationsScreen';
-import { IconInbox, IconStream, IconPeople, IconTask } from '../common/Icons';
+import { IconInbox, IconStream, IconPeople, IconTask, IconMessage } from '../common/Icons';
 import OwnAvatar from '../common/OwnAvatar';
 import ProfileScreen from '../account-info/ProfileScreen';
 import styles, { BRAND_COLOR, ThemeContext } from '../styles';
 import SubscriptionsScreen from '../streams/SubscriptionsScreen';
 import TaskRedmineScreen from '../task-redmine/TaskRedmineScreen';
+import New1to1PmScreen from '../user-picker/New1to1PmScreen';
 
 export type MainTabsNavigatorParamList = {|
   +home: RouteParamsOf<typeof HomeScreen>,
@@ -76,12 +77,25 @@ export default function MainTabsScreen(props: Props): Node {
           component={PmConversationsScreen}
           options={{
             tabBarLabel: 'Direct messages',
-            tabBarIcon: ({ color }) => <IconPeople size={24} color={color} />,
+            tabBarIcon: ({ color }) => <IconMessage size={24} color={color} />,
             tabBarBadge: unreadPmsCount > 0 ? unreadPmsCount : undefined,
             tabBarBadgeStyle: {
               color: 'white',
               backgroundColor: BRAND_COLOR,
             },
+          }}
+        />
+        <Tab.Screen
+          name="new-1to1-pm"
+          // component={New1to1PmScreen}
+          children={() => <New1to1PmScreen navigation={props.navigation} route={props.route} canGoBack={false} onPressUserToDetail edges={[]} />}
+          options={{
+              tabBarLabel: 'Task',
+              tabBarIcon: ({ color }) => <IconPeople size={24} color={color} />,
+              tabBarBadgeStyle: {
+                  color: 'white',
+                  backgroundColor: BRAND_COLOR,
+              },
           }}
         />
         <Tab.Screen

@@ -69,6 +69,7 @@ export default function Screen(props: Props): Node {
     title = '',
     shouldShowLoadingBanner = true,
     searchBarOnSubmit = (e: EditingEvent) => {},
+    edges = ['bottom'],
   } = props;
 
   const styles = React.useMemo(
@@ -101,7 +102,7 @@ export default function Screen(props: Props): Node {
   );
 
   return (
-    <SafeAreaView mode="padding" edges={['bottom']} style={styles.screen}>
+    <SafeAreaView mode="padding" edges={edges ?? ['bottom']} style={styles.screen}>
       {search ? (
         <ModalSearchNavBar
           autoFocus={autoFocus}
