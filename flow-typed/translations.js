@@ -160,6 +160,10 @@ declare module '../../static/translations/messages_mn.json' {
   declare export default {| [string]: string |};
 }
 
+declare module '../../static/translations/messages_mr.json' {
+  declare export default {| [string]: string |};
+}
+
 declare module '../../static/translations/messages_my.json' {
   declare export default {| [string]: string |};
 }
@@ -213,6 +217,10 @@ declare module '../../static/translations/messages_si.json' {
 }
 
 declare module '../../static/translations/messages_sk.json' {
+  declare export default {| [string]: string |};
+}
+
+declare module '../../static/translations/messages_sl.json' {
   declare export default {| [string]: string |};
 }
 

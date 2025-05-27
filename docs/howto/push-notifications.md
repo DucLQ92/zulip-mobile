@@ -70,21 +70,27 @@ First, three one-time setup steps:
 2. Create a `zproject/custom_dev_settings.py` with the following line:
 
    ```python
-   PUSH_NOTIFICATION_BOUNCER_URL = 'https://push.zulipchat.com'
+   ZULIP_SERVICES_URL = 'https://push.zulipchat.com'
    ```
 
-   This matches the default setting for a production install of the
-   Zulip server (generated from `zproject/prod_settings_template.py`.)
+   This matches the normal setting for a production install of the
+   Zulip server (set by `zproject/default_settings.py`).
 
    The Zulip server will helpfully print a line on startup to remind
    you that this settings override file exists.
 
 3. Register your development server with our production bouncer by
-   running the following command:
+   running a command like this one, but with `[yourname]` replaced by
+   your name:
 
    ```
-   python manage.py register_server --agree_to_terms_of_service
+   EXTERNAL_HOST=[yourname].zulipdev.com:9991 python manage.py register_server --agree-to-terms-of-service
    ```
+
+   (The exact value of `EXTERNAL_HOST` doesn't matter; in particular
+   it doesn't need to match the `EXTERNAL_HOST` that you use when
+   actually running the server, with `tools/run-dev`.  It does need to
+   be distinct from any names that others have already registered.)
 
    This is a variation of our [instructions for production
    deployments](https://zulip.readthedocs.io/en/latest/production/mobile-push-notifications.html),
@@ -95,13 +101,13 @@ First, three one-time setup steps:
    this command registers with the bouncer are kept in the
    `zproject/dev-secrets.conf` file.
 
-   If you were already running `tools/run-dev.py`, quit and restart it
+4. If you were already running `tools/run-dev`, quit and restart it
    after these setup steps.
 
 
 Then, each time you test:
 
-1. Run `tools/run-dev.py` according to the instructions in
+1. Run `tools/run-dev` according to the instructions in
    [dev-server.md](dev-server.md).  Then follow that doc's
    instructions to log into the dev server.  Use the release build of
    the app -- that is, the Zulip app installed from the App Store or
@@ -221,10 +227,45 @@ on that is
 
 You should now be getting notifications on your iOS development build!
 
+
+#### Troubleshooting
+
 If it's not working, first check that mobile notification settings are
-on, using the web app's settings interface.  Then please ask for help
+on, using the web app's settings interface.  See also the
+troubleshooting items below.
+
+If none of those resolve the issue, please ask for help
 in [#mobile-dev-help](https://chat.zulip.org/#narrow/stream/516-mobile-dev-help) on
 chat.zulip.org, so we can debug.
+
+
+##### Error: Your plan doesn't allow sending push notifications
+
+After the above setup is done, when the dev server tries to send a
+notification (e.g. because you had some other user send a DM to the
+user you've logged in as from the mobile app), you might get an error
+like this one (reformatted for readability):
+
+```
+INFO [zerver.lib.push_notifications] Sending push notifications to mobile clients for user 11
+INFO [zr] 127.0.0.1       POST    400   8ms (db: 3ms/6q) /api/v1/remotes/push/notify [can_push=False/Missing data] (zulip-server:… via ZulipServer/11.0-dev+git)
+INFO [zr] status=400, data=b'{"result":"error","msg":"Your plan doesn\'t allow sending push notifications.","code":"INVALID_ZULIP_SERVER"}\n', uid=zulip-server:…
+WARN [django.server] "POST /api/v1/remotes/push/notify HTTP/1.1" 400 109
+ERR  [] Problem handling data on queue missedmessage_mobile_notifications
+Traceback (most recent call last):
+…
+  File "/srv/zulip/zerver/lib/remote_server.py", line 195, in send_to_push_bouncer
+    raise PushNotificationBouncerError(
+zerver.lib.remote_server.PushNotificationBouncerError:
+  Push notifications bouncer error: Your plan doesn't allow sending push notifications.
+```
+
+It's not clear why this happens.  Try stopping the server
+(i.e. `tools/run-dev`) and starting it again.  On the
+[one occasion][error-plan-missing] this error has been seen
+as of this writing, the error went away after doing so.
+
+[error-plan-missing]: https://chat.zulip.org/#narrow/channel/243-mobile-team/topic/notifications.20from.20dev.20server/near/2163051
 
 
 ### Another workaround (if the first doesn't work)

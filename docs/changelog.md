@@ -40,6 +40,55 @@ It doesn't include
 ## Unreleased
 
 
+## 27.235 (2025-05-20)
+
+### Highlights for users
+
+* We now offer the app in Slovenian. Also updated translations for Latvian
+  and Ukrainian. Thanks as always to our kind volunteer translators!
+
+
+### Highlights for developers
+
+* Bumped `kMinAllowedServerVersion` to 7.0, `kMinSupportedVersion` to 8.0,
+  and `kNextMinSupportedVersion` to 9.0. (PR #5922)
+
+
+## 27.234 (2025-04-18)
+
+### Highlights for users
+
+* Updated translations for Belarusian, Czech, Finnish, Portuguese,
+  Ukrainian, and Chinese (China). Thanks as always to our kind volunteer
+  translators!
+
+
+### Highlights for developers
+
+* Bumped `kMinAllowedServerVersion` to 5.0, `kMinSupportedVersion` to 7.0,
+  and `kNextMinSupportedVersion` to 8.0. (PR #5920)
+
+
+## 27.233 (2025-02-11)
+
+### Highlights for users
+
+* Updated translations for Danish, Spanish, Japanese, Polish, Russian,
+  Ukrainian, and Chinese (China). Thanks as always to our kind volunteer
+  translators!
+
+* Fixed a recent glitch affecting some self-hosted installations
+  running Zulip from Git, where reactions weren't live-updating in
+  the message view. (#5911)
+
+
+### Highlights for developers
+
+* Updated CI to use JDK 17, from 11, fixing a CI failure. (#5913)
+
+* Resolved issues: #5913, #5911
+
+
 ## 27.232 (2024-11-13)
 
 ### Highlights for users
