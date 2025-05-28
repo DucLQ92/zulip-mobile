@@ -102,7 +102,11 @@ export default function AccountPickScreen(props: Props): Node {
           return;
         }
         const serverSettings = result.value;
-        navigation.push('auth', { serverSettings });
+        navigation.push('password-auth', {
+          realm: serverSettings.realm_uri,
+          requireEmailFormat: serverSettings.require_email_format_usernames,
+          serverSettings,
+        });
       }
     },
     [globalSettings, dispatch, navigation, _],

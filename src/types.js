@@ -481,3 +481,11 @@ export type PmConversationData = {|
   /** The count of unread messages in this conversation. */
   unread: number,
 |};
+
+export type Server = {|
+  id: string,
+  name: string,
+  url: string,
+  isDefault: boolean,
+  icon?: string,
+|};

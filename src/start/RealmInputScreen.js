@@ -20,6 +20,8 @@ import { useGlobalSelector } from '../react-redux';
 import { BRAND_COLOR } from '../styles/constants';
 import ZulipText from '../common/ZulipText';
 import WebLink from '../common/WebLink';
+import ServerList from './ServerList';
+import { defaultServers } from './defaultServers';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'realm-input'>,
@@ -141,19 +143,11 @@ export default function RealmInputScreen(props: Props): Node {
 
   const [progress, setProgress] = React.useState(false);
   // const [realmInputValue, setRealmInputValue] = React.useState('dev-talk.nextpay.vn');
-  const [realmInputValue, setRealmInputValue] = React.useState('talk.nextpay.vn');
+  // const [realmInputValue, setRealmInputValue] = React.useState('talk.nextpay.vn');
+  const [realmInputValue, setRealmInputValue] = React.useState('');
   const maybeParsedInput = tryParseInput(realmInputValue);
 
   const textInputRef = React.useRef<React$ElementRef<typeof TextInput> | null>(null);
-
-  useEffect(() => {
-    if (textInputRef.current) {
-      // textInputRef.current.focus();
-    }
-    if (autoSelectFirst) {
-      tryRealm();
-    }
-  }, []); // Chỉ chạy 1 lần khi mount
 
   const tryRealm = React.useCallback(async () => {
     if (!maybeParsedInput.valid) {
@@ -177,9 +171,56 @@ export default function RealmInputScreen(props: Props): Node {
       return;
     }
     const serverSettings = result.value;
-    navigation.push('auth', { serverSettings });
+    navigation.push('password-auth', {
+      realm: serverSettings.realm_uri,
+      requireEmailFormat: serverSettings.require_email_format_usernames,
+      serverSettings,
+    });
     Keyboard.dismiss();
   }, [navigation, maybeParsedInput, globalSettings, _]);
+
+  const handleSelectServer = React.useCallback((server) => {
+    const parsedInput = tryParseInput(server.url);
+    if (parsedInput.valid) {
+      setProgress(true);
+      fetchServerSettings(parsedInput.value)
+        .then(result => {
+          setProgress(false);
+          if (result.type === 'error') {
+            showErrorAlert(
+              _(result.title),
+              _(result.message),
+              result.learnMoreButton && {
+                url: result.learnMoreButton.url,
+                text: result.learnMoreButton.text != null ? _(result.learnMoreButton.text) : undefined,
+                globalSettings,
+              },
+            );
+            return;
+          }
+          const serverSettings = result.value;
+          navigation.push('password-auth', {
+            realm: serverSettings.realm_uri,
+            requireEmailFormat: serverSettings.require_email_format_usernames,
+            serverSettings,
+          });
+          Keyboard.dismiss();
+        })
+        .catch(error => {
+          setProgress(false);
+          showErrorAlert(_('Error'), error.message);
+        });
+    }
+  }, [navigation, globalSettings, _]);
+
+  useEffect(() => {
+    if (textInputRef.current) {
+      // textInputRef.current.focus();
+    }
+    if (autoSelectFirst && defaultServers.length > 0) {
+      handleSelectServer(defaultServers[0]);
+    }
+  }, []); // Chỉ chạy 1 lần khi mount
 
   const suggestion = getSuggestion(realmInputValue, maybeParsedInput);
 
@@ -253,10 +294,10 @@ export default function RealmInputScreen(props: Props): Node {
       title="Welcome"
       canGoBack={!route.params.initial}
       padding
-      centerContent
       keyboardShouldPersistTaps="always"
       shouldShowLoadingBanner={false}
     >
+      <ServerList servers={defaultServers} onSelectServer={handleSelectServer} />
       <ZulipTextIntl
         text={{
           text: 'Enter your Zulip server URL: <z-link>(What’s this?)</z-link>',
@@ -268,14 +309,14 @@ export default function RealmInputScreen(props: Props): Node {
             ),
           },
         }}
+        style={{ marginTop: 32 }}
       />
       <View style={styles.inputWrapper}>
         <TextInput
           value={realmInputValue}
-          placeholder="your-org.zulipchat.com"
+          placeholder="vd: talk.nextpay.vn"
           placeholderTextColor={HALF_COLOR}
           style={styles.input}
-          autoFocus
           autoCorrect={false}
           autoCapitalize="none"
           returnKeyType="go"
