@@ -90,7 +90,7 @@ export default function MainTabsScreen(props: Props): Node {
           // component={New1to1PmScreen}
           children={() => <New1to1PmScreen navigation={props.navigation} route={props.route} canGoBack={false} onPressUserToDetail edges={[]} />}
           options={{
-              tabBarLabel: 'Task',
+              tabBarLabel: 'People',
               tabBarIcon: ({ color }) => <IconPeople size={24} color={color} />,
               tabBarBadgeStyle: {
                   color: 'white',

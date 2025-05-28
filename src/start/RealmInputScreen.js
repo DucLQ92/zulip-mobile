@@ -1,8 +1,7 @@
 /* @flow strict-local */
-import React, { useCallback } from 'react';
+import React, { useEffect } from 'react';
 import type { Node } from 'react';
 import { Keyboard, View, TextInput } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
@@ -24,7 +23,7 @@ import WebLink from '../common/WebLink';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'realm-input'>,
-  route: RouteProp<'realm-input', {| initial: boolean | void |}>,
+  route: RouteProp<'realm-input', {| initial: boolean | void, autoSelectFirst: boolean | void |}>,
 |}>;
 
 enum ValidationError {
@@ -133,6 +132,7 @@ function getSuggestion(realmInputValue, maybeParsedInput): Suggestion {
 
 export default function RealmInputScreen(props: Props): Node {
   const { navigation, route } = props;
+  const { autoSelectFirst = false } = route.params || {};
 
   const globalSettings = useGlobalSelector(getGlobalSettings);
 
@@ -146,24 +146,14 @@ export default function RealmInputScreen(props: Props): Node {
 
   const textInputRef = React.useRef<React$ElementRef<typeof TextInput> | null>(null);
 
-  // When the route is focused in the navigation, focus the input.
-  // Otherwise, if you go back to this screen from the auth screen, the
-  // input won't be focused.
-  useFocusEffect(
-    useCallback(() => {
-      if (textInputRef.current) {
-        // Sometimes the effect of this `.focus()` is immediately undone
-        // (the keyboard is closed) by a Keyboard.dismiss() from React
-        // Navigation's internals. Seems like a complex bug, but the symptom
-        // isn't terrible, it just means that on back-navigating to this
-        // screen, sometimes the keyboard flicks open then closed, instead
-        // of just opening. Shrug. See
-        //   https://chat.zulip.org/#narrow/stream/243-mobile-team/topic/realm-input/near/1346690
-        // textInputRef.current.focus();
-      }
+  useEffect(() => {
+    if (textInputRef.current) {
+      // textInputRef.current.focus();
+    }
+    if (autoSelectFirst) {
       tryRealm();
-    }, [tryRealm]),
-  );
+    }
+  }, []); // Chỉ chạy 1 lần khi mount
 
   const tryRealm = React.useCallback(async () => {
     if (!maybeParsedInput.valid) {

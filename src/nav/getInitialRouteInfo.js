@@ -22,7 +22,7 @@ export default (args: {|
       // realm.
       return {
         initialRouteName: 'realm-input',
-        initialRouteParams: { initial: true },
+        initialRouteParams: { initial: true, autoSelectFirst: true },
       };
     }
   }
