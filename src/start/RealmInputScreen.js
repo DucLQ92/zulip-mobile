@@ -22,6 +22,7 @@ import ZulipText from '../common/ZulipText';
 import WebLink from '../common/WebLink';
 import ServerList from './ServerList';
 import { defaultServers } from './defaultServers';
+import { saveServer, getServers, deleteServer } from '../storage/servers';
 
 type Props = $ReadOnly<{|
   navigation: AppNavigationProp<'realm-input'>,
@@ -125,11 +126,11 @@ function getSuggestion(realmInputValue, maybeParsedInput): Suggestion {
     return null;
   }
 
-  if ('chat'.startsWith(normalizedValue)) {
-    return 'https://chat.zulip.org/';
+  if ('talk'.startsWith(normalizedValue)) {
+    return 'https://talk.nextpay.vn/';
   }
 
-  return `https://${normalizedValue}.zulipchat.com/`;
+  return `https://${normalizedValue}.nextpay.vn/`;
 }
 
 export default function RealmInputScreen(props: Props): Node {
@@ -145,9 +146,25 @@ export default function RealmInputScreen(props: Props): Node {
   // const [realmInputValue, setRealmInputValue] = React.useState('dev-talk.nextpay.vn');
   // const [realmInputValue, setRealmInputValue] = React.useState('talk.nextpay.vn');
   const [realmInputValue, setRealmInputValue] = React.useState('');
+  const [savedServers, setSavedServers] = React.useState([]);
   const maybeParsedInput = tryParseInput(realmInputValue);
 
   const textInputRef = React.useRef<React$ElementRef<typeof TextInput> | null>(null);
+
+  // Load danh sách server từ storage
+  useEffect(() => {
+    const loadServers = async () => {
+      const servers = await getServers();
+      setSavedServers(servers);
+    };
+    loadServers();
+  }, []);
+
+  const handleDeleteServer = React.useCallback(async (serverId: string) => {
+    await deleteServer(serverId);
+    const servers = await getServers();
+    setSavedServers(servers);
+  }, []);
 
   const tryRealm = React.useCallback(async () => {
     if (!maybeParsedInput.valid) {
@@ -171,6 +188,19 @@ export default function RealmInputScreen(props: Props): Node {
       return;
     }
     const serverSettings = result.value;
+
+    // Lưu server mới vào danh sách
+    const newServer = {
+      id: Date.now().toString(),
+      name: serverSettings.realm_name,
+      url: serverSettings.realm_uri,
+      icon: serverSettings.realm_icon,
+      isDefault: false,
+    };
+    await saveServer(newServer);
+    const servers = await getServers();
+    setSavedServers(servers);
+
     navigation.push('password-auth', {
       realm: serverSettings.realm_uri,
       requireEmailFormat: serverSettings.require_email_format_usernames,
@@ -297,7 +327,11 @@ export default function RealmInputScreen(props: Props): Node {
       keyboardShouldPersistTaps="always"
       shouldShowLoadingBanner={false}
     >
-      <ServerList servers={defaultServers} onSelectServer={handleSelectServer} />
+      <ServerList
+        servers={[...defaultServers, ...savedServers]}
+        onSelectServer={handleSelectServer}
+        onDeleteServer={handleDeleteServer}
+      />
       <ZulipTextIntl
         text={{
           text: 'Enter your Zulip server URL: <z-link>(What’s this?)</z-link>',

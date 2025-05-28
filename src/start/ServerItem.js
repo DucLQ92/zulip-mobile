@@ -1,55 +1,57 @@
 /* @flow strict-local */
 import React from 'react';
-import type { Node } from 'react';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 
 import type { Server } from '../types';
-import { createStyleSheet, BRAND_COLOR } from '../styles';
+import { createStyleSheet } from '../styles';
 import ZulipText from '../common/ZulipText';
-import Touchable from '../common/Touchable';
+import { Icon } from '../common/Icons';
 
 type Props = $ReadOnly<{|
   server: Server,
-  onSelect: Server => void,
+  onSelect: (server: Server) => void,
+  onDelete?: (serverId: string) => void,
 |}>;
 
 const styles = createStyleSheet({
-  wrapper: {
-    justifyContent: 'space-between',
-  },
-  serverItem: {
-    padding: 16,
+  container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 4,
-    backgroundColor: 'hsla(177, 70%, 47%, 0.1)',
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderRadius: 8,
+    padding: 12,
   },
-  details: {
+  content: {
     flex: 1,
   },
-  text: {
+  name: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginVertical: 2,
-    color: BRAND_COLOR,
   },
   url: {
-    color: 'gray',
-    marginVertical: 2,
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 8,
   },
 });
 
-export default function ServerItem(props: Props): Node {
-  const { server, onSelect } = props;
-  const { name, url } = server;
+export default function ServerItem(props: Props): React$Node {
+  const { server, onSelect, onDelete } = props;
 
   return (
-    <Touchable style={styles.wrapper} onPress={() => onSelect(server)}>
-      <View style={styles.serverItem}>
-        <View style={styles.details}>
-          <ZulipText style={styles.text} text={name} numberOfLines={1} />
-          <ZulipText style={styles.url} text={url} numberOfLines={1} />
-        </View>
+    <TouchableOpacity style={styles.container} onPress={() => onSelect(server)} activeOpacity={0.8}>
+      <View style={styles.content}>
+        <ZulipText style={styles.name}>{server.name}</ZulipText>
+        <ZulipText style={styles.url}>{server.url}</ZulipText>
       </View>
-    </Touchable>
+      {onDelete && (
+      <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(server.id)}>
+        <Icon name="trash" size={20} color="red" />
+      </TouchableOpacity>
+      )}
+    </TouchableOpacity>
   );
 }

@@ -12,6 +12,7 @@ import ZulipTextIntl from '../common/ZulipTextIntl';
 type Props = $ReadOnly<{|
   servers: Server[],
   onSelectServer: (server: Server) => void,
+  onDeleteServer?: (serverId: string) => void,
 |}>;
 
 const styles = createStyleSheet({
@@ -29,7 +30,15 @@ const styles = createStyleSheet({
 });
 
 export default function ServerList(props: Props): Node {
-  const { servers, onSelectServer } = props;
+  const { servers, onSelectServer, onDeleteServer } = props;
+
+  const renderItem = ({ item }: { item: Server }) => (
+    <ServerItem
+      server={item}
+      onSelect={onSelectServer}
+      onDelete={item.isDefault ? undefined : onDeleteServer}
+    />
+  );
 
   return (
     <View style={styles.container}>
@@ -39,9 +48,7 @@ export default function ServerList(props: Props): Node {
       />
       <FlatList
         data={servers}
-        renderItem={({ item }) => (
-          <ServerItem server={item} onSelect={onSelectServer} />
-        )}
+        renderItem={renderItem}
         keyExtractor={item => item.id}
         ItemSeparatorComponent={() => <ViewPlaceholder height={8} />}
         style={styles.list}
