@@ -3,7 +3,7 @@
 export default `
 body {
   color: rgb(255, 255, 255);
-  background: hsl(212, 28%, 18%);
+  background: hsl(220, 25%, 15%);
 }
 .poll-vote {
   color: hsl(210, 11%, 85%);
@@ -21,13 +21,13 @@ body {
   content: url("images/loader-white.svg");
 }
 .content {
-  background-color: rgba(51, 57, 63, 0.95);
+  background-color: rgba(45, 55, 72, 0.98);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 .content-own {
-  background-color: rgba(121, 68, 198, 0.95);
+  background-color: rgba(76, 29, 149, 0.98);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -69,5 +69,21 @@ body {
 .self-voted {
   color: hsl(222, 99%, 69%);
   background: rgba(222, 99%, 69%, 0.2);
+}
+
+/* Mention styles for dark mode */
+.topic-mention,
+.user-group-mention,
+.user-mention {
+  background-color: hsla(222, 99%, 69%, 0.15);
+  color: hsl(222, 99%, 75%);
+  box-shadow: 0 0 0 1px hsla(222, 99%, 69%, 0.3);
+}
+
+.topic-mention:hover,
+.user-group-mention:hover,
+.user-mention:hover {
+  background-color: hsla(222, 99%, 69%, 0.2);
+  box-shadow: 0 0 0 1px hsla(222, 99%, 69%, 0.4);
 }
 `;
