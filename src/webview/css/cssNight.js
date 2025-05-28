@@ -21,10 +21,16 @@ body {
   content: url("images/loader-white.svg");
 }
 .content {
-  background-color: #33393f;
+  background-color: rgba(51, 57, 63, 0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .content-own {
-  background-color: #7944c6;
+  background-color: rgba(121, 68, 198, 0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .static-timestamp-own {
   color: rgba(255, 255, 255, 0.5);
@@ -38,5 +44,30 @@ body {
   background: rgb(146, 95, 236);
   border-radius: 4px;
   border-color: #ffffff;
+}
+
+/* Reaction styles for dark mode */
+.reaction {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.reaction-own {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.reaction-avatar {
+  border: 1px solid rgba(51, 57, 63, 0.95);
+  background: rgba(51, 57, 63, 0.95);
+}
+
+.reaction-count {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.self-voted {
+  color: hsl(222, 99%, 69%);
+  background: rgba(222, 99%, 69%, 0.2);
 }
 `;

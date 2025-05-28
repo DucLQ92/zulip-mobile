@@ -444,8 +444,11 @@ body {
   overflow: hidden;
   border-radius: 16px;
   padding: 8px;
-  background: rgb(244, 244, 244);;
-  direction: ltr
+  background: rgba(255, 255, 255, 0.95);
+  direction: ltr;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .content-own {
@@ -453,8 +456,11 @@ body {
   overflow: hidden;
   border-radius: 16px;
   padding: 8px;
-  background: #effdde;
+  background: rgba(220, 255, 200, 0.95);
   direction: ltr;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 /* Tags, like "starred" or "edited 2 minutes ago". */
@@ -481,10 +487,9 @@ body {
   align-items: center;
   padding: 4px 8px;
   border-radius: 12px;
-  border: 1px solid hsla(0, 0%, 50%, 0.75);
+  background: rgba(0, 0, 0, 0.05);
   line-height: 1.2rem;
   margin: 4px 8px 4px 0;
-  background: rgba(255, 255, 255, 0.1);
 }
 .reaction-own {
   color: rgb(139, 139, 139);
@@ -492,10 +497,9 @@ body {
   align-items: center;
   padding: 4px 8px;
   border-radius: 12px;
-  border: 1px solid rgb(139, 139, 139);
+  background: rgba(0, 0, 0, 0.05);
   line-height: 1.2rem;
   margin: 4px 8px 4px 0;
-  background: rgba(255, 255, 255, 0.1);
 }
 .reaction-emoji {
   display: flex;
@@ -535,8 +539,7 @@ body {
 }
 .self-voted {
   color: hsl(222, 99%, 69%);
-  border: 1px solid hsl(222, 99%, 69%);
-  background: hsla(222, 99%, 69%, 0.1);
+  background: rgba(222, 99%, 69%, 0.1);
 }
 
 /*
