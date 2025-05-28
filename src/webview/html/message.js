@@ -67,20 +67,41 @@ const messageReactionAsHtml = (
   _: GetText,
   isOwn: boolean,
 ): string => {
-  const { allImageEmojiById } = backgroundData;
+  const { allImageEmojiById, allUsersById } = backgroundData;
+
+  // Lấy tối đa 3 user đầu tiên để hiện avatar
+  const displayUsers = reaction.users.slice(0, 3);
+  const remainingCount = reaction.users.length - displayUsers.length;
+
+  // Tạo HTML cho các avatar
+  const avatarsHtml = displayUsers
+    .map(userId => {
+      const user = allUsersById.get(userId);
+      if (!user) {
+        return '';
+      }
+      // Lấy avatar URL với kích thước 48px
+      const avatarUrl = user.avatar_url
+        .get(PixelRatio.getPixelSizeForLayoutSize(48))
+        .toString();
+      return template`<img class="reaction-avatar" src="${avatarUrl}" alt="${user.full_name || ''}" />`;
+    })
+    .join('');
+
+  // Tạo HTML cho số người còn lại nếu có
+  const remainingCountHtml = remainingCount > 0 ? template`<span class="reaction-count">+${remainingCount}</span>` : '';
+
   return template`<span onClick="" class="${isOwn ? 'reaction-own' : 'reaction'}${reaction.selfReacted ? ' self-voted' : ''}"
-        data-name="${reaction.name}"
-        data-code="${reaction.code}"
-        data-type="${reaction.type}">$!${
-    allImageEmojiById[reaction.code]
-      ? template`<img src="${allImageEmojiById[reaction.code].source_url}"/>`
-      : displayCharacterForUnicodeEmojiCode(reaction.code, backgroundData.serverEmojiData)
-  }&nbsp;${
-    // The web app puts this condition in get_vote_text in its reactions.js.
-    shouldShowNames
-      ? getDisplayFullNames(reaction.users, backgroundData, _).join(', ')
-      : reaction.count
-  }</span>`;
+    data-name="${reaction.name}"
+    data-code="${reaction.code}"
+    data-type="${reaction.type}">
+    <span class="reaction-emoji">$!${
+      allImageEmojiById[reaction.code]
+        ? template`<img src="${allImageEmojiById[reaction.code].source_url}"/>`
+        : displayCharacterForUnicodeEmojiCode(reaction.code, backgroundData.serverEmojiData)
+    }</span>
+    <span class="reaction-users">$!${avatarsHtml}$!${remainingCountHtml}</span>
+  </span>`;
 };
 
 const messageReactionListAsHtml = (
@@ -95,11 +116,15 @@ const messageReactionListAsHtml = (
     return '';
   }
 
+  // Mặc định không hiển thị tên người react
+  const shouldShowNames = false;
+
   // See the web app's get_vote_text in its reactions.js.
-  const shouldShowNames =
-    displayEmojiReactionUsers
-    // The API lets clients choose the threshold. We use 3 like the web app.
-    && reactions.length <= 3;
+  // const shouldShowNames =
+  //   displayEmojiReactionUsers
+  //   // The API lets clients choose the threshold. We use 3 like the web app.
+  //   && reactions.length <= 3;
+
   const htmlList = aggregateReactions(reactions, ownUser.user_id).map(r =>
     messageReactionAsHtml(backgroundData, r, shouldShowNames, _, isOwn),
   );

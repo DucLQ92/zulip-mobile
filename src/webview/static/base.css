@@ -477,38 +477,61 @@ body {
 }
 .reaction {
   color: hsl(0, 0%, 50%);
-  display: inline-block;
-  padding: 5px 6.5px;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
   border: 1px solid hsla(0, 0%, 50%, 0.75);
   line-height: 1.2rem;
-
-  /* No max height. With `displayEmojiReactionUsers: true`, users' names may
-     wrap onto multiple lines. */
-  min-height: 1rem;
-
   margin: 4px 8px 4px 0;
+  background: rgba(255, 255, 255, 0.1);
 }
 .reaction-own {
   color: rgb(139, 139, 139);
-  display: inline-block;
-  padding: 5px 6.5px;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
   border: 1px solid rgb(139, 139, 139);
   line-height: 1.2rem;
-
-  /* No max height. With `displayEmojiReactionUsers: true`, users' names may
-     wrap onto multiple lines. */
-  min-height: 1rem;
-
   margin: 4px 8px 4px 0;
+  background: rgba(255, 255, 255, 0.1);
 }
-.reaction img {
+.reaction-emoji {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+.reaction-emoji img {
   pointer-events: none;
   cursor: default;
   max-height: 1rem;
   max-width: 1rem;
   vertical-align: top;
+}
+.reaction-users {
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+  position: relative;
+}
+.reaction-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid white;
+  background: white;
+  position: relative;
+  margin-left: -4px;
+}
+.reaction-avatar:first-child {
+  margin-left: 0;
+}
+.reaction-count {
+  font-size: 11px;
+  color: #666;
+  margin-left: 2px;
+  font-weight: 500;
 }
 .self-voted {
   color: hsl(222, 99%, 69%);

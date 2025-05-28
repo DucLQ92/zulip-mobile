@@ -876,7 +876,7 @@ documentBody.addEventListener('click', (e: MouseEvent) => {
     return;
   }
 
-  if (target.matches('.reaction')) {
+  if (target.matches('.reaction') || target.matches('.reaction-own')) {
     sendMessage({
       type: 'reaction',
       name: requireAttribute(target, 'data-name'),
@@ -948,7 +948,7 @@ const handleLongPress = (target: Element) => {
 
   hasLongPressed = true;
 
-  const reactionNode = target.closest('.reaction');
+  const reactionNode = target.closest('.reaction, .reaction-own');
   if (reactionNode) {
     sendMessage({
       type: 'reactionDetails',

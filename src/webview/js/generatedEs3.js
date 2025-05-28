@@ -759,7 +759,7 @@ var compiledWebviewJs = (function (exports) {
       });
       return;
     }
-    if (target.matches('.reaction')) {
+    if (target.matches('.reaction') || target.matches('.reaction-own')) {
       sendMessage({
         type: 'reaction',
         name: requireAttribute(target, 'data-name'),
@@ -816,7 +816,7 @@ var compiledWebviewJs = (function (exports) {
   });
   const handleLongPress = target => {
     hasLongPressed = true;
-    const reactionNode = target.closest('.reaction');
+    const reactionNode = target.closest('.reaction') || target.closest('.reaction-own');
     if (reactionNode) {
       sendMessage({
         type: 'reactionDetails',
