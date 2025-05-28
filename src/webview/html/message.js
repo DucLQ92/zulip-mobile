@@ -1,9 +1,11 @@
 /* @flow strict-local */
-import { PixelRatio } from 'react-native';
+import { PixelRatio, NativeModules } from 'react-native';
 import invariant from 'invariant';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import * as poll_data from '@zulip/shared/lib/poll_data';
 
+import enUS from 'date-fns/locale/en-US';
+import vi from 'date-fns/locale/vi';
 import template from './template';
 import type {
   AggregatedReaction,
@@ -28,14 +30,29 @@ import * as logging from '../../utils/logging';
 import { getUserStatusFromModel } from '../../user-statuses/userStatusesCore';
 import { getFullNameOrMutedUserText, getFullNameText } from '../../users/userSelectors';
 
-const messageTagsAsHtml = (isStarred: boolean, timeEdited: number | void): string => {
+// Map locale code với module tương ứng
+const localeMap = {
+  en: enUS,
+  vi,
+};
+
+// Lấy locale từ thiết bị
+const getDeviceLocale = () => {
+  const locale = NativeModules.I18nManager.localeIdentifier;
+  // Chuyển đổi locale từ dạng 'vi_VN' sang 'vi'
+  const localeCode = locale.split('_')[0];
+  // Trả về locale tương ứng hoặc mặc định là en-US
+  return localeMap[localeCode] || enUS;
+};
+
+const messageTagsAsHtml = (isStarred: boolean, timeEdited: number | void, _: GetText): string => {
   const pieces = [];
   if (timeEdited !== undefined) {
-    const editedTime = formatDistanceToNow(timeEdited * 1000);
-    pieces.push(template`<span class="message-tag">edited ${editedTime} ago</span>`);
+    const editedTime = formatDistanceToNow(timeEdited * 1000, { locale: getDeviceLocale() });
+    pieces.push(template`<span class="message-tag">${_('edited {time} ago', { time: editedTime })}</span>`);
   }
   if (isStarred) {
-    pieces.push('<span class="message-tag">starred</span>');
+    pieces.push(template`<span class="message-tag">${_('starred')}</span>`);
   }
   return !pieces.length ? '' : template`<div class="message-tags">$!${pieces.join('')}</div>`;
 };
@@ -139,7 +156,7 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   return template`\
 $!${processAlertWords(content.replace(/<blockquote>/g, `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}">`), id, alertWords, flags)}
 $!${isOutbox === true ? '<div class="loading-spinner outbox-spinner"></div>' : ''}
-$!${messageTagsAsHtml(!!flags.starred[id], last_edit_timestamp)}
+$!${messageTagsAsHtml(!!flags.starred[id], last_edit_timestamp, _)}
 $!${messageReactionListAsHtml(backgroundData, reactions, _, isOwn)}`;
 };
 
