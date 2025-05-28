@@ -6,8 +6,28 @@ import isSameYear from 'date-fns/isSameYear';
 import addMinutes from 'date-fns/addMinutes';
 // $FlowFixMe[untyped-import]
 import tz from 'timezone/loaded';
+import { Platform, NativeModules } from 'react-native';
+import { vi, enUS } from 'date-fns/locale';
 
 export { default as isSameDay } from 'date-fns/isSameDay';
+
+// Map locale codes to date-fns locales
+const localeMap = {
+  vi,
+  en: enUS,
+};
+
+// Get device locale and convert to date-fns locale
+const getDeviceLocale = () => {
+  const deviceLocale = Platform.OS === 'ios'
+    ? NativeModules.SettingsManager.settings.AppleLocale
+    || NativeModules.SettingsManager.settings.AppleLanguages[0]
+    : NativeModules.I18nManager.localeIdentifier;
+
+  // Convert locale format (e.g. 'vi_VN' to 'vi')
+  const localeCode = deviceLocale.split('_')[0];
+  return localeMap[localeCode] || enUS;
+};
 
 /**
  * If in tests, adjust the date to roughly pretend the timezone is UTC.
@@ -57,20 +77,23 @@ function maybePretendUtc(date: Date): Date {
 }
 
 export const shortTime = (date: Date, twentyFourHourTime: boolean = false): string =>
-  format(maybePretendUtc(date), twentyFourHourTime ? 'H:mm' : 'h:mm a');
+  format(maybePretendUtc(date), twentyFourHourTime ? 'H:mm' : 'h:mm a', { locale: getDeviceLocale() });
 
-export const shortDate = (date: Date): string => format(date, 'MMM d');
+export const shortDate = (date: Date): string =>
+  format(date, 'd MMM', { locale: getDeviceLocale() });
 
-export const longDate = (date: Date): string => format(date, 'MMM d, yyyy');
+export const longDate = (date: Date): string =>
+  format(date, 'd MMM, yyyy', { locale: getDeviceLocale() });
 
 export const daysInDate = (date: Date): number => Math.trunc(date / 1000 / 60 / 60 / 24);
 
 export const humanDate = (date: Date): string => {
+  const locale = getDeviceLocale();
   if (isToday(date)) {
-    return 'Today';
+    return locale.code === 'vi' ? 'Hôm nay' : 'Today';
   }
   if (isYesterday(date)) {
-    return 'Yesterday';
+    return locale.code === 'vi' ? 'Hôm qua' : 'Yesterday';
   }
 
   return isSameYear(new Date(date), new Date()) ? shortDate(date) : longDate(date);
