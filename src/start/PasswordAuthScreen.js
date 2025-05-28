@@ -1,13 +1,13 @@
 /* @flow strict-local */
 import React, { PureComponent } from 'react';
 import type { ComponentType } from 'react';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 
 import type { RouteProp } from '../react-navigation';
 import type { AppNavigationProp } from '../nav/AppNavigator';
 import type { GlobalDispatch } from '../types';
 import type { ServerSettings } from '../api/settings/getServerSettings';
-import { createStyleSheet } from '../styles';
+import { BRAND_COLOR, createStyleSheet } from '../styles';
 import { connectGlobal } from '../react-redux';
 import * as api from '../api';
 import ErrorMsg from '../common/ErrorMsg';
@@ -23,6 +23,7 @@ import { loginSuccess } from '../actions';
 import ZulipTextIntl from '../common/ZulipTextIntl';
 import RealmInfo from './RealmInfo';
 import Centerer from '../common/Centerer';
+import { IconSwap } from '../common/Icons';
 
 const styles = createStyleSheet({
   linksTouchable: {
@@ -31,6 +32,15 @@ const styles = createStyleSheet({
   },
   forgotPasswordText: {
     textAlign: 'right',
+  },
+  realmInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  changeServerButton: {
+    padding: 8,
+    marginLeft: 8,
   },
 });
 
@@ -125,10 +135,22 @@ class PasswordAuthScreenInner extends PureComponent<Props, State> {
         shouldShowLoadingBanner={false}
       >
         <Centerer>
-          <RealmInfo
-            name={serverSettings.realm_name}
-            iconUrl={new URL(serverSettings.realm_icon, serverSettings.realm_uri).toString()}
-          />
+          <View style={styles.realmInfoContainer}>
+            <RealmInfo
+              name={serverSettings.realm_name}
+              iconUrl={new URL(serverSettings.realm_icon, serverSettings.realm_uri).toString()}
+            />
+            <TouchableOpacity
+              style={styles.changeServerButton}
+              onPress={() => this.props.navigation.navigate('realm-input')}
+              activeOpacity={0.8}
+            >
+              <IconSwap
+                size={20}
+                color={BRAND_COLOR}
+              />
+            </TouchableOpacity>
+          </View>
           <ViewPlaceholder height={32} />
           <Input
             autoFocus={email.length === 0}

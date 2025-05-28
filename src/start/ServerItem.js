@@ -5,7 +5,7 @@ import { TouchableOpacity, View } from 'react-native';
 import type { Server } from '../types';
 import { createStyleSheet } from '../styles';
 import ZulipText from '../common/ZulipText';
-import { Icon } from '../common/Icons';
+import { IconTrash } from '../common/Icons';
 
 type Props = $ReadOnly<{|
   server: Server,
@@ -49,7 +49,10 @@ export default function ServerItem(props: Props): React$Node {
       </View>
       {onDelete && (
       <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(server.id)}>
-        <Icon name="trash" size={20} color="red" />
+        <IconTrash
+          size={20}
+          color="red"
+        />
       </TouchableOpacity>
       )}
     </TouchableOpacity>
