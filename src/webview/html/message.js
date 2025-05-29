@@ -6,6 +6,7 @@ import * as poll_data from '@zulip/shared/lib/poll_data';
 
 import enUS from 'date-fns/locale/en-US';
 import vi from 'date-fns/locale/vi';
+import { DOMParser, XMLSerializer } from 'xmldom';
 import template from './template';
 import type {
   AggregatedReaction,
@@ -154,15 +155,94 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   const content = match_content ?? message.content;
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
+  const  handleBlockQuote = (html) => {
+    // Bước 1: Parse HTML đầu vào thành DOM (gói bằng thẻ gốc <root>)
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<root>${html}</root>`, 'text/xml');
+    const root = doc.documentElement;
+
+    /**
+     * Duyệt và xử lý từng thẻ <blockquote> (đệ quy) trong DOM.
+     * @param {Element} bqNode - Nút <blockquote> cần xử lý.
+     */
+    function processBlockquote(bqNode) {
+      const parent = bqNode.parentNode;
+      // Tìm thẻ <p> liền trước blockquote (bỏ qua text nodes trắng)
+      let prev = bqNode.previousSibling;
+      while (prev && prev.nodeType === 3 && prev.textContent.trim() === '') {
+        prev = prev.previousSibling;
+      }
+      // Kiểm tra nếu prev là phần tử <p>
+      if (prev && prev.nodeType === 1 && prev.nodeName.toLowerCase() === 'p') {
+        // Tìm <span class="user-mention"> trong <p>
+        let userSpan = null;
+        const spans = prev.getElementsByTagName('span');
+        for (let i = 0; i < spans.length; i++) {
+          const cls = spans[i].getAttribute('class') || '';
+          if (cls.split(/\s+/).includes('user-mention')) {
+            userSpan = spans[i];
+            break;
+          }
+        }
+        // Tìm thẻ <a> trong <p>
+        const anchor = prev.getElementsByTagName('a')[0];
+        if (userSpan && anchor) {
+          // Trích xuất tên người dùng (loại bỏ '@' nếu có) và messageId
+          let userName = userSpan.textContent || '';
+          userName = userName.replace(/^@/, '');
+          const href = anchor.getAttribute('href') || '';
+          // Giả thiết messageId nằm ở cuối href, sau dấu '/'
+          const parts = href.split('/');
+          const messageId = parts.length ? parts[parts.length - 1].replace(/\D/g, '') : '';
+          // Tạo <div class="quote-author-own"> chứa userName
+          const div = doc.createElement('div');
+          div.setAttribute('class', isOwn ? 'quote-author-own' : 'quote-author');
+          div.appendChild(doc.createTextNode(`${userName}:`));
+          // Thêm class và onclick cho <blockquote>
+          bqNode.setAttribute('class', isOwn ? 'blockquote-own' : 'blockquote');
+          bqNode.setAttribute(
+              'onclick',
+              // JSON.stringify trong onclick với dấu nháy đơn cho chuỗi bên trong
+              `window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${href}', messageId: ${messageId}}))`
+          );
+          // Chèn div vào đầu <blockquote>
+          bqNode.insertBefore(div, bqNode.firstChild);
+          // Xóa thẻ <p> gốc đã xử lý
+          parent.removeChild(prev);
+        }
+      }
+      // Đệ quy xử lý các <blockquote> con (nếu có)
+      let child = bqNode.firstChild;
+      while (child) {
+        if (child.nodeType === 1 && child.nodeName.toLowerCase() === 'blockquote') {
+          processBlockquote(child);
+        }
+        child = child.nextSibling;
+      }
+    }
+
+    // Bước 2: Tìm các <blockquote> ở cấp con trực tiếp của root và xử lý
+    let node = root.firstChild;
+    while (node) {
+      if (node.nodeType === 1 && node.nodeName.toLowerCase() === 'blockquote') {
+        processBlockquote(node);
+      }
+      node = node.nextSibling;
+    }
+
+    // Bước 3: Serialize DOM về lại chuỗi HTML (không bao gồm thẻ <root>)
+    const serializer = new XMLSerializer();
+    let result = '';
+    let child = root.firstChild;
+    while (child) {
+      result += serializer.serializeToString(child);
+      child = child.nextSibling;
+    }
+    return result;
+  };
+
   // Xử lý quote message
-  const processedContent = content.replace(
-    /<p><span class="user-mention"[^>]*>@([^<]*)<\/span> <a href="([^"]*)">said<\/a>:<\/p>\s*<blockquote>([\s\S]*?)<\/blockquote>/g,
-    (match, username, link, quoteContent) => 
-      `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}" onclick="window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${link}', messageId: ${id}}))">
-        <div class="${isOwn ? 'quote-author-own' : 'quote-author'}">${username}:</div>
-        ${quoteContent}
-      </blockquote>`
-  );
+  const processedContent = handleBlockQuote(content);
 
   return template`\
 $!${processAlertWords(processedContent, id, alertWords, flags)}
