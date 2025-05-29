@@ -566,9 +566,42 @@ p {
 }
 
 blockquote {
-  padding-left: 8px;
-  margin: 8px 0 8px 0;
-  border-left: 3px solid hsla(0, 0%, 50%, 0.5);
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.blockquote {
+  background: rgba(247, 96, 153, 0.1);
+  border-left: 3px solid rgb(247, 96, 153);
+}
+
+.blockquote-own {
+  background: rgba(128, 189, 108, 0.1);
+  border-left: 3px solid rgb(128, 189, 108);
+}
+
+.quote-author {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: rgb(247, 96, 153);
+  font-size: 0.95em;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.quote-author-own {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: rgb(128, 189, 108);
+  font-size: 0.95em;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.quote-content {
+  color: rgba(0, 0, 0, 0.8);
 }
 
 table {
@@ -887,18 +920,6 @@ h1, h2, h3, h4, h5, h6 {
 .poll-option {
   margin-left: 8px;
   width: 100%;
-}
-
-.blockquote {
-  background: #f9e9ef;
-  border-radius: 4px;
-  border-color: rgb(247, 96, 153);
-}
-
-.blockquote-own {
-  background: #def5ce;
-  border-radius: 4px;
-  border-color: rgb(128, 189, 108);
 }
 
 .message_embed {

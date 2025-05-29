@@ -153,8 +153,20 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   const { id, isOutbox, last_edit_timestamp, match_content, reactions } = (message: MessageLike);
   const content = match_content ?? message.content;
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
+
+  console.log('//////////////', content);
+
+  // Xử lý quote message
+  const processedContent = content.replace(
+    /<p><span class="user-mention"[^>]*>@([^<]*)<\/span> <a href="([^"]*)">said<\/a>:<\/p>\s*<blockquote>([\s\S]*?)<\/blockquote>/g,
+    `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}" onclick="window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '$2', messageId: ${id}}))">
+      <div class="${isOwn ? 'quote-author-own' : 'quote-author'}">$1:</div>
+      <div class="quote-content">$3</div>
+    </blockquote>`
+  );
+
   return template`\
-$!${processAlertWords(content.replace(/<blockquote>/g, `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}">`), id, alertWords, flags)}
+$!${processAlertWords(processedContent, id, alertWords, flags)}
 $!${isOutbox === true ? '<div class="loading-spinner outbox-spinner"></div>' : ''}
 $!${messageTagsAsHtml(!!flags.starred[id], last_edit_timestamp, _)}
 $!${messageReactionListAsHtml(backgroundData, reactions, _, isOwn)}`;

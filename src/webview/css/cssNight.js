@@ -36,14 +36,31 @@ body {
   color: rgba(255, 255, 255, 0.5);
 }
 .blockquote {
-  background: rgb(66, 47, 39);
-  border-radius: 4px;
+  background: rgba(199, 124, 56, 0.15);
   border-color: rgb(199, 124, 56);
+  border-radius: 4px;
 }
 .blockquote-own {
-  background: rgb(146, 95, 236);
-  border-radius: 4px;
+  background: rgba(146, 95, 236, 0.15);
   border-color: #ffffff;
+  border-radius: 4px;
+}
+.quote-author {
+  color: rgb(199, 124, 56);
+  fontWeight: '600';
+  fontSize: '0.95em';
+  letterSpacing: '0.3px';
+  display: inline-block;
+}
+.quote-author-own {
+  color: #ffffff;
+  fontWeight: '600';
+  fontSize: '0.95em';
+  letterSpacing: '0.3px';
+  display: inline-block;
+}
+.quote-content {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Reaction styles for dark mode */
