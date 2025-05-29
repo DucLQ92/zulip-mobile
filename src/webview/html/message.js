@@ -383,15 +383,15 @@ export default (
   const isUserMuted = !!message.sender_id && backgroundData.mutedUsers.has(message.sender_id);
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
-  // if (message.typeBlock === 'mentioned' || message.typeBlock === 'starred') {
-  //   const linkToMessage = message.type === 'private'
-  //       ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id)}-group/near/${message.id}`
-  //       : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject)}/near/${message.id}`;
-  //   const htmlLinkToMessage = `<a href=${linkToMessage}>[${_.intl.messages['Go to message location']}]</a>`;
-  //   if (message.content.indexOf(htmlLinkToMessage) < 0) {
-  //     message.content += htmlLinkToMessage;
-  //   }
-  // }
+  if (message.typeBlock === 'mentioned' || message.typeBlock === 'starred' || message.typeBlock === 'all') {
+    const linkToMessage = message.type === 'private'
+        ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id)}-group/near/${message.id}`
+        : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject)}/near/${message.id}`;
+    const htmlLinkToMessage = `<a href=${linkToMessage}>[${_.intl.messages['Go to message location']}]</a>`;
+    if (message.content.indexOf(htmlLinkToMessage) < 0) {
+      message.content += htmlLinkToMessage;
+    }
+  }
 
   const divOpenHtml = isOwn ? template`\
 <div
