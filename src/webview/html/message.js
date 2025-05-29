@@ -154,15 +154,14 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   const content = match_content ?? message.content;
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
-  console.log('//////////////', content);
-
   // Xử lý quote message
   const processedContent = content.replace(
     /<p><span class="user-mention"[^>]*>@([^<]*)<\/span> <a href="([^"]*)">said<\/a>:<\/p>\s*<blockquote>([\s\S]*?)<\/blockquote>/g,
-    `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}" onclick="window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '$2', messageId: ${id}}))">
-      <div class="${isOwn ? 'quote-author-own' : 'quote-author'}">$1:</div>
-      <div class="quote-content">$3</div>
-    </blockquote>`
+    (match, username, link, quoteContent) => 
+      `<blockquote class="${isOwn ? 'blockquote-own' : 'blockquote'}" onclick="window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${link}', messageId: ${id}}))">
+        <div class="${isOwn ? 'quote-author-own' : 'quote-author'}">${username}:</div>
+        ${quoteContent}
+      </blockquote>`
   );
 
   return template`\
