@@ -187,13 +187,10 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
         // Tìm thẻ <a> trong <p>
         const anchor = prev.getElementsByTagName('a')[0];
         if (userSpan && anchor) {
-          // Trích xuất tên người dùng (loại bỏ '@' nếu có) và messageId
+          // Trích xuất tên người dùng (loại bỏ '@' nếu có)
           let userName = userSpan.textContent || '';
           userName = userName.replace(/^@/, '');
           const href = anchor.getAttribute('href') || '';
-          // Giả thiết messageId nằm ở cuối href, sau dấu '/'
-          const parts = href.split('/');
-          const messageId = parts.length ? parts[parts.length - 1].replace(/\D/g, '') : '';
           // Tạo <div class="quote-author-own"> chứa userName
           const div = doc.createElement('div');
           div.setAttribute('class', isOwn ? 'quote-author-own' : 'quote-author');
@@ -203,7 +200,7 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
           bqNode.setAttribute(
               'onclick',
               // JSON.stringify trong onclick với dấu nháy đơn cho chuỗi bên trong
-              `window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${href}', messageId: ${messageId}}))`
+              `(function(e) { e.stopPropagation(); window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${href}'})) })(event)`
           );
           // Chèn div vào đầu <blockquote>
           bqNode.insertBefore(div, bqNode.firstChild);
@@ -386,15 +383,15 @@ export default (
   const isUserMuted = !!message.sender_id && backgroundData.mutedUsers.has(message.sender_id);
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
-  if (message.typeBlock === 'mentioned' || message.typeBlock === 'starred') {
-    const linkToMessage = message.type === 'private'
-        ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id)}-group/near/${message.id}`
-        : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject)}/near/${message.id}`;
-    const htmlLinkToMessage = `<a href=${linkToMessage}>[${_.intl.messages['Go to message location']}]</a>`;
-    if (message.content.indexOf(htmlLinkToMessage) < 0) {
-      message.content += htmlLinkToMessage;
-    }
-  }
+  // if (message.typeBlock === 'mentioned' || message.typeBlock === 'starred') {
+  //   const linkToMessage = message.type === 'private'
+  //       ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id)}-group/near/${message.id}`
+  //       : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject)}/near/${message.id}`;
+  //   const htmlLinkToMessage = `<a href=${linkToMessage}>[${_.intl.messages['Go to message location']}]</a>`;
+  //   if (message.content.indexOf(htmlLinkToMessage) < 0) {
+  //     message.content += htmlLinkToMessage;
+  //   }
+  // }
 
   const divOpenHtml = isOwn ? template`\
 <div
