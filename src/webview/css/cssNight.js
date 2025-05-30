@@ -27,7 +27,7 @@ body {
   -webkit-backdrop-filter: blur(10px);
 }
 .content-own {
-  background-color: rgba(76, 29, 149, 0.98);
+  background-color: rgba(52, 73, 94, 0.98);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);

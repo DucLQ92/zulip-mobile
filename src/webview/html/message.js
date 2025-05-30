@@ -383,15 +383,18 @@ export default (
   const isUserMuted = !!message.sender_id && backgroundData.mutedUsers.has(message.sender_id);
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
-  if (message.typeBlock === 'mentioned' || message.typeBlock === 'starred' || message.typeBlock === 'all') {
-    const linkToMessage = message.type === 'private'
-        ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id)}-group/near/${message.id}`
-        : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject)}/near/${message.id}`;
-    const htmlLinkToMessage = `<a href=${linkToMessage}>[${_.intl.messages['Go to message location']}]</a>`;
-    if (message.content.indexOf(htmlLinkToMessage) < 0) {
-      message.content += htmlLinkToMessage;
-    }
-  }
+  const linkToMessage = message.type === 'private'
+      ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id).join(',')}-group/near/${message.id}`
+      : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject).replace(/\./g, '%2E')}/near/${message.id}`;
+  const onclick = message.typeBlock === 'mentioned' || message.typeBlock === 'starred' || message.typeBlock === 'all'
+      ? `(function(e) { 
+          e.stopPropagation(); 
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'url',
+            href: '${linkToMessage}'
+          }))
+        })(event)`
+      : '';
 
   const divOpenHtml = isOwn ? template`\
 <div
@@ -400,6 +403,7 @@ export default (
   data-msg-id="${id}"
   data-mute-state="${isUserMuted ? 'hidden' : 'shown'}"
   style="direction: rtl"
+  onclick="${onclick}"
   $!${flagStrings.map(flag => template`data-${flag}="true" `).join('')}
 >` : template`\
 <div
@@ -408,6 +412,7 @@ export default (
   data-msg-id="${id}"
   data-mute-state="${isUserMuted ? 'hidden' : 'shown'}"
   style="direction: ltr"
+  onclick="${onclick}"
   $!${flagStrings.map(flag => template`data-${flag}="true" `).join('')}
 >`;
   const messageTime = shortTime(new Date(timestamp * 1000), backgroundData.twentyFourHourTime);
