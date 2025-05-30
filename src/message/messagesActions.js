@@ -9,7 +9,7 @@ import {
   isNarrowLink,
 } from '../utils/internalLinks';
 import { openLinkWithUserPreference } from '../utils/openLink';
-import { navigateToChat } from '../nav/navActions';
+import { navigateToChat, replaceWithChat } from '../nav/navActions';
 import { FIRST_UNREAD_ANCHOR } from '../anchor';
 import { getStreamsById, getStreamsByName } from '../subscriptions/subscriptionSelectors';
 import * as api from '../api';
@@ -33,10 +33,12 @@ import { isNarrowValid } from '../chat/narrowsSelectors';
  * Navigate to the given narrow.
  */
 export const doNarrow =
-  (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR): ThunkAction<void> =>
+  (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR, needReplace: boolean = false): ThunkAction<void> =>
   (dispatch, getState) => {
     // TODO: Use `anchor` to open the message list to a particular message.
-    NavigationService.dispatch(navigateToChat(narrow, anchor));
+    NavigationService.dispatch(
+      needReplace ? replaceWithChat(narrow, anchor) : navigateToChat(narrow, anchor)
+    );
   };
 
 /**
@@ -212,17 +214,17 @@ const adjustNarrowForMoves =
  * should fix that; see `getSingleMessage`.
  */
 const doNarrowNearLink =
-  (narrow: Narrow, nearOperand: number): ThunkAction<Promise<void>> =>
+  (narrow: Narrow, nearOperand: number, needReplace: boolean = false): ThunkAction<Promise<void>> =>
   async (dispatch, getState) => {
     const adjustedNarrow = await dispatch(adjustNarrowForMoves(narrow, nearOperand));
-    dispatch(doNarrow(adjustedNarrow, nearOperand));
+    dispatch(doNarrow(adjustedNarrow, nearOperand, needReplace));
   };
 
 /**
  * Handle a link tap that isn't an image we want to show in the lightbox.
  */
 export const messageLinkPress =
-  (href: string, _: GetText): ThunkAction<Promise<void>> =>
+  (href: string, _: GetText, needReplace: boolean = false): ThunkAction<Promise<void>> =>
   async (dispatch, getState, { getGlobalSettings }) => {
     const state = getState();
     const auth = getAuth(state);
@@ -272,11 +274,11 @@ export const messageLinkPress =
       }
 
       if (nearOperand === null) {
-        dispatch(doNarrow(narrow));
+        dispatch(doNarrow(narrow, FIRST_UNREAD_ANCHOR, needReplace));
         return;
       }
 
-      await dispatch(doNarrowNearLink(narrow, nearOperand));
+      await dispatch(doNarrowNearLink(narrow, nearOperand, needReplace));
     } else if (!isUrlOnRealm(parsedUrl, auth.realm)) {
       openLinkWithUserPreference(parsedUrl, globalSettings);
     } else {

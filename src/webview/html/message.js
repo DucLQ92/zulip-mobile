@@ -197,10 +197,11 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
           div.appendChild(doc.createTextNode(`${userName}:`));
           // Thêm class và onclick cho <blockquote>
           bqNode.setAttribute('class', isOwn ? 'blockquote-own' : 'blockquote');
+          const needReplace = message.typeBlock !== 'mentioned' && message.typeBlock !== 'starred' && message.typeBlock !== 'all';
           bqNode.setAttribute(
               'onclick',
               // JSON.stringify trong onclick với dấu nháy đơn cho chuỗi bên trong
-              `(function(e) { e.stopPropagation(); window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${href}'})) })(event)`
+              `(function(e) { e.stopPropagation(); window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${href}', needReplace: ${needReplace}})) })(event)`
           );
           // Chèn div vào đầu <blockquote>
           bqNode.insertBefore(div, bqNode.firstChild);

@@ -330,7 +330,7 @@ export const handleWebViewOutboundEvent = (
       if (isUrlAnImage(event.href)) {
         handleImage(props, navigation, event.href, event.messageId);
       } else {
-        props.dispatch(messageLinkPress(event.href, props._));
+        props.dispatch(messageLinkPress(event.href, props._, event.needReplace));
       }
       break;
 

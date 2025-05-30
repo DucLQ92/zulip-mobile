@@ -41,31 +41,12 @@ export const resetToMainTabs = (): NavigationAction =>
  */
 
 /** Only call this via `doNarrow`.  See there for details. */
-// export const navigateToChat = (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR): NavigationAction =>
-//   // This route name 'chat' appears in one more place than usual: doEventActionSideEffects.js .
-//   StackActions.push('chat', { narrow, editMessage: null, anchor });
+export const navigateToChat = (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR): NavigationAction =>
+  // This route name 'chat' appears in one more place than usual: doEventActionSideEffects.js .
+  StackActions.push('chat', { narrow, editMessage: null, anchor });
 
-export const navigateToChat = (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR): NavigationAction => {
-    // only 1 chat screen
-    const state = getState();
-    const routes = state.routes;
-    const currentRoute = routes[routes.length - 1];
-    if (currentRoute.name === 'chat') {
-        return StackActions.replace('chat', {
-            narrow,
-            editMessage: null,
-            anchor
-        });
-    }
-    return StackActions.push('chat', {
-        narrow,
-        editMessage: null,
-        anchor
-    });
-};
-
-export const replaceWithChat = (narrow: Narrow): NavigationAction =>
-  StackActions.replace('chat', { narrow, editMessage: null });
+export const replaceWithChat = (narrow: Narrow, anchor: number = FIRST_UNREAD_ANCHOR): NavigationAction =>
+  StackActions.replace('chat', { narrow, editMessage: null, anchor });
 
 export const navigateToSharing = (sharedData: SharedData): NavigationAction =>
   StackActions.push('sharing', { sharedData });
