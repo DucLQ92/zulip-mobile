@@ -37,13 +37,24 @@ const localeMap = {
   vi,
 };
 
-// Lấy locale từ thiết bị
+// Get device locale and convert to date-fns locale
 const getDeviceLocale = () => {
-  const locale = NativeModules.I18nManager.localeIdentifier;
-  // Chuyển đổi locale từ dạng 'vi_VN' sang 'vi'
-  const localeCode = locale.split('_')[0];
-  // Trả về locale tương ứng hoặc mặc định là en-US
-  return localeMap[localeCode] || enUS;
+  try {
+    // Sử dụng Intl API để lấy locale hiện tại
+    const deviceLocale = Intl.DateTimeFormat().resolvedOptions().locale;
+
+    // Kiểm tra nếu deviceLocale undefined/null thì dùng fallback
+    if (!deviceLocale || typeof deviceLocale !== 'string') {
+      return vi; // Fallback to English
+    }
+
+    // Convert locale format (e.g. 'vi-VN' to 'vi')
+    const localeCode = deviceLocale.split('-')[0];
+    return localeMap[localeCode] || vi;
+  } catch (error) {
+    // Fallback nếu có lỗi
+    return vi;
+  }
 };
 
 const messageTagsAsHtml = (isStarred: boolean, timeEdited: number | void, _: GetText): string => {

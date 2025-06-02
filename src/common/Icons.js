@@ -129,3 +129,4 @@ export const IconDotsThreeHorizontal: SpecificIconType = makeIcon(Entypo, 'dots-
 export const IconCall: SpecificIconType = makeIcon(IoniconsIcon, 'call');
 export const IconRefresh: SpecificIconType = makeIcon(IoniconsIcon, 'refresh');
 export const IconSwap: SpecificIconType = makeIcon(IoniconsIcon, 'swap-horizontal');
+export const IconCloseCircle: SpecificIconType = makeIcon(IoniconsIcon, 'close-circle');

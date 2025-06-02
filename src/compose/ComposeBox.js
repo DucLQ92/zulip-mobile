@@ -34,7 +34,7 @@ import { draftUpdate, sendTypingStart, sendTypingStop } from '../actions';
 import Touchable from '../common/Touchable';
 import Input from '../common/Input';
 import { showErrorAlert } from '../utils/info';
-import { IconDone, IconSend } from '../common/Icons';
+import { IconDone, IconSend, IconCloseCircle } from '../common/Icons';
 import {
   isConversationNarrow,
   isStreamNarrow,
@@ -49,6 +49,7 @@ import getComposeInputPlaceholder from './getComposeInputPlaceholder';
 import NotSubscribed from '../message/NotSubscribed';
 import AnnouncementOnly from '../message/AnnouncementOnly';
 import MentionWarnings from './MentionWarnings';
+import QuotePreview from './QuotePreview';
 import {
   getAuth,
   getOwnUser,
@@ -204,6 +205,13 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
   const inputBlurTimeoutId = useRef<?TimeoutID>(null);
 
   const [height, setHeight] = useState<number>(20);
+
+  // State để lưu quote data riêng biệt
+  const [quoteData, setQuoteData] = useState<?{|
+    message: Message | Outbox,
+    user: UserOrBot,
+    rawContent: string,
+  |}>(null);
 
   const [focusState, setFocusState] = useState<{|
     message: boolean,
@@ -411,14 +419,6 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           return;
         }
 
-        // Set to match quoting_placeholder in quote_and_reply in
-        // static/js/compose_actions.js in the zulip/zulip repo.
-        const quotingPlaceholder =
-          serialNumber > 0
-            ? _({ text: '[Quoting ({serialNumber})…]', values: { serialNumber } })
-            : _('[Quoting…]');
-        insertMessageTextAtCursorPosition(quotingPlaceholder, true);
-
         let rawContent = undefined;
         try {
           // TODO: Give feedback when the server round trip takes longer than
@@ -440,18 +440,14 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           // conversation.
           setTopicInputValue(message.subject);
         }
-        const quoteAndReplyText = getQuoteAndReplyText({
+        
+        // Lưu quote data vào state riêng thay vì đưa vào message input
+        setQuoteData({
           message,
-          rawContent,
           user,
-          realm: auth.realm,
-          streamsById,
-          zulipFeatureLevel,
-          _,
+          rawContent,
         });
-        setMessageInputValue(state =>
-          state.value.replace(quotingPlaceholder, () => quoteAndReplyText),
-        );
+        
         messageInputRef.current?.focus();
       } finally {
         setActiveQuoteAndRepliesCount(v => v - 1);
@@ -461,9 +457,6 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
     [
       auth,
       allUsersById,
-      streamsById,
-      insertMessageTextAtCursorPosition,
-      setMessageInputValue,
       zulipFeatureLevel,
       _,
       topicSelectionAllowed,
@@ -473,6 +466,16 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
     ],
   );
   useImperativeHandle(ref, () => ({ doQuoteAndReply }), [doQuoteAndReply]);
+
+  // Callback để xóa quote
+  const handleRemoveQuote = useCallback(() => {
+    setQuoteData(null);
+  }, []);
+
+  // Callback để clear message content
+  const handleClearMessage = useCallback(() => {
+    setMessageInputValue('');
+  }, [setMessageInputValue]);
 
   const handleLayoutChange = useCallback((event: LayoutEvent) => {
     setHeight(event.nativeEvent.layout.height);
@@ -608,9 +611,25 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
       return;
     }
 
-    onSend(messageInputValue, destinationNarrow);
+    // Combine quote + reply content if có quote
+    let finalMessage = messageInputValue;
+    if (quoteData) {
+      const quoteAndReplyText = getQuoteAndReplyText({
+        message: quoteData.message,
+        rawContent: quoteData.rawContent,
+        user: quoteData.user,
+        realm: auth.realm,
+        streamsById,
+        zulipFeatureLevel,
+        _,
+      });
+      finalMessage = `${quoteAndReplyText}\n\n${messageInputValue}`;
+    }
+
+    onSend(finalMessage, destinationNarrow);
 
     setMessageInputValue('');
+    setQuoteData(null); // Clear quote sau khi gửi
 
     if (mentionWarnings.current) {
       mentionWarnings.current.clearMentionWarnings();
@@ -626,6 +645,10 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
     onSend,
     setMessageInputValue,
     messageInputState,
+    quoteData,
+    auth.realm,
+    streamsById,
+    zulipFeatureLevel,
   ]);
 
   const inputMarginPadding = useMemo(
@@ -664,8 +687,25 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           paddingTop: 8,
           paddingLeft: 8,
         },
+        messageInputContainer: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+        },
+        messageInputWrapper: {
+          flex: 1,
+          // These border attributes override styles set in <Input />.
+          borderWidth: 0,
+          borderRadius: 5,
+          fontSize: 15,
+          flexShrink: 1,
+          maxHeight: 120,
+          ...inputMarginPadding,
+          backgroundColor,
+        },
         submitButtonContainer: {
           padding: 8,
+          flexDirection: 'row',
+          alignItems: 'center',
         },
         submitButton: {
           justifyContent: 'center',
@@ -674,6 +714,15 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           borderRadius: 32,
           padding: 8,
           opacity: submitButtonDisabled ? 0.25 : 1,
+        },
+        clearButton: {
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(128, 128, 128, 0.3)',
+          borderRadius: 20,
+          padding: 6,
+          marginLeft: 8,
+          opacity: messageInputState.value.trim().length === 0 ? 0.25 : 1,
         },
         topicInput: {
           // These border attributes override styles set in <Input />.
@@ -706,7 +755,7 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
           backgroundColor,
         },
       }),
-    [inputMarginPadding, backgroundColor, height, submitButtonDisabled, topicInputVisible],
+    [inputMarginPadding, backgroundColor, height, submitButtonDisabled, topicInputVisible, messageInputState.value],
   );
 
   const submitButtonHitSlop = useMemo(() => ({ top: 8, right: 8, bottom: 8, left: 8 }), []);
@@ -733,6 +782,14 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
   return (
     <View style={styles.wrapper}>
       <MentionWarnings narrow={narrow} stream={stream} ref={mentionWarnings} />
+      {quoteData && (
+        <QuotePreview
+          message={quoteData.message}
+          user={quoteData.user}
+          rawContent={quoteData.rawContent}
+          onRemove={handleRemoveQuote}
+        />
+      )}
       <View style={styles.autocompleteWrapper}>
         <TopicAutocomplete
           isFocused={focusState.topic}
@@ -774,18 +831,29 @@ const ComposeBox: React$AbstractComponent<Props, ImperativeHandle> = forwardRef(
             blurOnSubmit={false}
             returnKeyType="next"
           />
-          <Input
-            multiline
-            style={styles.composeTextInput}
-            underlineColorAndroid="transparent"
-            placeholder={placeholder}
-            defaultValue={messageInputValue}
-            autoFocus={autoFocusMessage}
-            textInputRef={messageInputRef}
-            {...messageInputCallbacks}
-            onBlur={handleMessageBlur}
-            onFocus={handleMessageFocus}
-          />
+          <View style={styles.messageInputContainer}>
+            <Input
+              multiline
+              style={styles.messageInputWrapper}
+              underlineColorAndroid="transparent"
+              placeholder={placeholder}
+              defaultValue={messageInputValue}
+              autoFocus={autoFocusMessage}
+              textInputRef={messageInputRef}
+              {...messageInputCallbacks}
+              onBlur={handleMessageBlur}
+              onFocus={handleMessageFocus}
+            />
+            {messageInputValue.trim().length > 0 && (
+              <Touchable
+                style={styles.clearButton}
+                onPress={handleClearMessage}
+                accessibilityLabel={_('Clear message')}
+              >
+                <IconCloseCircle size={18} color="rgba(128, 128, 128, 0.8)" />
+              </Touchable>
+            )}
+          </View>
           <ComposeMenu
             destinationNarrow={destinationNarrow}
             insertAttachments={insertAttachments}
