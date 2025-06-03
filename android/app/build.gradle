@@ -147,8 +147,8 @@ android {
         applicationId "vn.nextpay.nptalk"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 21
-        versionName "1.0.20"
+        versionCode 22
+        versionName "1.0.21"
     }
     signingConfigs {
         // The RN v0.60 template app suggests configuring a debug
@@ -218,7 +218,7 @@ dependencies {
     implementation 'androidx.browser:browser:1.0.0'
 
     // TODO(#5087): Eliminate unused code for Firebase analytics
-    implementation "com.google.firebase:firebase-messaging:17.3.4"
+    implementation "com.google.firebase:firebase-messaging:23.4.0"
 
     // ==== Test dependencies
     testImplementation 'junit:junit:4.12'

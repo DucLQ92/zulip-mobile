@@ -1,7 +1,6 @@
 package com.zulipmobile.notifications
 
-import com.google.firebase.iid.FirebaseInstanceId
-import com.google.firebase.iid.InstanceIdResult
+import com.google.firebase.messaging.FirebaseMessaging
 import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
@@ -22,9 +21,9 @@ internal class NotificationsModule(reactContext: ReactApplicationContext) :
      */
     @ReactMethod
     fun getToken(promise: Promise) {
-        FirebaseInstanceId.getInstance().instanceId
-            .addOnSuccessListener { instanceId: InstanceIdResult -> promise.resolve(instanceId.token) }
-            .addOnFailureListener { e: Exception? -> promise.reject(e) }
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token -> promise.resolve(token) }
+            .addOnFailureListener { e -> promise.reject(e) }
     }
 
     @ReactMethod
