@@ -14,10 +14,4 @@ export const defaultServers: Server[] = [
     url: 'https://dev-talk.nextpay.vn',
     isDefault: true,
   },
-  {
-    id: 'staging-nextpay',
-    name: 'NextPay Staging',
-    url: 'https://staging-talk.nextpay.vn',
-    isDefault: true,
-  },
 ];

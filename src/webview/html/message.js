@@ -1,12 +1,11 @@
 /* @flow strict-local */
-import { PixelRatio, NativeModules } from 'react-native';
+import { PixelRatio } from 'react-native';
 import invariant from 'invariant';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import * as poll_data from '@zulip/shared/lib/poll_data';
 
 import enUS from 'date-fns/locale/en-US';
 import vi from 'date-fns/locale/vi';
-import { DOMParser, XMLSerializer } from 'xmldom';
 import template from './template';
 import type {
   AggregatedReaction,
@@ -14,13 +13,13 @@ import type {
   GetText,
   Message,
   MessageLike,
-  Outbox,
   MessageMessageListElement,
+  Outbox,
   Reaction,
   SubmessageData,
   UserId,
-  WidgetData,
   UserStatus,
+  WidgetData,
 } from '../../types';
 import type { BackgroundData } from '../backgroundData';
 import { shortTime } from '../../utils/date';
@@ -167,87 +166,58 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
   const  handleBlockQuote = (html) => {
-    // Bước 1: Parse HTML đầu vào thành DOM (gói bằng thẻ gốc <root>)
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(`<root>${html}</root>`, 'text/xml');
-    const root = doc.documentElement;
+    try {
+      const needReplace = message.typeBlock !== 'mentioned' && message.typeBlock !== 'starred' && message.typeBlock !== 'all';
 
-    /**
-     * Duyệt và xử lý từng thẻ <blockquote> (đệ quy) trong DOM.
-     * @param {Element} bqNode - Nút <blockquote> cần xử lý.
-     */
-    function processBlockquote(bqNode) {
-      const parent = bqNode.parentNode;
-      // Tìm thẻ <p> liền trước blockquote (bỏ qua text nodes trắng)
-      let prev = bqNode.previousSibling;
-      while (prev && prev.nodeType === 3 && prev.textContent.trim() === '') {
-        prev = prev.previousSibling;
-      }
-      // Kiểm tra nếu prev là phần tử <p>
-      if (prev && prev.nodeType === 1 && prev.nodeName.toLowerCase() === 'p') {
-        // Tìm <span class="user-mention"> trong <p>
-        let userSpan = null;
-        const spans = prev.getElementsByTagName('span');
-        for (let i = 0; i < spans.length; i++) {
-          const cls = spans[i].getAttribute('class') || '';
-          if (cls.split(/\s+/).includes('user-mention')) {
-            userSpan = spans[i];
-            break;
-          }
-        }
-        // Tìm thẻ <a> trong <p>
-        const anchor = prev.getElementsByTagName('a')[0];
-        if (userSpan && anchor) {
-          // Trích xuất tên người dùng (loại bỏ '@' nếu có)
-          let userName = userSpan.textContent || '';
-          userName = userName.replace(/^@/, '');
-          const href = anchor.getAttribute('href') || '';
-          // Tạo <div class="quote-author-own"> chứa userName
-          const div = doc.createElement('div');
-          div.setAttribute('class', isOwn ? 'quote-author-own' : 'quote-author');
-          div.appendChild(doc.createTextNode(`${userName}:`));
-          // Thêm class và onclick cho <blockquote>
-          bqNode.setAttribute('class', isOwn ? 'blockquote-own' : 'blockquote');
-          const needReplace = message.typeBlock !== 'mentioned' && message.typeBlock !== 'starred' && message.typeBlock !== 'all';
-          bqNode.setAttribute(
-              'onclick',
-              // JSON.stringify trong onclick với dấu nháy đơn cho chuỗi bên trong
-              `(function(e) { e.stopPropagation(); window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${href}', needReplace: ${needReplace}})) })(event)`
-          );
-          // Chèn div vào đầu <blockquote>
-          bqNode.insertBefore(div, bqNode.firstChild);
-          // Xóa thẻ <p> gốc đã xử lý
-          parent.removeChild(prev);
-        }
-      }
-      // Đệ quy xử lý các <blockquote> con (nếu có)
-      let child = bqNode.firstChild;
-      while (child) {
-        if (child.nodeType === 1 && child.nodeName.toLowerCase() === 'blockquote') {
-          processBlockquote(child);
-        }
-        child = child.nextSibling;
-      }
-    }
+      // Process quotes recursively để handle nested quotes
+      const processQuotesRecursively = inputHtml => {
+        let currentHtml = inputHtml;
+        let previousHtml = '';
+        let iterations = 0;
+        const maxIterations = 10; // Safety limit để tránh infinite loop
 
-    // Bước 2: Tìm các <blockquote> ở cấp con trực tiếp của root và xử lý
-    let node = root.firstChild;
-    while (node) {
-      if (node.nodeType === 1 && node.nodeName.toLowerCase() === 'blockquote') {
-        processBlockquote(node);
-      }
-      node = node.nextSibling;
-    }
+        // Lặp cho đến khi không còn thay đổi gì (tức là đã xử lý hết tất cả quotes)
+        while (currentHtml !== previousHtml && iterations < maxIterations) {
+          previousHtml = currentHtml;
+          iterations++;
 
-    // Bước 3: Serialize DOM về lại chuỗi HTML (không bao gồm thẻ <root>)
-    const serializer = new XMLSerializer();
-    let result = '';
-    let child = root.firstChild;
-    while (child) {
-      result += serializer.serializeToString(child);
-      child = child.nextSibling;
+          // Pattern để tìm <p> chứa user-mention + href, theo sau bởi blockquote
+          const quotePattern = /<p[^>]*>.*?<span[^>]*class="[^"]*user-mention[^"]*"[^>]*>([^<]*)<\/span>.*?<a[^>]*href="([^"]*)"[^>]*>.*?<\/a>.*?<\/p>\s*(<blockquote[^>]*>[\s\S]*?<\/blockquote>)/gi;
+
+          currentHtml = currentHtml.replace(quotePattern, (match, userName, href, blockquoteHtml) => {
+            const cleanUserName = userName.replace(/^@/, '').trim();
+
+            // Escape href for safe usage in onclick
+            const escapedHref = href
+              .replace(/&/g, '&amp;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
+
+            // Create onclick handler
+            const onclickHandler = `(function(e) { e.stopPropagation(); window.ReactNativeWebView.postMessage(JSON.stringify({type: 'url', href: '${escapedHref}', needReplace: ${String(needReplace)}})) })(event)`;
+
+            // Update blockquote với class và onclick
+            return blockquoteHtml
+                .replace(/<blockquote([^>]*)>/i, `<blockquote$1 class="${isOwn ? 'blockquote-own' : 'blockquote'}" onclick="${onclickHandler}">`)
+                .replace(/(<blockquote[^>]*>)/, `$1<div class="${isOwn ? 'quote-author-own' : 'quote-author'}">${cleanUserName}:</div>`);
+          });
+        }
+
+        return currentHtml;
+      };
+
+      // Process HTML với recursive logic
+      return processQuotesRecursively(html);
+    } catch (error) {
+      // Log error và return original HTML
+      logging.warn('handleBlockQuote: Error processing HTML', {
+        error: error.message,
+        html: html.substring(0, 100)
+      });
+      return html;
     }
-    return result;
   };
 
   // Xử lý quote message

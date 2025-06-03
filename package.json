@@ -84,7 +84,6 @@
     "reselect": "^4.0.0",
     "rn-fetch-blob": "zulip/rn-fetch-blob#e17b2a51c",
     "timezone": "^1.0.13",
-    "xmldom": "^0.6.0",
     "zulip-markdown-parser": "^1.0.6"
   },
   "devDependencies": {
