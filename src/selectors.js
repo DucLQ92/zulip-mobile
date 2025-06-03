@@ -18,5 +18,20 @@ export * from './users/userSelectors';
 
 export const getGlobalLoginAccountInfo = (state: GlobalState): {| realm: string, email: string |} | null => {
   const activeAccountState = tryGetActiveAccountState(state);
-  return activeAccountState ? activeAccountState.session.loginAccountInfo : null;
+
+  // Nếu có activeAccountState và có loginAccountInfo trong session
+  if (activeAccountState && activeAccountState.session.loginAccountInfo) {
+    return activeAccountState.session.loginAccountInfo;
+  }
+
+  // Fallback: lấy từ account info nếu có accounts và apiKey
+  const accounts = state.accounts;
+  if (accounts.length > 0 && accounts[0].apiKey !== '') {
+    return {
+      realm: accounts[0].realm.toString(),
+      email: accounts[0].email,
+    };
+  }
+
+  return null;
 };

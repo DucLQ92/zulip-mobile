@@ -11,6 +11,7 @@ import store, { restore } from './store';
 import { registerAndStartPolling } from '../events/eventActions';
 import { sendOutbox } from '../outbox/outboxActions';
 import { initNotifications } from '../notification/notifTokens';
+import { resetAccountData } from '../account/logoutActions';
 
 type Props = $ReadOnly<{|
   children: Node,
@@ -54,6 +55,9 @@ export default function StoreProvider(props: Props): Node {
         // Init right away if there's an active, logged-in account.
         // NB `getInitialRouteInfo` depends intimately on this behavior.
         if (hasAuth) {
+          // Clear server data cũ để force hiển thị FullScreenLoading với thông tin tài khoản
+          dispatch(resetAccountData());
+
           await dispatch(registerAndStartPolling());
 
           // TODO(#3881): Lots of issues with outbox sending

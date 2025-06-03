@@ -135,10 +135,12 @@ export const registerAndStartPolling =
 
     const haveServerData = getHaveServerData(getState());
 
-    dispatch(registerStart({
+    const accountInfo = {
       realm: identity.realm.toString(),
       email: identity.email,
-    }));
+    };
+
+    dispatch(registerStart(accountInfo));
     let initData: InitialData;
     try {
       initData = await tryFetch(
