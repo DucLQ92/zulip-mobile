@@ -264,6 +264,7 @@ export type MessageFetchCompleteAction = $ReadOnly<{|
 
 type RegisterStartAction = $ReadOnly<{|
   type: typeof REGISTER_START,
+  accountInfo?: {| realm: string, email: string |},
 |}>;
 
 export type RegisterAbortReason = 'server' | 'network' | 'timeout' | 'unexpected';

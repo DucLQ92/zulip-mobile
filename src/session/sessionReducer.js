@@ -44,6 +44,14 @@ export type PerAccountSessionState = $ReadOnly<{
    */
   loading: boolean,
 
+  /**
+   * Information about the account being logged in, shown during loading.
+   *
+   * This is set when starting login/account switch process and cleared
+   * when the process completes or fails.
+   */
+  loginAccountInfo: {| realm: string, email: string |} | null,
+
   outboxSending: boolean,
 
   /**
@@ -135,6 +143,7 @@ const initialGlobalSessionState: $Exact<GlobalSessionState> = {
 export const initialPerAccountSessionState: $Exact<PerAccountSessionState> = {
   eventQueueId: null,
   loading: false,
+  loginAccountInfo: null,
   outboxSending: false,
   hasDismissedServerCompatNotice: false,
   registerPushTokenRequestsInProgress: 0,
@@ -182,6 +191,7 @@ export default (
       return {
         ...state,
         loading: false,
+        loginAccountInfo: null,
         eventQueueId: action.data.queue_id,
       };
 
@@ -195,12 +205,14 @@ export default (
       return {
         ...state,
         loading: true,
+        loginAccountInfo: action.accountInfo || null,
       };
 
     case REGISTER_ABORT:
       return {
         ...state,
         loading: false,
+        loginAccountInfo: null,
       };
 
     case APP_ORIENTATION:

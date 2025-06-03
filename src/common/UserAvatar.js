@@ -1,7 +1,7 @@
 /* @flow strict-local */
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import type { Node } from 'react';
-import { Image, View, PixelRatio } from 'react-native';
+import { Image, View, PixelRatio, ActivityIndicator } from 'react-native';
 
 import { useSelector } from '../react-redux';
 import { getAuthHeaders } from '../api/transport';
@@ -29,6 +29,9 @@ type Props = $ReadOnly<{|
  */
 function UserAvatar(props: Props): Node {
   const { avatarUrl, children, size, isMuted = false, onPress } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
   const borderRadius = size / 8;
   const style = {
     height: size,
@@ -46,20 +49,52 @@ function UserAvatar(props: Props): Node {
   const auth = useSelector(state => getAuth(state));
 
   let userImage;
-  if (isMuted || !avatarUrl) {
+  if (isMuted || !avatarUrl || hasError) {
+    // Hiển thị fallback icon khi muted, không có avatar, hoặc load lỗi
     userImage = <IconUserBlank size={size} color={color} style={iconStyle} />;
   } else {
     userImage = (
-      <Image
-        source={{
-          uri: avatarUrl.get(PixelRatio.getPixelSizeForLayoutSize(size)).toString(),
-          ...(avatarUrl instanceof FallbackAvatarURL
-            ? { headers: getAuthHeaders(auth) }
-            : undefined),
-        }}
-        style={style}
-        resizeMode="cover"
-      />
+      <View style={style}>
+        <Image
+          source={{
+            uri: avatarUrl.get(PixelRatio.getPixelSizeForLayoutSize(size)).toString(),
+            ...(avatarUrl instanceof FallbackAvatarURL
+              ? { headers: getAuthHeaders(auth) }
+              : undefined),
+          }}
+          style={style}
+          resizeMode="cover"
+          onLoadStart={() => {
+            setIsLoading(true);
+            setHasError(false);
+          }}
+          onLoadEnd={() => {
+            setIsLoading(false);
+          }}
+          onError={() => {
+            setIsLoading(false);
+            setHasError(true);
+          }}
+        />
+        {/* Hiển thị loading spinner khi đang tải ảnh */}
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.1)',
+              borderRadius,
+            }}
+          >
+            <ActivityIndicator size="small" color={color} />
+          </View>
+        )}
+      </View>
     );
   }
 

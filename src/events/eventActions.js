@@ -41,8 +41,9 @@ import {
 } from '../common/ServerCompatBanner';
 import { maybeRefreshServerEmojiData } from '../emoji/data';
 
-const registerStart = (): PerAccountAction => ({
+const registerStart = (accountInfo?: {| realm: string, email: string |}): PerAccountAction => ({
   type: REGISTER_START,
+  accountInfo,
 });
 
 const registerAbortPlain = (reason: RegisterAbortReason): PerAccountAction => ({
@@ -134,7 +135,10 @@ export const registerAndStartPolling =
 
     const haveServerData = getHaveServerData(getState());
 
-    dispatch(registerStart());
+    dispatch(registerStart({
+      realm: identity.realm.toString(),
+      email: identity.email,
+    }));
     let initData: InitialData;
     try {
       initData = await tryFetch(
