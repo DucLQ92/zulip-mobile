@@ -46,24 +46,33 @@ export default function StoreProvider(props: Props): Node {
   useEffect(() => {
     restore(() => {
       (async () => {
-        const hasAuth = getHasAuth(store.getState());
+        try {
+          const hasAuth = getHasAuth(store.getState());
 
-        // The `store` type isn't complete: it ignores thunk actions, etc.
-        // $FlowFixMe[incompatible-type]
-        const dispatch: Dispatch = store.dispatch;
+          // The `store` type isn't complete: it ignores thunk actions, etc.
+          // $FlowFixMe[incompatible-type]
+          const dispatch: Dispatch = store.dispatch;
 
-        // Init right away if there's an active, logged-in account.
-        // NB `getInitialRouteInfo` depends intimately on this behavior.
-        if (hasAuth) {
-          // Clear server data cũ để force hiển thị FullScreenLoading với thông tin tài khoản
-          dispatch(resetAccountData());
+          // Init right away if there's an active, logged-in account.
+          // NB `getInitialRouteInfo` depends intimately on this behavior.
+          if (hasAuth) {
+            // Clear server data cũ để force hiển thị FullScreenLoading với thông tin tài khoản
+            dispatch(resetAccountData());
 
-          await dispatch(registerAndStartPolling());
+            await dispatch(registerAndStartPolling());
 
-          // TODO(#3881): Lots of issues with outbox sending
-          dispatch(sendOutbox());
+            // TODO(#3881): Lots of issues with outbox sending
+            dispatch(sendOutbox());
 
-          dispatch(initNotifications());
+            dispatch(initNotifications());
+          }
+        } catch (error) {
+          // Handle unhandled promise rejections from registerAndStartPolling
+          // Log error để debug
+          logging.error('StoreProvider: Error during initial setup', { error });
+
+          // Không cần làm gì thêm vì registerAndStartPolling đã handle lỗi internally
+          // (dispatch registerAbort, hiển thị error alert, navigate về AccountPickScreen)
         }
       })();
     });

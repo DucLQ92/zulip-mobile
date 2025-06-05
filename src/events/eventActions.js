@@ -77,10 +77,22 @@ const registerAbort =
         (() => {
           const realmStr = getIdentity(getState()).realm.toString();
           switch (reason) {
-            case 'server':
-              return roleIsAtLeast(getOwnUser(getState()).role, Role.Admin)
+            case 'server': {
+              // Safe guard: only check role if we have server data
+              let isAdmin = false;
+              try {
+                if (getHaveServerData(getState())) {
+                  isAdmin = roleIsAtLeast(getOwnUser(getState()).role, Role.Admin);
+                }
+              } catch (error) {
+                // Ignore error if we can't get user data - just use default message
+                logging.warn('registerAbort: Could not get user role', { error });
+              }
+
+              return isAdmin
                 ? `Could not connect to ${realmStr} because the server encountered an error. Please check the server logs.`
                 : `Could not connect to ${realmStr} because the server encountered an error. Please ask an admin to check the server logs.`;
+            }
             case 'network':
               return `The network request to ${realmStr} failed.`;
             case 'timeout':

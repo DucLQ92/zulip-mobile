@@ -60,12 +60,20 @@ export const accountSwitch =
     // Because we just dispatched `accountSwitchPlain`, that new account
     // is now the active account, so `activeAccountDispatch` will act on it.
 
-    await activeAccountDispatch(registerAndStartPolling());
+    try {
+      await activeAccountDispatch(registerAndStartPolling());
 
-    // TODO(#3881): Lots of issues with outbox sending
-    activeAccountDispatch(sendOutbox());
+      // TODO(#3881): Lots of issues with outbox sending
+      activeAccountDispatch(sendOutbox());
 
-    activeAccountDispatch(initNotifications());
+      activeAccountDispatch(initNotifications());
+    } catch (error) {
+      // Handle errors from registerAndStartPolling
+      // registerAndStartPolling already handles errors internally
+      // (dispatch registerAbort, show error alert, navigate to AccountPickScreen)
+      // So we just need to prevent unhandled promise rejection
+      console.warn('accountSwitch: Error in registerAndStartPolling', error);
+    }
   };
 
 export const removeAccount = (identity: Identity): AllAccountsAction => ({
@@ -98,10 +106,18 @@ export const loginSuccess =
     // Because we just dispatched `loginSuccessPlain`, that new account is
     // now the active account, so `activeAccountDispatch` will act on it.
 
-    await activeAccountDispatch(registerAndStartPolling());
+    try {
+      await activeAccountDispatch(registerAndStartPolling());
 
-    // TODO(#3881): Lots of issues with outbox sending
-    activeAccountDispatch(sendOutbox());
+      // TODO(#3881): Lots of issues with outbox sending
+      activeAccountDispatch(sendOutbox());
 
-    activeAccountDispatch(initNotifications());
+      activeAccountDispatch(initNotifications());
+    } catch (error) {
+      // Handle errors from registerAndStartPolling
+      // registerAndStartPolling already handles errors internally
+      // (dispatch registerAbort, show error alert, navigate to AccountPickScreen)
+      // So we just need to prevent unhandled promise rejection
+      console.warn('loginSuccess: Error in registerAndStartPolling', error);
+    }
   };

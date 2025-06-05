@@ -47,20 +47,27 @@ function useAccountStatuses(): $ReadOnlyArray<AccountStatus> {
   const accounts = useGlobalSelector(getAccounts);
   const notificationReportsByIdentityKey = useNotificationReportsByIdentityKey();
 
-  return accounts.map(({ realm, email, apiKey, silenceServerPushSetupWarnings }) => {
-    const notificationReport = notificationReportsByIdentityKey.get(
-      keyOfIdentity({ realm, email }),
-    );
-    invariant(notificationReport, 'AccountPickScreen: expected notificationReport for identity');
+  return accounts
+    .map(({ realm, email, apiKey, silenceServerPushSetupWarnings }) => {
+      const notificationReport = notificationReportsByIdentityKey.get(
+        keyOfIdentity({ realm, email }),
+      );
 
-    return {
-      realm,
-      email,
-      isLoggedIn: apiKey !== '',
-      notificationReport,
-      silenceServerPushSetupWarnings,
-    };
-  });
+      // Safe guard: Skip accounts without notification report to prevent crashes
+      // This can happen during app initialization or data loading
+      if (!notificationReport) {
+        return null;
+      }
+
+      return {
+        realm,
+        email,
+        isLoggedIn: apiKey !== '',
+        notificationReport,
+        silenceServerPushSetupWarnings,
+      };
+    })
+    .filter(Boolean); // Remove null entries
 }
 
 type Props = $ReadOnly<{|

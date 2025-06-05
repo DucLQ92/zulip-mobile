@@ -47,7 +47,7 @@ export default function FullScreenLoading(props: Props): Node {
                 color: 'white',
                 textAlign: 'center',
               }}
-              text={loginAccountInfo.realm}
+              text={loginAccountInfo.email}
             />
             <ZulipText
               style={{
@@ -56,7 +56,7 @@ export default function FullScreenLoading(props: Props): Node {
                 textAlign: 'center',
                 opacity: 0.9,
               }}
-              text={loginAccountInfo.email}
+              text={loginAccountInfo.realm}
             />
           </View>
         )}

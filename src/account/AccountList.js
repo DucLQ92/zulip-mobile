@@ -16,13 +16,22 @@ type Props = $ReadOnly<{|
 export default function AccountList(props: Props): Node {
   const { accountStatuses, onAccountSelect, onAccountRemove } = props;
 
+  // Safety check: handle invalid data
+  if (!Array.isArray(accountStatuses)) {
+    return <View />;
+  }
+
+  if (accountStatuses.length === 0) {
+    return <View />;
+  }
+
   return (
     <View>
       <FlatList
         data={accountStatuses}
         keyExtractor={item => `${item.email}${item.realm.toString()}`}
         ItemSeparatorComponent={() => <ViewPlaceholder height={8} />}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <AccountItem account={item} onSelect={onAccountSelect} onRemove={onAccountRemove} />
         )}
       />
