@@ -94,6 +94,7 @@ const messageReactionAsHtml = (
   shouldShowNames: boolean,
   _: GetText,
   isOwn: boolean,
+  messageId: number,
 ): string => {
   const { allImageEmojiById, allUsersById } = backgroundData;
 
@@ -119,7 +120,17 @@ const messageReactionAsHtml = (
   // Tạo HTML cho số người còn lại nếu có
   const remainingCountHtml = remainingCount > 0 ? template`<span class="reaction-count">+${remainingCount}</span>` : '';
 
-  return template`<span onClick="" class="${isOwn ? 'reaction-own' : 'reaction'}${reaction.selfReacted ? ' self-voted' : ''}"
+  return template`<span onClick="(function(e) {
+    e.stopPropagation();
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'reaction',
+      messageId: ${messageId},
+      code: '${reaction.code}',
+      name: '${reaction.name}',
+      reactionType: '${reaction.type}',
+      voted: ${reaction.selfReacted ? 'true' : 'false'}
+    }));
+  })(event)" class="${isOwn ? 'reaction-own' : 'reaction'}${reaction.selfReacted ? ' self-voted' : ''}"
     data-name="${reaction.name}"
     data-code="${reaction.code}"
     data-type="${reaction.type}">
@@ -137,6 +148,7 @@ const messageReactionListAsHtml = (
   reactions: $ReadOnlyArray<Reaction>,
   _: GetText,
   isOwn: boolean,
+  messageId: number,
 ): string => {
   const { ownUser, displayEmojiReactionUsers } = backgroundData;
 
@@ -154,7 +166,7 @@ const messageReactionListAsHtml = (
   //   && reactions.length <= 3;
 
   const htmlList = aggregateReactions(reactions, ownUser.user_id).map(r =>
-    messageReactionAsHtml(backgroundData, r, shouldShowNames, _, isOwn),
+    messageReactionAsHtml(backgroundData, r, shouldShowNames, _, isOwn, messageId),
   );
   return template`<div class="reaction-list">$!${htmlList.join('')}</div>`;
 };
@@ -227,7 +239,7 @@ const messageBody = (backgroundData: BackgroundData, message: Message | Outbox, 
 $!${processAlertWords(processedContent, id, alertWords, flags)}
 $!${isOutbox === true ? '<div class="loading-spinner outbox-spinner"></div>' : ''}
 $!${messageTagsAsHtml(!!flags.starred[id], last_edit_timestamp, _)}
-$!${messageReactionListAsHtml(backgroundData, reactions, _, isOwn)}`;
+$!${messageReactionListAsHtml(backgroundData, reactions, _, isOwn, message.id)}`;
 };
 
 /**
@@ -366,8 +378,8 @@ export default (
   const isOwn = backgroundData.ownUser.user_id === message.sender_id;
 
   const linkToMessage = message.type === 'private'
-      ? `${backgroundData.auth.realm}#narrow/dm/${message.display_recipient.map(e => e.id).join(',')}-group/near/${message.id}`
-      : `${backgroundData.auth.realm}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject).replace(/\./g, '%2E')}/near/${message.id}`;
+      ? `${backgroundData.auth.realm.toString()}#narrow/dm/${message.display_recipient.map(e => e.id).join(',')}-group/near/${message.id}`
+      : `${backgroundData.auth.realm.toString()}#narrow/stream/${message.stream_id}/topic/${encodeURIComponent(message.subject).replace(/\./g, '%2E')}/near/${message.id}`;
   const onclick = message.typeBlock === 'mentioned' || message.typeBlock === 'starred' || message.typeBlock === 'all'
       ? `(function(e) { 
           e.stopPropagation(); 
