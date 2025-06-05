@@ -83,6 +83,17 @@ export default (React.memo(
     function SinglePageWebView(props, ref) {
       const { html, baseUrl, ...moreProps } = props;
 
+      // Handle memory warnings and rendering issues
+      const onError = React.useCallback((syntheticEvent) => {
+        console.warn('WebView error:', syntheticEvent.nativeEvent);
+        // Don't crash the app, just log the error
+      }, []);
+
+      const onRenderProcessGone = React.useCallback((syntheticEvent) => {
+        console.warn('WebView render process gone:', syntheticEvent.nativeEvent);
+        // Just log the error, don't attempt reload to avoid crashes
+      }, []);
+
       // The `originWhitelist` and `onShouldStartLoadWithRequest` props are
       // meant to mitigate possible XSS bugs, by interrupting an attempted
       // exploit if it tries to navigate to a new URL by e.g. setting
@@ -100,6 +111,8 @@ export default (React.memo(
           source={{ baseUrl: (baseUrl.toString(): string), html: (html: string) }}
           originWhitelist={['file://']}
           onShouldStartLoadWithRequest={makeOnShouldStartLoadWithRequest(baseUrl)}
+          onError={onError}
+          onRenderProcessGone={onRenderProcessGone}
           {...moreProps}
         />
       );

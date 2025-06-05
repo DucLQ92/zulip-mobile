@@ -147,8 +147,8 @@ android {
         applicationId "vn.nextpay.nptalk"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
-        versionName "1.0.23"
+        versionCode 25
+        versionName "1.0.24"
     }
     signingConfigs {
         // The RN v0.60 template app suggests configuring a debug
