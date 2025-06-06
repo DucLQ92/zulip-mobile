@@ -12,4 +12,6 @@
    -->
   <string name="google_app_id" translatable="false">1:556633810814:android:de9b49482ca1651c5df52f</string>
   <string name="gcm_defaultSenderId" translatable="false">556633810814</string>
+  <string name="project_id" translatable="false">nextpay-talk</string>
+  <string name="google_api_key" translatable="false">AIzaSyBRYcW7FfgkR1C-U6fIfnumJ4AQf4Y5sTY</string>
 </resources>

@@ -476,6 +476,7 @@
   "Go to message location": "Đến vị trí tin nhắn",
   "Select server": "Chọn máy chủ",
   "Combined feed": "Bảng tin tổng hợp",
-  "edited {time} ago": "đã sửa {time} trước"
+  "edited {time} ago": "đã sửa {time} trước",
+  "Notifications for this account may not arrive. Please refer to the troubleshooting guide or contact {supportEmail} with the details below.": "Thông báo cho tài khoản này có thể không đến. Vui lòng tham khảo hướng dẫn khắc phục sự cố hoặc liên hệ {supportEmail} kèm theo thông tin chi tiết bên dưới."
 }
 
